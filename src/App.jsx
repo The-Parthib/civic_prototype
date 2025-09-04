@@ -13,6 +13,8 @@ import Dashboard from "./pages/dashboard/Dashboard";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import CitizenRegister from "./pages/register/CitizenRegister";
+import AdminRegister from "./pages/register/AdminRegister";
 
 function App() {
   return (
@@ -21,7 +23,9 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* <Route path="/register" element={<Register />} /> */}
+        <Route path="/register/citizen" element={<CitizenRegister />} />
+        <Route path="/register/admin" element={<AdminRegister/>} />
 
         {/* Private Routes - No longer protected */}
         <Route path="/p" element={<Dashboard />} />

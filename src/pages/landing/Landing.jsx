@@ -7,7 +7,7 @@ const Landing = () => {
       <h1>Welcome to Civic</h1>
       <div className="auth-links text-blue-500">
         <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
+        <Link to="/register/citizen">Register</Link>
       </div>
     </div>
   );
