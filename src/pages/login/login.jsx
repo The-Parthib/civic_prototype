@@ -19,13 +19,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/users");
+      // Fetch users from db.json via json-server
+      const response = await fetch("http://localhost:5000/users");
       if (!response.ok) {
-        throw new Error("Failed to fetch users");
+        throw new Error("Failed to fetch users from database");
       }
 
       const users = await response.json();
 
+      // Find user with matching email, password and citizen role
       const civicUser = users.find(
         (user) =>
           user.role === "citizen" &&
@@ -35,17 +37,20 @@ const Login = () => {
 
       if (civicUser) {
         setMessage("✅ Login successful!");
-        console.log({ civicUser });
+        console.log("Logged in user:", civicUser);
+        
+        // Store user data in sessionStorage and localStorage
         sessionStorage.setItem("civicName", civicUser.name);
+        localStorage.setItem("currentUser", JSON.stringify(civicUser));
+        
+        // Navigate to dashboard
         navigate("/p");
-
-        // You can redirect or store session here
       } else {
-        setMessage("❌ Invalid admin credentials.");
+        setMessage("❌ Invalid email or password. Please check your credentials.");
       }
     } catch (error) {
       console.error("Login error:", error);
-      setMessage("❌ An error occurred during login.");
+      setMessage("❌ Unable to connect to server. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -82,7 +87,7 @@ const Login = () => {
             <input
               type="email"
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="admin@ranchi.gov.in"
+              placeholder="john@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -125,11 +130,12 @@ const Login = () => {
         <div className="mt-6 text-sm text-gray-500 text-center">
           <p>Demo Civilian Account:</p>
           <p>
-            <strong>Email:</strong> rajesh@example.com
+            <strong>Email:</strong> john@example.com
           </p>
           <p>
             <strong>Password:</strong> demo123
           </p>
+          
         </div>
       </div>
     </div>

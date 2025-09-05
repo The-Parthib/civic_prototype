@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Webcam from "react-webcam";
 
 const categories = ["Roads", "Water", "Electricity", "Sanitation", "Other"];
@@ -20,39 +20,15 @@ const Dashboard = () => {
   });
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [photoMethod, setPhotoMethod] = useState(""); // 'file' or 'camera'
+  const [photoMethod, setPhotoMethod] = useState(''); // 'file' or 'camera'
   const webcamRef = useRef(null);
-
-  // Load complaints from db.json on component mount
-  useEffect(() => {
-    const loadComplaints = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/complaints");
-        if (response.ok) {
-          const data = await response.json();
-          // Get current user from localStorage (fallback to demo id "1")
-          const storedUser = localStorage.getItem("currentUser");
-          const currentUser = storedUser ? JSON.parse(storedUser) : { id: "1" };
-          // Filter complaints for current user
-          const userComplaints = data.filter(
-            (complaint) => complaint.userId === currentUser.id
-          );
-          setComplaints(userComplaints);
-        }
-      } catch (error) {
-        console.error("Error loading complaints:", error);
-      }
-    };
-
-    loadComplaints();
-  }, []);
 
   // Handle form field changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "photo" && files.length) {
       setForm({ ...form, photo: files[0] });
-  setPhotoMethod("file");
+      setPhotoMethod('file');
       setCapturedImage(null); // Clear captured image if file is selected
     } else {
       setForm({ ...form, [name]: value });
@@ -63,7 +39,7 @@ const Dashboard = () => {
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
     setCapturedImage(imageSrc);
-  setPhotoMethod("camera");
+    setPhotoMethod('camera');
     
     // Convert base64 to blob for form submission
     fetch(imageSrc)
@@ -73,8 +49,8 @@ const Dashboard = () => {
       });
     
     // Clear file input if camera photo is taken
-  const fileInput = document.querySelector('input[type="file"]');
-  if (fileInput) fileInput.value = "";
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
     
     setShowCamera(false);
   }, [webcamRef]);
@@ -90,134 +66,70 @@ const Dashboard = () => {
   const removePhoto = () => {
     setForm(f => ({ ...f, photo: null }));
     setCapturedImage(null);
-  setPhotoMethod("");
+    setPhotoMethod('');
     
     // Clear file input
-  const fileInput = document.querySelector('input[type="file"]');
-  if (fileInput) fileInput.value = "";
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
   };
 
   // Handle form submit - Save to db.json
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Convert photo to base64 for storage
-    let photoData = null;
-    if (form.photo) {
-      if (photoMethod === 'camera') {
-        photoData = capturedImage; // Already base64
-      } else {
-        // Convert file to base64
-        photoData = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.readAsDataURL(form.photo);
-        });
-      }
-    }
-
-    // Get current user data from localStorage or use default
-  const storedUser = localStorage.getItem('currentUser');
-    const currentUser = storedUser ? JSON.parse(storedUser) : {
-      id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "+91-9876543210",
-      municipality: "Ranchi Municipal Corporation",
-      district: "Ranchi",
-      state: "Jharkhand",
-      pincode: "834001"
-    };
-
     // Create complaint data matching db.json structure
-    const newComplaint = {
+    const complaintData = {
       id: Date.now().toString(),
-      userId: currentUser.id,
+      userId: "1", // Current logged in user - you can get this from context/localStorage
       title: form.details.substring(0, 50) + (form.details.length > 50 ? "..." : ""),
-      details: form.details,
+      description: form.details,
       category: form.category,
       department: form.department,
-      photo: photoData,
+      location: "Current Location", // You can implement geolocation
+      photo: form.photo ? await convertPhotoToBase64(form.photo) : null,
       photoMethod: photoMethod,
-      status: "Submitted",
       priority: "medium",
-      location: {
-        address: `${currentUser.municipality} Area`, // You can make this more specific with geolocation
-        municipality: currentUser.municipality,
-        district: currentUser.district,
-        state: currentUser.state,
-        pincode: currentUser.pincode,
-        coordinates: {
-          latitude: 23.3441, // You can implement geolocation to get actual coordinates
-          longitude: 85.3096
-        }
-      },
-      userInfo: {
-        name: currentUser.name,
-        email: currentUser.email,
-        phone: currentUser.phone,
-        municipality: currentUser.municipality
-      },
+      status: "Submitted",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      assignedTo: null,
-      adminComments: []
     };
 
     try {
-      // Save to db.json via API call
-  const response = await fetch('http://localhost:5000/complaints', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newComplaint),
-      });
+      // Save to local state
+      setComplaints([complaintData, ...complaints]);
 
-      if (response.ok) {
-        // Add to local state for immediate display
-        setComplaints([newComplaint, ...complaints]);
+      // Here you would save to db.json via API call
+      // For now, we'll just log it
+      console.log("Complaint data for db.json:", complaintData);
 
-        // Clear form and reset all states
-        setForm({
-          photo: null,
-          details: "",
-          category: "Roads",
-          department: "Municipal Works",
-        });
-        setCapturedImage(null);
-        setShowCamera(false);
-  setPhotoMethod('');
-
-        // Reset file input
-        const fileInput = document.querySelector('input[type="file"]');
-        if (fileInput) fileInput.value = "";
-
-        alert("Complaint submitted successfully!");
-      } else {
-        throw new Error('Failed to submit complaint');
-      }
-    } catch (error) {
-      console.error("Error submitting complaint:", error);
-      // Fallback: save to local state only
-      setComplaints([newComplaint, ...complaints]);
-      
-      // Clear form anyway
-      setForm({
-        photo: null,
-        details: "",
-        category: "Roads",
-        department: "Municipal Works",
-      });
+      // Clear form and reset all states
+      setForm({ photo: null, details: "", category: "Roads", department: "Municipal Works" });
       setCapturedImage(null);
       setShowCamera(false);
-  setPhotoMethod('');
-
+      setPhotoMethod('');
+      
+      // Reset file input
       const fileInput = document.querySelector('input[type="file"]');
       if (fileInput) fileInput.value = "";
 
-      alert("Complaint submitted (saved locally - server connection failed)");
+      alert("Complaint submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting complaint:", error);
+      alert("Error submitting complaint. Please try again.");
     }
+  };
+
+  // Convert photo to base64 for storage
+  const convertPhotoToBase64 = (file) => {
+    return new Promise((resolve) => {
+      if (photoMethod === 'camera') {
+        resolve(capturedImage);
+      } else {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      }
+    });
   };
 
   return (
@@ -361,6 +273,7 @@ const Dashboard = () => {
             </div>
           )}
         </label>
+
         <label style={{ display: "block", marginBottom: 12 }}>
           <span style={{ display: "block", marginBottom: 4 }}>
             Problem Details:
@@ -379,6 +292,7 @@ const Dashboard = () => {
             }}
           />
         </label>
+
         <label style={{ display: "block", marginBottom: 12 }}>
           <span style={{ display: "block", marginBottom: 4 }}>Category:</span>
           <select
@@ -399,6 +313,7 @@ const Dashboard = () => {
             ))}
           </select>
         </label>
+
         <label style={{ display: "block", marginBottom: 12 }}>
           <span style={{ display: "block", marginBottom: 4 }}>Department:</span>
           <select
@@ -419,6 +334,7 @@ const Dashboard = () => {
             ))}
           </select>
         </label>
+
         <button
           type="submit"
           style={{
@@ -463,29 +379,22 @@ const Dashboard = () => {
             }}
           >
             {c.photo && (
-              <div style={{ marginBottom: 8 }}>
-                <img
-                  src={c.photo}
-                  alt="Complaint"
-                  width={100}
-                  style={{
-                    borderRadius: 6,
-                    border: "1px solid #ccc",
-                    marginBottom: 4,
-                  }}
-                />
-                <div style={{ fontSize: 12, color: '#666' }}>
-                  Photo Method: {c.photoMethod === 'camera' ? '📷 Camera' : '📁 File Upload'}
-                </div>
-              </div>
-            )}
-            {c.title && (
-              <div style={{ marginBottom: 6 }}>
-                <strong>Title:</strong> {c.title}
-              </div>
+              <img
+                src={c.photoMethod === 'camera' ? c.photo : URL.createObjectURL(new Blob([c.photo]))}
+                alt="Complaint"
+                width={100}
+                style={{
+                  borderRadius: 6,
+                  border: "1px solid #ccc",
+                  marginBottom: 8,
+                }}
+              />
             )}
             <div style={{ marginBottom: 6 }}>
-              <strong>Details:</strong> {c.details}
+              <strong>Title:</strong> {c.title}
+            </div>
+            <div style={{ marginBottom: 6 }}>
+              <strong>Details:</strong> {c.description}
             </div>
             <div style={{ marginBottom: 6 }}>
               <strong>Category:</strong> {c.category}
@@ -493,16 +402,6 @@ const Dashboard = () => {
             <div style={{ marginBottom: 6 }}>
               <strong>Department:</strong> {c.department}
             </div>
-            {c.location && (
-              <div style={{ marginBottom: 6 }}>
-                <strong>Location:</strong> {c.location.address}, {c.location.municipality}
-              </div>
-            )}
-            {c.userInfo && (
-              <div style={{ marginBottom: 6 }}>
-                <strong>Municipality:</strong> {c.userInfo.municipality}
-              </div>
-            )}
             <div style={{ marginBottom: 6 }}>
               <strong>Status:</strong>{" "}
               <span style={{ color: "#1976d2", fontWeight: 600 }}>
@@ -510,7 +409,7 @@ const Dashboard = () => {
               </span>
             </div>
             <div style={{ marginBottom: 6 }}>
-              <strong>Submitted:</strong> {c.createdAt ? new Date(c.createdAt).toLocaleString() : c.timestamp}
+              <strong>Submitted:</strong> {new Date(c.createdAt).toLocaleString()}
             </div>
           </li>
         ))}
