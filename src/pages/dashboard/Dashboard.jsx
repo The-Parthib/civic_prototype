@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
+import Webcam from "react-webcam";
 
 const categories = ["Roads", "Water", "Electricity", "Sanitation", "Other"];
 const departments = ["Municipal Works", "Water Dept", "Electricity Dept", "Sanitation Dept", "General Admin"];
@@ -7,63 +8,63 @@ const Dashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [form, setForm] = useState({
     photo: null,
-    audio: null,
     details: "",
     category: "Roads",
     department: "Municipal Works"
   });
-  const [audioURL, setAudioURL] = useState(null);
-  const [recording, setRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
+  const [showCamera, setShowCamera] = useState(false);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [photoMethod, setPhotoMethod] = useState(''); // 'file' or 'camera'
+  const webcamRef = useRef(null);
 
   // Handle form field changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "photo" && files.length) {
       setForm({ ...form, photo: files[0] });
+      setPhotoMethod('file');
+      setCapturedImage(null); // Clear captured image if file is selected
     } else {
       setForm({ ...form, [name]: value });
     }
   };
 
-  // Audio recording handlers
-  const startRecording = async () => {
-    try {
-      setRecording(true);
-      audioChunksRef.current = [];
-      
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      
-      mediaRecorderRef.current.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          audioChunksRef.current.push(e.data);
-        }
-      };
-      
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        setForm(f => ({ ...f, audio: audioBlob }));
-        setAudioURL(URL.createObjectURL(audioBlob));
-        
-        // Stop all tracks to free up the microphone
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorderRef.current.start();
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      setRecording(false);
-      alert('Could not access microphone. Please check permissions.');
-    }
+  // Camera functions
+  const capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setCapturedImage(imageSrc);
+    setPhotoMethod('camera');
+    
+    // Convert base64 to blob for form submission
+    fetch(imageSrc)
+      .then(res => res.blob())
+      .then(blob => {
+        setForm(f => ({ ...f, photo: blob }));
+      });
+    
+    // Clear file input if camera photo is taken
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
+    
+    setShowCamera(false);
+  }, [webcamRef]);
+
+  const startCamera = () => {
+    setShowCamera(true);
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
-      setRecording(false);
-      mediaRecorderRef.current.stop();
-    }
+  const stopCamera = () => {
+    setShowCamera(false);
+  };
+
+  const removePhoto = () => {
+    setForm(f => ({ ...f, photo: null }));
+    setCapturedImage(null);
+    setPhotoMethod('');
+    
+    // Clear file input
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
   };
 
   // Handle form submit
@@ -77,9 +78,11 @@ const Dashboard = () => {
     };
     setComplaints([newComplaint, ...complaints]);
     
-    // Clear form and reset file input
-    setForm({ photo: null, audio: null, details: "", category: "Roads", department: "Municipal Works" });
-    setAudioURL(null);
+    // Clear form and reset all states
+    setForm({ photo: null, details: "", category: "Roads", department: "Municipal Works" });
+    setCapturedImage(null);
+    setShowCamera(false);
+    setPhotoMethod('');
     
     // Reset file input
     const fileInput = document.querySelector('input[type="file"]');
@@ -104,42 +107,121 @@ const Dashboard = () => {
         <h2 style={{ marginBottom: 16 }}>Submit a Complaint</h2>
         <label style={{ display: 'block', marginBottom: 12 }}>
           <span style={{ display: 'block', marginBottom: 4 }}>Photo:</span>
-          <input type="file" name="photo" accept="image/*" onChange={handleChange} />
-          {form.photo && (
-            <div style={{ marginTop: 8 }}>
-              <img src={URL.createObjectURL(form.photo)} alt="Preview" width={100} style={{ borderRadius: 6, border: '1px solid #ccc', marginBottom: 8 }} />
-              <button type="button" style={{ marginLeft: 8, background: '#e57373', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer' }} onClick={() => setForm(f => ({ ...f, photo: null }))}>Remove Image</button>
+          
+          {/* File upload option */}
+          <div style={{ marginBottom: 8 }}>
+            <input 
+              type="file" 
+              name="photo" 
+              accept="image/*" 
+              onChange={handleChange} 
+              style={{ marginBottom: 8 }} 
+            />
+            {photoMethod === 'file' && form.photo && (
+              <span style={{ color: '#4caf50', fontSize: 14, fontWeight: 'bold' }}>
+                ✓ File selected
+              </span>
+            )}
+          </div>
+          
+          {/* Camera option */}
+          <button
+            type="button"
+            onClick={startCamera}
+            style={{
+              background: '#2196f3',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              padding: '8px 16px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              marginBottom: 8,
+              display: 'block'
+            }}
+          >
+            📷 Take Photo with Camera
+          </button>
+          
+          {photoMethod === 'camera' && capturedImage && (
+            <span style={{ color: '#4caf50', fontSize: 14, fontWeight: 'bold', display: 'block', marginBottom: 8 }}>
+              ✓ Photo captured
+            </span>
+          )}
+
+          {/* Camera view */}
+          {showCamera && (
+            <div style={{ marginBottom: 12, border: '2px solid #2196f3', borderRadius: 8, padding: 8 }}>
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                width={300}
+                height={200}
+                style={{ borderRadius: 6 }}
+              />
+              <div style={{ marginTop: 8, display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={capture}
+                  style={{
+                    background: '#4caf50',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  📸 Capture Photo
+                </button>
+                <button
+                  type="button"
+                  onClick={stopCamera}
+                  style={{
+                    background: '#f44336',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ❌ Cancel
+                </button>
+              </div>
             </div>
           )}
-        </label>
-        <label style={{ display: 'block', marginBottom: 12 }}>
-          <span style={{ display: 'block', marginBottom: 4 }}>Audio:</span>
-          {(!recording && !audioURL) && (
-            <button type="button" onClick={startRecording} style={{ marginRight: 8, background: '#4caf50', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px', cursor: 'pointer', fontWeight: 'bold' }}>🎙️ Record Audio</button>
-          )}
-          {recording && (
-            <button type="button" onClick={stopRecording} style={{ marginRight: 8, background: '#f44336', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px', cursor: 'pointer', fontWeight: 'bold' }}>⏹️ Stop Recording</button>
-          )}
-          {audioURL && (
+
+          {/* Preview the active photo (either uploaded file or captured image) */}
+          {form.photo && (
             <div style={{ marginTop: 8 }}>
-              <audio src={audioURL} controls style={{ display: 'block', marginBottom: 8 }} />
-              <button
-                type="button"
-                style={{ background: '#4caf50', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px', cursor: 'pointer', fontWeight: 'bold' }}
-                onClick={() => {
-                  // Clear current audio first
-                  setForm(f => ({ ...f, audio: null }));
-                  if (audioURL) {
-                    URL.revokeObjectURL(audioURL);
-                  }
-                  setAudioURL(null);
-                  audioChunksRef.current = [];
-                  
-                  // Start new recording immediately
-                  startRecording();
+              <img 
+                src={photoMethod === 'camera' ? capturedImage : URL.createObjectURL(form.photo)} 
+                alt="Preview" 
+                width={100} 
+                style={{ borderRadius: 6, border: '1px solid #ccc', marginBottom: 8 }} 
+              />
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ fontSize: 14, color: '#666' }}>
+                  Method: {photoMethod === 'camera' ? '📷 Camera' : '📁 File Upload'}
+                </span>
+              </div>
+              <button 
+                type="button" 
+                onClick={removePhoto}
+                style={{ 
+                  background: '#e57373', 
+                  color: '#fff', 
+                  border: 'none', 
+                  borderRadius: 6, 
+                  padding: '6px 12px', 
+                  cursor: 'pointer' 
                 }}
               >
-                🎙️ Record New
+                Remove Photo
               </button>
             </div>
           )}
@@ -179,8 +261,7 @@ const Dashboard = () => {
               boxShadow: '0 1px 4px rgba(0,0,0,0.05)'
             }}
           >
-            {c.photo && <img src={URL.createObjectURL(c.photo)} alt="Complaint" width={100} style={{ borderRadius: 6, border: '1px solid #ccc', marginBottom: 8 }} />}
-            {c.audio && <audio src={URL.createObjectURL(c.audio)} controls style={{ display: 'block', marginBottom: 8 }} />}
+            {c.photo && <img src={capturedImage || URL.createObjectURL(c.photo)} alt="Complaint" width={100} style={{ borderRadius: 6, border: '1px solid #ccc', marginBottom: 8 }} />}
             <div style={{ marginBottom: 6 }}><strong>Details:</strong> {c.details}</div>
             <div style={{ marginBottom: 6 }}><strong>Category:</strong> {c.category}</div>
             <div style={{ marginBottom: 6 }}><strong>Department:</strong> {c.department}</div>
