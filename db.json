@@ -39,6 +39,21 @@
       "isVerified": true,
       "createdAt": "2024-11-01T09:00:00Z",
       "lastLogin": "2025-09-04T11:52:47.438Z"
+    },
+    
+    {
+      "id": "4",
+      "name": "Bokaro municipality",
+      "email": "admin@bokaro.gov.in",
+      "phone": "+91-6512345678",
+      "password": "admin123",
+      "role": "admin",
+      "location": "Bokaro Municipal Corporation",
+      "address": "Municipal Office, Bokaro",
+      "department": "General Administration",
+      "isVerified": true,
+      "createdAt": "2024-11-01T09:00:00Z",
+      "lastLogin": "2025-09-04T11:52:47.438Z"
     }
   ],
   "departments": [

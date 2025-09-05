@@ -15,6 +15,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CitizenRegister from "./pages/register/CitizenRegister";
 import AdminRegister from "./pages/register/AdminRegister";
+import AdminLogin from "./pages/admin/AdminLogin";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
 
         {/* Admin Routes - No longer protected */}
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Catch all - redirect to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />
