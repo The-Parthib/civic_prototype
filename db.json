@@ -18,8 +18,8 @@
     },
     {
       "id": "2",
-      "name": "Admin User",
-      "email": "admin@civic.com",
+      "name": "Ranchi Municipality",
+      "email": "admin@ranchi.com",
       "phone": "+91-9876543212",
       "password": "admin123",
       "role": "admin",
@@ -28,6 +28,24 @@
       "municipality": "Ranchi Municipal Corporation",
       "district": "Ranchi",
       "state": "Jharkhand",
+      "pincode": "834001",
+      "department": "General Administration",
+      "isVerified": true,
+      "createdAt": "2024-12-01T08:00:00Z"
+    },
+    {
+      "id": "3",
+      "name": "Bokaro Municipality",
+      "email": "admin@bokaro.com",
+      "phone": "+91-9876543512",
+      "password": "admin123",
+      "role": "admin",
+      "location": "Municipal Office",
+      "address": "Municipal Office, Bokaro",
+      "municipality": "Bokaro Municipal Corporation",
+      "district": "Bokaro",
+      "state": "Jharkhand",
+      "pincode": "827013",
       "department": "General Administration",
       "isVerified": true,
       "createdAt": "2024-12-01T08:00:00Z"
@@ -44,7 +62,7 @@
       "municipality": "Ranchi Municipal Corporation",
       "district": "Ranchi",
       "state": "Ranchi",
-      "pincode": "123456",
+      "pincode": "834001",
       "isVerified": false,
       "createdAt": "2025-09-05T09:40:02.668Z"
     }
@@ -134,7 +152,7 @@
         "municipality": "Ranchi Municipal Corporation",
         "district": "Ranchi",
         "state": "Ranchi",
-        "pincode": "123456",
+        "pincode": "834001",
         "coordinates": {
           "latitude": 23.3441,
           "longitude": 85.3096
@@ -194,6 +212,21 @@
     {
       "id": "5",
       "name": "General Admin"
+    }
+  ],
+  "createDepartment": [
+    {
+      "id": "1757090362330",
+      "name": "Garbage Department",
+      "responsibility": "Cleaning the garbage daily",
+      "department_head_uid": "garbage@ranchi.com",
+      "staffs": [
+        {
+          "id": "staf1_garbage@ranchi.com",
+          "responsibility": "cleaning the west side"
+        }
+      ],
+      "createdAt": "2025-09-05T16:39:22.330Z"
     }
   ]
 }

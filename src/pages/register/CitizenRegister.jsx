@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const port = import.meta.env.VITE_DB_PORT
+
 const CitizenRegister = () => {
   const [form, setForm] = useState({
     name: '',
@@ -83,7 +85,7 @@ const CitizenRegister = () => {
       };
 
       // Send to json-server
-      const response = await fetch('http://localhost:5000/users', {
+      const response = await fetch(`http://localhost:${port}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

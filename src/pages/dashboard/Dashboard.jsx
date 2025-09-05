@@ -10,6 +10,8 @@ const departments = [
   "General Admin",
 ];
 
+const port = import.meta.env.VITE_DB_PORT;
+
 const Dashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [form, setForm] = useState({
@@ -27,7 +29,7 @@ const Dashboard = () => {
   useEffect(() => {
     const loadComplaints = async () => {
       try {
-        const response = await fetch("http://localhost:5000/complaints");
+        const response = await fetch(`http://localhost:${port}/complaints`);
         if (response.ok) {
           const data = await response.json();
           // Get current user from localStorage (fallback to demo id "1")
@@ -166,7 +168,7 @@ const Dashboard = () => {
 
     try {
       // Save to db.json via API call
-  const response = await fetch('http://localhost:5000/complaints', {
+  const response = await fetch(`http://localhost:${port}/complaints`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

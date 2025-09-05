@@ -2,6 +2,8 @@ import { ArrowBigLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const port = import.meta.env.VITE_DB_PORT;
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +22,7 @@ const Login = () => {
 
     try {
       // Fetch users from db.json via json-server
-      const response = await fetch("http://localhost:5000/users");
+      const response = await fetch(`http://localhost:${port}/users`);
       if (!response.ok) {
         throw new Error("Failed to fetch users from database");
       }
