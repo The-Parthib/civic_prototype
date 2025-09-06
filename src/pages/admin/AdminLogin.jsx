@@ -50,7 +50,7 @@ const AdminLogin = () => {
         }, 1000);
         
       } else {
-        setMessage('❌ Invalid admin credentials. Please try again.');
+        setMessage('❌ Invalid admin credentials. Please try again...');
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -17,6 +17,9 @@ import CitizenRegister from "./pages/register/CitizenRegister";
 import AdminRegister from "./pages/register/AdminRegister";
 import AdminLogin from "./pages/admin/AdminLogin";
 
+// Components
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   return (
     <BrowserRouter>
@@ -28,8 +31,12 @@ function App() {
         <Route path="/register/citizen" element={<CitizenRegister />} />
         <Route path="/register/admin" element={<AdminRegister/>} />
 
-        {/* Private Routes - No longer protected */}
-        <Route path="/p" element={<Dashboard />} />
+        {/* Private Routes - Protected */}
+        <Route path="/p" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
 
         {/* Admin Routes - No longer protected */}
         <Route path="/admin" element={<AdminDashboard />} />

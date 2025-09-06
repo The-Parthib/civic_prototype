@@ -1,5 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import Webcam from "react-webcam";
+import { useNavigate } from "react-router-dom";
+import SmartQuestionnaire from "../../components/SmartQuestionnaire";
 
 const categories = ["Roads", "Water", "Electricity", "Sanitation", "Other"];
 const departments = [
@@ -10,7 +12,7 @@ const departments = [
   "General Admin",
 ];
 
-const port = import.meta.env.VITE_DB_PORT;
+const port = import.meta.env.VITE_DB_PORT || 5000;
 
 const Dashboard = () => {
   const [complaints, setComplaints] = useState([]);
@@ -19,11 +21,36 @@ const Dashboard = () => {
     details: "",
     category: "Roads",
     department: "Municipal Works",
+    priority: "medium",
   });
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [photoMethod, setPhotoMethod] = useState(""); // 'file' or 'camera'
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const [questionnaireResults, setQuestionnaireResults] = useState(null);
   const webcamRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Get current user from sessionStorage
+  const getCurrentUser = () => {
+    const storedUser = sessionStorage.getItem("civicName");
+    return storedUser ? JSON.parse(storedUser) : {
+      id: "1",
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "+91-9876543210",
+      municipality: "Ranchi Municipal Corporation",
+      district: "Ranchi",
+      state: "Jharkhand",
+      pincode: "834001"
+    };
+  };
+
+  // Logout function
+  const handleLogout = () => {
+    sessionStorage.clear();
+    navigate("/login");
+  };
 
   // Load complaints from db.json on component mount
   useEffect(() => {
@@ -32,9 +59,8 @@ const Dashboard = () => {
         const response = await fetch(`http://localhost:${port}/complaints`);
         if (response.ok) {
           const data = await response.json();
-          // Get current user from localStorage (fallback to demo id "1")
-          const storedUser = localStorage.getItem("currentUser");
-          const currentUser = storedUser ? JSON.parse(storedUser) : { id: "1" };
+          // Get current user from sessionStorage
+          const currentUser = getCurrentUser();
           // Filter complaints for current user
           const userComplaints = data.filter(
             (complaint) => complaint.userId === currentUser.id
@@ -99,6 +125,30 @@ const Dashboard = () => {
   if (fileInput) fileInput.value = "";
   };
 
+  // Smart Questionnaire functions
+  const handleStartQuestionnaire = () => {
+    setShowQuestionnaire(true);
+  };
+
+  const handleQuestionnaireResults = (results) => {
+    setQuestionnaireResults(results);
+    
+    // Auto-fill form based on AI results
+    setForm(prev => ({
+      ...prev,
+      category: results.category,
+      department: results.department,
+      priority: results.priority,
+      details: results.answers.description || prev.details
+    }));
+    
+    setShowQuestionnaire(false);
+  };
+
+  const handleCancelQuestionnaire = () => {
+    setShowQuestionnaire(false);
+  };
+
   // Handle form submit - Save to db.json
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,18 +168,8 @@ const Dashboard = () => {
       }
     }
 
-    // Get current user data from localStorage or use default
-  const storedUser = localStorage.getItem('currentUser');
-    const currentUser = storedUser ? JSON.parse(storedUser) : {
-      id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "+91-9876543210",
-      municipality: "Ranchi Municipal Corporation",
-      district: "Ranchi",
-      state: "Jharkhand",
-      pincode: "834001"
-    };
+    // Get current user data from sessionStorage or use default
+    const currentUser = getCurrentUser();
 
     // Create complaint data matching db.json structure
     const newComplaint = {
@@ -142,7 +182,7 @@ const Dashboard = () => {
       photo: photoData,
       photoMethod: photoMethod,
       status: "Submitted",
-      priority: "medium",
+      priority: form.priority || questionnaireResults?.priority || "medium",
       location: {
         address: `${currentUser.municipality} Area`, // You can make this more specific with geolocation
         municipality: currentUser.municipality,
@@ -160,6 +200,13 @@ const Dashboard = () => {
         phone: currentUser.phone,
         municipality: currentUser.municipality
       },
+      questionnaire: questionnaireResults?.questionnaire || null,
+      aiAnalysis: questionnaireResults ? {
+        analysis: questionnaireResults.analysis,
+        confidence: questionnaireResults.confidence,
+        selectedDepartment: questionnaireResults.department,
+        selectedCategory: questionnaireResults.category
+      } : null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       assignedTo: null,
@@ -186,10 +233,12 @@ const Dashboard = () => {
           details: "",
           category: "Roads",
           department: "Municipal Works",
+          priority: "medium",
         });
         setCapturedImage(null);
         setShowCamera(false);
   setPhotoMethod('');
+        setQuestionnaireResults(null);
 
         // Reset file input
         const fileInput = document.querySelector('input[type="file"]');
@@ -210,6 +259,7 @@ const Dashboard = () => {
         details: "",
         category: "Roads",
         department: "Municipal Works",
+        priority: "medium",
       });
       setCapturedImage(null);
       setShowCamera(false);
@@ -227,7 +277,24 @@ const Dashboard = () => {
       className="dashboard"
       style={{ maxWidth: 700, margin: "0 auto", padding: 24 }}
     >
-      <h1 style={{ textAlign: "center", marginBottom: 24 }}>User Dashboard</h1>
+      {/* Header with logout button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h1 style={{ textAlign: "center", margin: 0, flex: 1 }}>User Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          style={{
+            background: "#f44336",
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            padding: "8px 16px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          Logout
+        </button>
+      </div>
       <form
         className="complaint-form"
         onSubmit={handleSubmit}
@@ -241,6 +308,42 @@ const Dashboard = () => {
         }}
       >
         <h2 style={{ marginBottom: 16 }}>Submit a Complaint</h2>
+        
+        {/* Smart Questionnaire Button */}
+        <div style={{ marginBottom: 20, padding: 16, background: '#e3f2fd', borderRadius: 8, border: '1px solid #2196f3' }}>
+          <p style={{ margin: 0, marginBottom: 12, color: '#1976d2', fontWeight: 'bold' }}>
+            🤖 Need help selecting the right department?
+          </p>
+          <button
+            type="button"
+            onClick={handleStartQuestionnaire}
+            style={{
+              background: '#2196f3',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              padding: '10px 20px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: 14
+            }}
+          >
+            🚀 Start Smart Assistant
+          </button>
+          
+          {questionnaireResults && (
+            <div style={{ marginTop: 12, padding: 12, background: '#e8f5e8', borderRadius: 6, border: '1px solid #4caf50' }}>
+              <p style={{ margin: 0, color: '#2e7d32', fontSize: 14, fontWeight: 'bold' }}>
+                ✅ AI Analysis Complete
+              </p>
+              <p style={{ margin: '4px 0 0 0', color: '#2e7d32', fontSize: 12 }}>
+                Department: {questionnaireResults.department} | 
+                Category: {questionnaireResults.category} | 
+                Confidence: {questionnaireResults.confidence}
+              </p>
+            </div>
+          )}
+        </div>
         
         <label style={{ display: 'block', marginBottom: 12 }}>
           <span style={{ display: 'block', marginBottom: 4 }}>Photo:</span>
@@ -421,6 +524,25 @@ const Dashboard = () => {
             ))}
           </select>
         </label>
+        <label style={{ display: "block", marginBottom: 12 }}>
+          <span style={{ display: "block", marginBottom: 4 }}>Priority:</span>
+          <select
+            name="priority"
+            value={form.priority}
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              borderRadius: 6,
+              border: "1px solid #ccc",
+              padding: 8,
+            }}
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="emergency">Emergency</option>
+          </select>
+        </label>
         <button
           type="submit"
           style={{
@@ -517,6 +639,14 @@ const Dashboard = () => {
           </li>
         ))}
       </ul>
+      
+      {/* Smart Questionnaire Modal */}
+      {showQuestionnaire && (
+        <SmartQuestionnaire
+          onResults={handleQuestionnaireResults}
+          onCancel={handleCancelQuestionnaire}
+        />
+      )}
     </div>
   );
 };
