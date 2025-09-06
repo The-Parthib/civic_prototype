@@ -146,7 +146,7 @@ import readline from 'readline';
 // dotenv.config();
 
 // --- CONFIGURATION ---
-const geminiApiKey = 'AIzaSyDF0hSgycUAPf4i4gHanak1XNqoTk75SAo';
+const geminiApiKey ="";
 if (!geminiApiKey) {
     console.error("Error: GEMINI_API_KEY not found. Please create a .env file and add your API key.");
     process.exit(1);
