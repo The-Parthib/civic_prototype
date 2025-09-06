@@ -227,6 +227,26 @@
         }
       ],
       "createdAt": "2025-09-05T16:39:22.330Z"
+    },
+    {
+      "id": "1757141377430",
+      "name": "Street Light",
+      "responsibilities": [
+        "Fixing all Streetlights",
+        "Add streetlights to unsafe areas"
+      ],
+      "department_head_uid": "streetlight@ranchi.com",
+      "staffs": [
+        {
+          "id": "Manas Mondal",
+          "responsibility": "Fixing Street Light"
+        },
+        {
+          "id": "Dipak Das",
+          "responsibility": "Add new Street light"
+        }
+      ],
+      "createdAt": "2025-09-06T06:49:37.430Z"
     }
   ]
 }
