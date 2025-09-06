@@ -17,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Dashboard from "../../components/admin/dashboardAdmin/Dashboard";
 import Department from "../../components/admin/departmentAdmin/Department";
+import MapView from "../../components/admin/mapAdmin/Map";
 
 const port = import.meta.env.VITE_DB_PORT;
 const AdminDashboard = () => {
@@ -155,18 +156,7 @@ const AdminDashboard = () => {
 
               {activeTab === "Departments" && <Department/>}
 
-              {activeTab === "Map" && (
-                <div>
-                  <p className="text-gray-600 mb-4">
-                    View geographical data and location-based services.
-                  </p>
-                  <div className="bg-gray-100 border border-gray-200 p-4 rounded-lg h-64 flex items-center justify-center">
-                    <p className="text-gray-500">
-                      Map visualization would appear here
-                    </p>
-                  </div>
-                </div>
-              )}
+              {activeTab === "Map" && <MapView complaints={complaints} /> }
 
               {activeTab === "Updates" && (
                 <div>
