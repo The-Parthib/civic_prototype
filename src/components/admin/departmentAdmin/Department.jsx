@@ -11,7 +11,7 @@ const Department = () => {
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     name: "",
-    responsibility: "",
+    responsibilities: [""],
     department_head_uid: "",
     staffs: [{ id: "", responsibility: "" }],
   });
@@ -53,11 +53,15 @@ const Department = () => {
       ]);
       const core = (await coreRes.json()) || [];
       const created = createdRes.ok ? await createdRes.json() : [];
-      // Normalize missing fields
+      // Normalize missing fields and support legacy 'responsibility' -> 'responsibilities'
       const normalized = [...core, ...created].map((d) => ({
         id: d.id,
         name: d.name,
-        responsibility: d.responsibility || "",
+        responsibilities: Array.isArray(d.responsibilities)
+          ? d.responsibilities
+          : d.responsibility
+          ? [d.responsibility]
+          : [],
         department_head_uid: d.department_head_uid || "",
         staffs: Array.isArray(d.staffs) ? d.staffs : [],
         createdAt: d.createdAt,
@@ -77,6 +81,23 @@ const Department = () => {
 
   const updateField = (field, value) =>
     setForm((f) => ({ ...f, [field]: value }));
+
+  // helpers to manage responsibilities array
+  const updateResponsibility = (idx, value) =>
+    setForm((f) => {
+      const next = [...f.responsibilities];
+      next[idx] = value;
+      return { ...f, responsibilities: next };
+    });
+
+  const addResponsibility = () =>
+    setForm((f) => ({ ...f, responsibilities: [...f.responsibilities, ""] }));
+
+  const removeResponsibility = (idx) =>
+    setForm((f) => ({
+      ...f,
+      responsibilities: f.responsibilities.filter((_, i) => i !== idx),
+    }));
 
   const updateStaff = (idx, field, value) => {
     setForm((f) => {
@@ -101,7 +122,7 @@ const Department = () => {
   const resetForm = () =>
     setForm({
       name: "",
-      responsibility: "",
+      responsibilities: [""],
       department_head_uid: "",
       staffs: [{ id: "", responsibility: "" }],
     });
@@ -109,15 +130,20 @@ const Department = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.name.trim() || !form.responsibility.trim()) {
-      setError("Name and responsibility are required.");
+    // changed: validate at least one non-empty responsibility
+    const cleanedResponsibilities = form.responsibilities
+      .map((r) => r.trim())
+      .filter(Boolean);
+    if (!form.name.trim() || cleanedResponsibilities.length === 0) {
+      setError("Name and at least one responsibility are required.");
       return;
     }
     setSubmitting(true);
     const payload = {
       id: Date.now().toString(),
       name: form.name.trim(),
-      responsibility: form.responsibility.trim(),
+      // changed: send 'responsibilities' array instead of single 'responsibility'
+      responsibilities: cleanedResponsibilities,
       department_head_uid: form.department_head_uid.trim(),
       staffs: form.staffs
         .filter((s) => s.id.trim() || s.responsibility.trim())
@@ -255,17 +281,45 @@ const Department = () => {
                 required
               />
             </div>
+
+            {/* changed: responsibilities as multiple inputs */}
             <div className="md:col-span-2">
               <label className="block text-xs font-medium text-gray-600 mb-1">
-                Responsibility *
+                Responsibilities *
               </label>
-              <input
-                className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
-                value={form.responsibility}
-                onChange={(e) => updateField("responsibility", e.target.value)}
-                required
-              />
+              <div className="space-y-2">
+                {form.responsibilities.map((r, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <input
+                      className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+                      placeholder={`Responsibility ${idx + 1}`}
+                      value={r}
+                      onChange={(e) =>
+                        updateResponsibility(idx, e.target.value)
+                      }
+                    />
+                    {form.responsibilities.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeResponsibility(idx)}
+                        className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded"
+                        title="Remove"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addResponsibility}
+                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                >
+                  Add Responsibility
+                </button>
+              </div>
             </div>
+
             <div className="md:col-span-3">
               <label className="block text-xs font-medium text-gray-600 mb-1">
                 Department Head User ID
@@ -381,8 +435,11 @@ const Department = () => {
                     <h4 className="font-semibold text-gray-900 text-sm pr-6">
                       {d.name || "Unnamed"}
                     </h4>
+                    {/* changed: display multiple responsibilities */}
                     <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
-                      {d.responsibility || "No responsibility set."}
+                      {d.responsibilities && d.responsibilities.length
+                        ? d.responsibilities.join(", ")
+                        : "No responsibilities set."}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
