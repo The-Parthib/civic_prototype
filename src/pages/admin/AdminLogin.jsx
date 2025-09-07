@@ -1,109 +1,117 @@
-import { ArrowBigLeft, Shield, Eye, EyeOff } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-const port = import.meta.env.VITE_DB_PORT;
+import { ArrowLeft, Eye, EyeOff, Shield } from "lucide-react"
+
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+
+// Using a fixed port due to a build environment compatibility issue.
+const port = 3001
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    sessionStorage.clear();
+    // Clear any existing session storage on component mount
+    if (typeof window !== "undefined") {
+      sessionStorage.clear()
+    }
   }, [])
-  
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setMessage('');
-    setLoading(true);
+  const handleLogin = async () => {
+    e.preventDefault()
+    setMessage("")
+    setLoading(true)
 
     try {
-      const response = await fetch(`http://localhost:${port}/users`);
+      // Fetch all users from the API
+      const response = await fetch(`http://localhost:${port}/users`)
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        throw new Error("Failed to fetch users from the server.")
       }
 
-      const users = await response.json();
+      const users = await response.json()
 
+      // Find a user that matches the admin criteria and entered credentials
       const adminUser = users.find(
         (user) =>
-          user.role === 'admin' &&
+          user.role === "admin" &&
           user.email === email &&
-          user.password === password
-      );
+          user.password === password,
+      )
 
       if (adminUser) {
-        setMessage('✅ Login successful! Redirecting...');
-        let a = JSON.stringify(adminUser)
-        console.log(a);
-        console.log(JSON.parse(a));
-        sessionStorage.setItem("adminName",JSON.stringify(adminUser));
-        
-        // Wait a moment to show success message before redirecting
+        setMessage("✅ Login successful! Redirecting...")
+
+        // Store admin user's data in session storage
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("adminName", JSON.stringify(adminUser))
+        }
+
+        // Redirect to the admin dashboard after a short delay
         setTimeout(() => {
-          navigate("/admin");
-        }, 1000);
-        
+          navigate("/admin")
+        }, 1000)
       } else {
-        setMessage('❌ Invalid admin credentials. Please try again...');
+        setMessage("❌ Invalid admin credentials. Please try again...")
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setMessage('❌ An error occurred during login. Please try again later.');
+      console.error("Login error:", error)
+      setMessage("❌ An error occurred during login. Please try again later.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
-      {/* Header with branding */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-blue-800 text-white flex items-center px-6 shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50 flex items-center justify-center p-4">
+      {/* Page Header */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-white border-b-2 border-green-200 flex items-center px-6 shadow-sm">
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-            <div className="w-8 h-8 bg-blue-800 rounded-full flex items-center justify-center text-white font-bold">JG</div>
+          <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-green-700 rounded-lg flex items-center justify-center mr-4 shadow-md">
+            <span className="text-white font-bold text-lg">RMC</span>
           </div>
           <div>
-            <h1 className="font-bold text-lg">Jharkhand Government</h1>
-            <p className="text-xs text-blue-200">Administration Portal</p>
+            <h1 className="font-bold text-xl text-gray-800">
+              Ranchi Municipal Corporation
+            </h1>
+            <p className="text-sm text-gray-600">
+              Government of Jharkhand
+            </p>
           </div>
         </div>
       </div>
 
-      <button 
+      {/* Back to Home Button */}
+      <button
         onClick={() => navigate("/")}
-        className="absolute top-24 left-6 flex items-center text-blue-800 hover:text-blue-600 transition-colors"
+        className="absolute top-24 left-6 flex items-center text-green-700 hover:text-green-900 transition-colors font-medium"
       >
-        <ArrowBigLeft className="mr-1" size={20} />
+        <ArrowLeft className="mr-2" size={20} />
         <span>Back to Home</span>
       </button>
 
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden mt-12">
-        {/* Login Header */}
-        <div className="bg-blue-800 text-white py-5 px-6">
+      {/* Login Card */}
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden mt-12 border border-green-100">
+        <div className="bg-gradient-to-r from-green-600 to-green-700 text-white py-6 px-6">
           <div className="flex items-center justify-center">
-            <div className="bg-blue-700 p-3 rounded-full mr-3">
-              <Shield size={24} />
+            <div className="text-center">
+              <h2 className="text-xl font-bold tracking-wide">ADMIN LOGIN</h2>
             </div>
-            <h2 className="text-2xl font-bold">Admin Login</h2>
           </div>
-          <p className="text-blue-200 text-sm text-center mt-2">
-            Access government administration dashboard
-          </p>
         </div>
 
         <div className="p-6">
           {message && (
             <div
-              className={`mb-5 p-3 rounded-lg text-center text-sm ${
-                message.includes('✅') 
-                  ? 'bg-green-100 text-green-700 border border-green-200' 
-                  : 'bg-red-100 text-red-700 border border-red-200'
+              className={`mb-5 p-3 rounded-lg text-center text-sm border ${
+                message.includes("✅")
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-red-50 text-red-700 border-red-200"
               }`}
             >
               {message}
@@ -112,12 +120,12 @@ const AdminLogin = () => {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Admin Email Address
               </label>
               <input
                 type="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                 placeholder="admin@ranchi.gov.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -126,13 +134,13 @@ const AdminLogin = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-12"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition pr-12"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -140,7 +148,7 @@ const AdminLogin = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-700"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-green-700 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -152,39 +160,67 @@ const AdminLogin = () => {
               type="submit"
               disabled={loading}
               className={`w-full py-3 px-4 rounded-lg text-white font-medium transition ${
-                loading 
-                  ? 'bg-blue-400 cursor-not-allowed' 
-                  : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
+                loading
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg"
               }`}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Logging in...
                 </span>
-              ) : 'Login to Dashboard'}
+              ) : (
+                "Access Admin Dashboard"
+              )}
             </button>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h3 className="text-sm font-semibold text-blue-800 mb-2">Demo Admin Account:</h3>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p><span className="font-medium">Email:</span> admin@ranchi.com</p>
-              <p><span className="font-medium">Password:</span> admin123</p>
+          {/* Demo Credentials Hint */}
+          <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+            <h3 className="text-sm font-semibold text-green-800 mb-2 flex items-center">
+              <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+              Demo Admin Account:
+            </h3>
+            <div className="text-xs text-green-700 space-y-1">
+              <p>
+                <span className="font-medium">Email:</span> admin@ranchi.com
+              </p>
+              <p>
+                <span className="font-medium">Password:</span> admin123
+              </p>
             </div>
           </div>
 
           <div className="mt-6 text-center text-xs text-gray-500">
             <p>Secure access to government administration services</p>
-            <p className="mt-1">© 2025 Jharkhand Government</p>
+            <p className="mt-1">
+              © 2025 Government of Jharkhand. All rights reserved.
+            </p>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AdminLogin;
+export default AdminLogin

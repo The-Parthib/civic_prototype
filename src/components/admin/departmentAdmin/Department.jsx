@@ -25,7 +25,7 @@ const Department = () => {
 
   useEffect(() => {
     let admin = sessionStorage.getItem("adminName");
-    console.log(JSON.parse(admin));
+    // console.log(JSON.parse(admin));
     const adminData = JSON.parse(admin);
     if (admin == null) {
     } else {
@@ -42,19 +42,18 @@ const Department = () => {
           setComplaints([]);
         });
     }
+    // console.log("comss:",complaints)
   }, []);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [coreRes, createdRes] = await Promise.all([
-        fetch(`http://localhost:${port}/departments`),
-        fetch(`http://localhost:${port}/createDepartment`),
-      ]);
-      const core = (await coreRes.json()) || [];
+      const createdRes = await fetch(
+        `http://localhost:${port}/createDepartment`
+      );
       const created = createdRes.ok ? await createdRes.json() : [];
       // Normalize missing fields and support legacy 'responsibility' -> 'responsibilities'
-      const normalized = [...core, ...created].map((d) => ({
+      const normalized = created.map((d) => ({
         id: d.id,
         name: d.name,
         responsibilities: Array.isArray(d.responsibilities)
@@ -142,6 +141,7 @@ const Department = () => {
     const payload = {
       id: Date.now().toString(),
       name: form.name.trim(),
+      municipality: complaints.municipality,
       // changed: send 'responsibilities' array instead of single 'responsibility'
       responsibilities: cleanedResponsibilities,
       department_head_uid: form.department_head_uid.trim(),

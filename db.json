@@ -238,6 +238,40 @@
       "createdAt": "2025-09-07T07:36:43.652Z",
       "updatedAt": "2025-09-07T07:36:43.652Z",
       "adminComments": []
+    },
+    {
+      "id": "1757276335123",
+      "userId": "1",
+      "title": "Over Grown Bushes",
+      "details": "The Bushes in the central park are too much grown in monsoon.",
+      "category": "Other",
+      "department": "Parks & Recreation Department",
+      "photo": "data:image/jpeg;base64,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",
+      "photoMethod": "upload",
+      "capturedImage": null,
+      "status": "In Progress",
+      "priority": "medium",
+      "assignedTo": "prk_s_4",
+      "location": {
+        "address": "Ranchi Municipal Corporation Area",
+        "municipality": "Ranchi Municipal Corporation",
+        "district": "Ranchi",
+        "state": "Jharkhand",
+        "pincode": "834001",
+        "coordinates": {
+          "latitude": 23.3441,
+          "longitude": 85.3096
+        }
+      },
+      "userInfo": {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "phone": "+91-9876543210",
+        "municipality": "Ranchi Municipal Corporation"
+      },
+      "createdAt": "2025-09-07T20:18:55.123Z",
+      "updatedAt": "2025-09-07T20:42:32.098Z",
+      "adminComments": []
     }
   ],
   "categories": [
@@ -285,386 +319,417 @@
     }
   ],
   "createDepartment": [
-   [
-  {
-    "id": "1757187883285",
-    "name": "Sanitation & Waste Management Department",
-    "department_head_uid": "HOD_Sanitation_1",
-    "staffs": [
-      {
-        "id": "staff_sanitation_1",
-        "name": "Sanitation Staff 1",
-        "email": "staff1@sanitation.gov.in",
-        "password": "staff1123",
-        "responsibility": "Cleaning the city"
-      },
-      {
-        "id": "staff_sanitation_2",
-        "name": "Sanitation Staff 2",
-        "email": "staff2@sanitation.gov.in",
-        "password": "staff2123",
-        "responsibility": "Collecting garbage and clearing vats regularly"
-      },
-      {
-        "id": "staff_sanitation_3",
-        "name": "Sanitation Staff 3",
-        "email": "staff3@sanitation.gov.in",
-        "password": "staff3123",
-        "responsibility": "Clearing bushes and overgrowth trees"
-      },
-      {
-        "id": "staff_sanitation_4",
-        "name": "Sanitation Staff 4",
-        "email": "staff4@sanitation.gov.in",
-        "password": "staff4123",
-        "responsibility": "Segregating biodegradable and non-biodegradable waste"
-      },
-      {
-        "id": "staff_sanitation_5",
-        "name": "Sanitation Staff 5",
-        "email": "staff5@sanitation.gov.in",
-        "password": "staff5123",
-        "responsibility": "Operating waste disposal plants"
-      }
-    ]
-  },
-  {
-    "id": "1757188201096",
-    "name": "Water Supply Department",
-    "department_head_uid": "HOD_Water_2",
-    "staffs": [
-      {
-        "id": "staff_water_1",
-        "name": "Water Staff 1",
-        "email": "staff1@water.gov.in",
-        "password": "staff1123",
-        "responsibility": "Managing water supply throughout the city"
-      },
-      {
-        "id": "staff_water_2",
-        "name": "Water Staff 2",
-        "email": "staff2@water.gov.in",
-        "password": "staff2123",
-        "responsibility": "Fixing water leakages"
-      },
-      {
-        "id": "staff_water_3",
-        "name": "Water Staff 3",
-        "email": "staff3@water.gov.in",
-        "password": "staff3123",
-        "responsibility": "Supplying drinking water"
-      },
-      {
-        "id": "staff_water_4",
-        "name": "Water Staff 4",
-        "email": "staff4@water.gov.in",
-        "password": "staff4123",
-        "responsibility": "Generating monthly usage billing for water"
-      },
-      {
-        "id": "staff_water_5",
-        "name": "Water Staff 5",
-        "email": "staff5@water.gov.in",
-        "password": "staff5123",
-        "responsibility": "General support staff"
-      }
-    ]
-  },
-  {
-    "id": "1757188301150",
-    "name": "Electricity Department",
-    "department_head_uid": "HOD_Electricity_3",
-    "staffs": [
-      {
-        "id": "staff_electricity_1",
-        "name": "Electricity Staff 1",
-        "email": "staff1@electricity.gov.in",
-        "password": "staff1123",
-        "responsibility": "Providing uninterrupted power supply"
-      },
-      {
-        "id": "staff_electricity_2",
-        "name": "Electricity Staff 2",
-        "email": "staff2@electricity.gov.in",
-        "password": "staff2123",
-        "responsibility": "Repairing faulty street lights"
-      },
-      {
-        "id": "staff_electricity_3",
-        "name": "Electricity Staff 3",
-        "email": "staff3@electricity.gov.in",
-        "password": "staff3123",
-        "responsibility": "Installing new street lights in dark areas"
-      },
-      {
-        "id": "staff_electricity_4",
-        "name": "Electricity Staff 4",
-        "email": "staff4@electricity.gov.in",
-        "password": "staff4123",
-        "responsibility": "Addressing electricity complaints"
-      },
-      {
-        "id": "staff_electricity_5",
-        "name": "Electricity Staff 5",
-        "email": "staff5@electricity.gov.in",
-        "password": "staff5123",
-        "responsibility": "Monitoring illegal electricity connections"
-      }
-    ]
-  },
-  {
-    "id": "1757188402044",
-    "name": "Roads & Transport Department",
-    "department_head_uid": "HOD_Roads_4",
-    "staffs": [
-      {
-        "id": "staff_roads_1",
-        "name": "Roads Staff 1",
-        "email": "staff1@roads.gov.in",
-        "password": "staff1123",
-        "responsibility": "Maintaining city roads and footpaths"
-      },
-      {
-        "id": "staff_roads_2",
-        "name": "Roads Staff 2",
-        "email": "staff2@roads.gov.in",
-        "password": "staff2123",
-        "responsibility": "Repairing potholes and damaged roads"
-      },
-      {
-        "id": "staff_roads_3",
-        "name": "Roads Staff 3",
-        "email": "staff3@roads.gov.in",
-        "password": "staff3123",
-        "responsibility": "Managing public transportation"
-      },
-      {
-        "id": "staff_roads_4",
-        "name": "Roads Staff 4",
-        "email": "staff4@roads.gov.in",
-        "password": "staff4123",
-        "responsibility": "Installing and maintaining traffic signals"
-      },
-      {
-        "id": "staff_roads_5",
-        "name": "Roads Staff 5",
-        "email": "staff5@roads.gov.in",
-        "password": "staff5123",
-        "responsibility": "General support staff"
-      }
-    ]
-  },
-  {
-    "id": "1757188503021",
-    "name": "Public Health Department",
-    "department_head_uid": "HOD_Health_5",
-    "staffs": [
-      {
-        "id": "staff_health_1",
-        "name": "Health Staff 1",
-        "email": "staff1@health.gov.in",
-        "password": "staff1123",
-        "responsibility": "Monitoring disease outbreaks"
-      },
-      {
-        "id": "staff_health_2",
-        "name": "Health Staff 2",
-        "email": "staff2@health.gov.in",
-        "password": "staff2123",
-        "responsibility": "Running vaccination drives"
-      },
-      {
-        "id": "staff_health_3",
-        "name": "Health Staff 3",
-        "email": "staff3@health.gov.in",
-        "password": "staff3123",
-        "responsibility": "Maintaining municipal hospitals and clinics"
-      },
-      {
-        "id": "staff_health_4",
-        "name": "Health Staff 4",
-        "email": "staff4@health.gov.in",
-        "password": "staff4123",
-        "responsibility": "Spreading awareness on hygiene and sanitation"
-      },
-      {
-        "id": "staff_health_5",
-        "name": "Health Staff 5",
-        "email": "staff5@health.gov.in",
-        "password": "staff5123",
-        "responsibility": "General support staff"
-      }
-    ]
-  },
-  {
-    "id": "1757188604097",
-    "name": "Fire & Emergency Services",
-    "department_head_uid": "HOD_Fire_6",
-    "staffs": [
-      {
-        "id": "staff_fire_1",
-        "name": "Fire Staff 1",
-        "email": "staff1@fire.gov.in",
-        "password": "staff1123",
-        "responsibility": "Responding to fire incidents"
-      },
-      {
-        "id": "staff_fire_2",
-        "name": "Fire Staff 2",
-        "email": "staff2@fire.gov.in",
-        "password": "staff2123",
-        "responsibility": "Conducting fire safety inspections"
-      },
-      {
-        "id": "staff_fire_3",
-        "name": "Fire Staff 3",
-        "email": "staff3@fire.gov.in",
-        "password": "staff3123",
-        "responsibility": "Managing disaster rescue operations"
-      },
-      {
-        "id": "staff_fire_4",
-        "name": "Fire Staff 4",
-        "email": "staff4@fire.gov.in",
-        "password": "staff4123",
-        "responsibility": "Training citizens in fire safety awareness"
-      },
-      {
-        "id": "staff_fire_5",
-        "name": "Fire Staff 5",
-        "email": "staff5@fire.gov.in",
-        "password": "staff5123",
-        "responsibility": "General support staff"
-      }
-    ]
-  },
-  {
-    "id": "1757188705099",
-    "name": "Revenue & Taxation Department",
-    "department_head_uid": "HOD_Revenue_7",
-    "staffs": [
-      {
-        "id": "staff_revenue_1",
-        "name": "Revenue Staff 1",
-        "email": "staff1@revenue.gov.in",
-        "password": "staff1123",
-        "responsibility": "Collecting property tax"
-      },
-      {
-        "id": "staff_revenue_2",
-        "name": "Revenue Staff 2",
-        "email": "staff2@revenue.gov.in",
-        "password": "staff2123",
-        "responsibility": "Managing municipal fees and charges"
-      },
-      {
-        "id": "staff_revenue_3",
-        "name": "Revenue Staff 3",
-        "email": "staff3@revenue.gov.in",
-        "password": "staff3123",
-        "responsibility": "Maintaining revenue records"
-      },
-      {
-        "id": "staff_revenue_4",
-        "name": "Revenue Staff 4",
-        "email": "staff4@revenue.gov.in",
-        "password": "staff4123",
-        "responsibility": "Preventing tax evasion"
-      },
-      {
-        "id": "staff_revenue_5",
-        "name": "Revenue Staff 5",
-        "email": "staff5@revenue.gov.in",
-        "password": "staff5123",
-        "responsibility": "General support staff"
-      }
-    ]
-  },
-  {
-    "id": "1757188806001",
-    "name": "Education & Libraries Department",
-    "department_head_uid": "HOD_Education_8",
-    "staffs": [
-      {
-        "id": "staff_education_1",
-        "name": "Education Staff 1",
-        "email": "staff1@education.gov.in",
-        "password": "staff1123",
-        "responsibility": "Managing municipal schools"
-      },
-      {
-        "id": "staff_education_2",
-        "name": "Education Staff 2",
-        "email": "staff2@education.gov.in",
-        "password": "staff2123",
-        "responsibility": "Recruiting teachers and staff"
-      },
-      {
-        "id": "staff_education_3",
-        "name": "Education Staff 3",
-        "email": "staff3@education.gov.in",
-        "password": "staff3123",
-        "responsibility": "Maintaining public libraries"
-      },
-      {
-        "id": "staff_education_4",
-        "name": "Education Staff 4",
-        "email": "staff4@education.gov.in",
-        "password": "staff4123",
-        "responsibility": "Running literacy and awareness programs"
-      },
-      {
-        "id": "staff_education_5",
-        "name": "Education Staff 5",
-        "email": "staff5@education.gov.in",
-        "password": "staff5123",
-        "responsibility": "General support staff"
-      }
-    ]
-  },
-  {
-    "id": "1757188907093",
-    "name": "Parks & Recreation Department",
-    "department_head_uid": "HOD_Parks_9",
-    "staffs": [
-      {
-        "id": "staff_parks_1",
-        "name": "Parks Staff 1",
-        "email": "staff1@parks.gov.in",
-        "password": "staff1123",
-        "responsibility": "Maintaining public parks and gardens"
-      },
-      {
-        "id": "staff_parks_2",
-        "name": "Parks Staff 2",
-        "email": "staff2@parks.gov.in",
-        "password": "staff2123",
-        "responsibility": "Developing recreational spaces"
-      },
-      {
-        "id": "staff_parks_3",
-        "name": "Parks Staff 3",
-        "email": "staff3@parks.gov.in",
-        "password": "staff3123",
-        "responsibility": "Organizing cultural and sports events"
-      },
-      {
-        "id": "staff_parks_4",
-        "name": "Parks Staff 4",
-        "email": "staff4@parks.gov.in",
-        "password": "staff4123",
-        "responsibility": "Planting trees and maintaining greenery"
-      },
-      {
-        "id": "staff_parks_5",
-        "name": "Parks Staff 5",
-        "email": "staff5@parks.gov.in",
-        "password": "staff5123",
-        "responsibility": "General support staff"
-      }
-    ]
-  }
-]
+    {
+      "id": "1757187883285",
+      "name": "Sanitation & Waste Management Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Cleaning the city",
+        "Collecting garbage and clearing vats regularly",
+        "Clearing bushes and overgrowth trees",
+        "Segregating biodegradable and non-biodegradable waste",
+        "Operating waste disposal plants",
+        "Promoting recycling programs"
+      ],
+      "department_head_uid": "HOD_Sanitation_1",
+      "staffs": [
+        {
+          "id": "san_s_1",
+          "name": "Rohan Sharma",
+          "email": "rohan.sanitation@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Cleaning the city regularly"
+        },
+        {
+          "id": "san_s_2",
+          "name": "Priya Patel",
+          "email": "priya.sanitation@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Collecting garbage and clearing vats"
+        },
+        {
+          "id": "san_s_3",
+          "name": "Amit Kumar",
+          "email": "amit.sanitation@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Clearing bushes and overgrowth trees"
+        },
+        {
+          "id": "san_s_4",
+          "name": "Sneha Gupta",
+          "email": "sneha.sanitation@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Segregating biodegradable and non-biodegradable waste"
+        },
+        {
+          "id": "san_s_5",
+          "name": "Vikram Singh",
+          "email": "vikram.sanitation@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Operating waste disposal plants"
+        },
+        {
+          "id": "san_s_6",
+          "name": "Anjali Devi",
+          "email": "anjali.sanitation@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Promoting recycling programs"
+        }
+      ],
+      "createdAt": "2025-09-07T20:44:43.285Z"
+    },
+    {
+      "id": "1757188201096",
+      "name": "Water Supply Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Managing water supply throughout the city",
+        "Fixing water leakages",
+        "Supplying drinking water",
+        "Generating monthly usage billing for water"
+      ],
+      "department_head_uid": "HOD_Water_2",
+      "staffs": [
+        {
+          "id": "wat_s_1",
+          "name": "Suresh Reddy",
+          "email": "suresh.water@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Managing water supply throughout the city"
+        },
+        {
+          "id": "wat_s_2",
+          "name": "Meena Kumari",
+          "email": "meena.water@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Fixing water leakages"
+        },
+        {
+          "id": "wat_s_3",
+          "name": "Rajesh Verma",
+          "email": "rajesh.water@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Supplying drinking water"
+        },
+        {
+          "id": "wat_s_4",
+          "name": "Pooja Jain",
+          "email": "pooja.water@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Generating monthly usage billing for water"
+        }
+      ],
+      "createdAt": "2025-09-07T20:50:01.096Z"
+    },
+    {
+      "id": "1757188301150",
+      "name": "Electricity Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Providing uninterrupted power supply",
+        "Repairing faulty street lights",
+        "Installing new street lights in dark areas",
+        "Addressing electricity complaints",
+        "Monitoring illegal electricity connections"
+      ],
+      "department_head_uid": "HOD_Electricity_3",
+      "staffs": [
+        {
+          "id": "elec_s_1",
+          "name": "Deepak Yadav",
+          "email": "deepak.electricity@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Providing uninterrupted power supply"
+        },
+        {
+          "id": "elec_s_2",
+          "name": "Sunita Mishra",
+          "email": "sunita.electricity@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Repairing faulty street lights"
+        },
+        {
+          "id": "elec_s_3",
+          "name": "Manoj Tiwari",
+          "email": "manoj.electricity@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Installing new street lights"
+        },
+        {
+          "id": "elec_s_4",
+          "name": "Kavita Chauhan",
+          "email": "kavita.electricity@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Handling electricity complaints"
+        },
+        {
+          "id": "elec_s_5",
+          "name": "Anil Agarwal",
+          "email": "anil.electricity@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Monitoring illegal electricity connections"
+        }
+      ],
+      "createdAt": "2025-09-07T20:55:30.115Z"
+    },
+    {
+      "id": "1757188402044",
+      "name": "Roads & Transport Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Maintaining city roads and footpaths",
+        "Repairing potholes and damaged roads",
+        "Managing public transportation",
+        "Installing and maintaining traffic signals"
+      ],
+      "department_head_uid": "HOD_Roads_4",
+      "staffs": [
+        {
+          "id": "road_s_1",
+          "name": "Geeta Rao",
+          "email": "geeta.roads@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Maintaining city roads and footpaths"
+        },
+        {
+          "id": "road_s_2",
+          "name": "Arjun Nair",
+          "email": "arjun.roads@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Repairing potholes and damaged roads"
+        },
+        {
+          "id": "road_s_3",
+          "name": "Ritu Khanna",
+          "email": "ritu.roads@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Managing public transportation"
+        },
+        {
+          "id": "road_s_4",
+          "name": "Harish Mehta",
+          "email": "harish.roads@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Installing and maintaining traffic signals"
+        }
+      ],
+      "createdAt": "2025-09-07T21:02:44.044Z"
+    },
+    {
+      "id": "1757188503021",
+      "name": "Public Health Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Monitoring disease outbreaks",
+        "Running vaccination drives",
+        "Maintaining municipal hospitals and clinics",
+        "Spreading awareness on hygiene and sanitation"
+      ],
+      "department_head_uid": "HOD_Health_5",
+      "staffs": [
+        {
+          "id": "hlth_s_1",
+          "name": "Neha Sharma",
+          "email": "neha.health@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Monitoring disease outbreaks"
+        },
+        {
+          "id": "hlth_s_2",
+          "name": "Vinod Joshi",
+          "email": "vinod.health@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Running vaccination drives"
+        },
+        {
+          "id": "hlth_s_3",
+          "name": "Usha Rani",
+          "email": "usha.health@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Maintaining municipal hospitals and clinics"
+        },
+        {
+          "id": "hlth_s_4",
+          "name": "Sanjay Das",
+          "email": "sanjay.health@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Spreading awareness on hygiene and sanitation"
+        }
+      ],
+      "createdAt": "2025-09-07T21:10:21.021Z"
+    },
+    {
+      "id": "1757188604097",
+      "name": "Fire & Emergency Services",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Responding to fire incidents",
+        "Conducting fire safety inspections",
+        "Managing disaster rescue operations",
+        "Training citizens in fire safety awareness"
+      ],
+      "department_head_uid": "HOD_Fire_6",
+      "staffs": [
+        {
+          "id": "fire_s_1",
+          "name": "Lakshmi Iyer",
+          "email": "lakshmi.fire@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Responding to fire incidents"
+        },
+        {
+          "id": "fire_s_2",
+          "name": "Ashok Prasad",
+          "email": "ashok.fire@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Conducting fire safety inspections"
+        },
+        {
+          "id": "fire_s_3",
+          "name": "Rekha Sen",
+          "email": "rekha.fire@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Managing disaster rescue operations"
+        },
+        {
+          "id": "fire_s_4",
+          "name": "Gopal Krishnan",
+          "email": "gopal.fire@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Training citizens in fire safety awareness"
+        }
+      ],
+      "createdAt": "2025-09-07T21:20:09.097Z"
+    },
+    {
+      "id": "1757188705099",
+      "name": "Revenue & Taxation Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Collecting property tax",
+        "Managing municipal fees and charges",
+        "Maintaining revenue records",
+        "Preventing tax evasion"
+      ],
+      "department_head_uid": "HOD_Revenue_7",
+      "staffs": [
+        {
+          "id": "rev_s_1",
+          "name": "Madhu Bala",
+          "email": "madhu.revenue@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Collecting property tax"
+        },
+        {
+          "id": "rev_s_2",
+          "name": "Kishan Lal",
+          "email": "kishan.revenue@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Managing municipal fees and charges"
+        },
+        {
+          "id": "rev_s_3",
+          "name": "Sarita Patil",
+          "email": "sarita.revenue@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Maintaining revenue records"
+        },
+        {
+          "id": "rev_s_4",
+          "name": "Mohan Das",
+          "email": "mohan.revenue@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Preventing tax evasion"
+        }
+      ],
+      "createdAt": "2025-09-07T21:25:09.099Z"
+    },
+    {
+      "id": "1757188806001",
+      "name": "Education & Libraries Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Managing municipal schools",
+        "Recruiting teachers and staff",
+        "Maintaining public libraries",
+        "Running literacy and awareness programs"
+      ],
+      "department_head_uid": "HOD_Education_8",
+      "staffs": [
+        {
+          "id": "edu_s_1",
+          "name": "Preeti Soni",
+          "email": "preeti.education@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Managing municipal schools"
+        },
+        {
+          "id": "edu_s_2",
+          "name": "Alok Nath",
+          "email": "alok.education@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Recruiting teachers and staff"
+        },
+        {
+          "id": "edu_s_3",
+          "name": "Jyoti Singh",
+          "email": "jyoti.education@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Maintaining public libraries"
+        },
+        {
+          "id": "edu_s_4",
+          "name": "Ramesh Babu",
+          "email": "ramesh.education@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Running literacy and awareness programs"
+        }
+      ],
+      "createdAt": "2025-09-07T21:30:01.001Z"
+    },
+    {
+      "id": "1757188907093",
+      "name": "Parks & Recreation Department",
+      "municipality": "Ranchi Municipal Corporation",
+      "responsibilities": [
+        "Maintaining public parks and gardens",
+        "Developing recreational spaces",
+        "Organizing cultural and sports events",
+        "Planting trees and maintaining greenery"
+      ],
+      "department_head_uid": "HOD_Parks_9",
+      "staffs": [
+        {
+          "id": "prk_s_1",
+          "name": "Aarti Shah",
+          "email": "aarti.parks@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Maintaining public parks and gardens"
+        },
+        {
+          "id": "prk_s_2",
+          "name": "Chandan Kumar",
+          "email": "chandan.parks@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Developing recreational spaces"
+        },
+        {
+          "id": "prk_s_3",
+          "name": "Pinky Verma",
+          "email": "pinky.parks@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Organizing cultural and sports events"
+        },
+        {
+          "id": "prk_s_4",
+          "name": "Tarun Roy",
+          "email": "tarun.parks@ranchi.com",
+          "password": "staff123",
+          "responsibility": "Planting trees and maintaining greenery"
+        }
+      ],
+      "createdAt": "2025-09-07T21:35:09.093Z"
+    }
   ],
   "desiredDepartment": [
     {
@@ -787,6 +852,24 @@
         "Have you or anyone in your household experienced any health symptoms as a result of the water?": "yes vomiting"
       },
       "timestamp": "2025-09-07T07:36:43.602Z"
+    },
+    {
+      "id": "1757276334995",
+      "title": "Over Grown Bushes",
+      "details": "The Bushes in the central park are too much grown in monsoon.",
+      "hasImage": true,
+      "questions": [
+        "Could you please specify the exact location of the overgrown bushes within Central Park (e.g., near which landmark, entrance, or street intersection)?",
+        "How do these overgrown bushes affect park visitors or the surrounding community (e.g., blocking pathways, reducing visibility, creating safety concerns)?",
+        "How urgent is it for these bushes to be trimmed or removed?",
+        "Is this an ongoing issue, or has it just become problematic with the recent monsoon season?"
+      ],
+      "answers": {
+        "Could you please specify the exact location of the overgrown bushes within Central Park (e.g., near which landmark, entrance, or street intersection)?": "Near the entrance",
+        "How do these overgrown bushes affect park visitors or the surrounding community (e.g., blocking pathways, reducing visibility, creating safety concerns)?": "Covering the entrance gate",
+        "How urgent is it for these bushes to be trimmed or removed?": "Moderate"
+      },
+      "timestamp": "2025-09-07T20:18:54.995Z"
     }
   ],
   "allocatedDepartment": [
@@ -918,6 +1001,37 @@
           "Is the smell causing any physical discomfort or health issues?": "yesss "
         },
         "timestamp": "2025-09-07T06:47:46.153Z"
+      }
+    },
+    {
+      "id": "1757276335069",
+      "title": "Over Grown Bushes",
+      "details": "The Bushes in the central park are too much grown in monsoon.",
+      "hasImage": true,
+      "department": "Parks & Recreation Department",
+      "category": "Other",
+      "priority": "medium",
+      "confidence": "high",
+      "staffId": "prk_s_4",
+      "analysis": "Overgrown bushes in Central Park near the entrance are covering the entrance gate.",
+      "timestamp": "2025-09-07T20:18:55.069Z",
+      "questionnaire": {
+        "id": "1757276334995",
+        "title": "Over Grown Bushes",
+        "details": "The Bushes in the central park are too much grown in monsoon.",
+        "hasImage": true,
+        "questions": [
+          "Could you please specify the exact location of the overgrown bushes within Central Park (e.g., near which landmark, entrance, or street intersection)?",
+          "How do these overgrown bushes affect park visitors or the surrounding community (e.g., blocking pathways, reducing visibility, creating safety concerns)?",
+          "How urgent is it for these bushes to be trimmed or removed?",
+          "Is this an ongoing issue, or has it just become problematic with the recent monsoon season?"
+        ],
+        "answers": {
+          "Could you please specify the exact location of the overgrown bushes within Central Park (e.g., near which landmark, entrance, or street intersection)?": "Near the entrance",
+          "How do these overgrown bushes affect park visitors or the surrounding community (e.g., blocking pathways, reducing visibility, creating safety concerns)?": "Covering the entrance gate",
+          "How urgent is it for these bushes to be trimmed or removed?": "Moderate"
+        },
+        "timestamp": "2025-09-07T20:18:54.995Z"
       }
     }
   ]

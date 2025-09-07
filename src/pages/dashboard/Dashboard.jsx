@@ -391,6 +391,7 @@ const Dashboard = () => {
       // Get the municipal structure if not already fetched
       const structure = municipalStructure || (await fetchMunicipalStructure());
       if (!structure) throw new Error("Could not fetch municipal structure");
+      console.log("test : ", structure);
 
       const classificationPrompt = `
         User's initial report title: "${title}"
@@ -574,13 +575,156 @@ const Dashboard = () => {
     return Object.keys(errors).length === 0;
   };
 
+  // NEW: heuristic to decide if title+details give enough context to skip clarifying questions
+  const assessContextClarity = (titleText, detailsText) => {
+    const text = `${(titleText || "").toLowerCase()} ${(
+      detailsText || ""
+    ).toLowerCase()}`;
+
+    // nature (issue type) via department keywords
+    const natureKeywords = new Set(
+      departmentsRef.flatMap((d) =>
+        (d.keywords || []).map((k) => k.toLowerCase())
+      )
+    );
+    const hasNature = Array.from(natureKeywords).some((kw) =>
+      text.includes(kw)
+    );
+
+    // location indicators
+    const locationTerms = [
+      "road",
+      "street",
+      "lane",
+      "avenue",
+      "sector",
+      "block",
+      "phase",
+      "ward",
+      "colony",
+      "marg",
+      "nagar",
+      "chowk",
+      "square",
+      "junction",
+      "near",
+      "opposite",
+      "beside",
+      "behind",
+      "in front of",
+      "at",
+      "address",
+      "pincode",
+      "pin code",
+      "landmark",
+    ];
+    const hasPincode = /\b\d{6}\b/.test(text); // Indian PIN
+    const hasCoords = /\b(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)\b/.test(text);
+    const hasLocation =
+      hasPincode || hasCoords || locationTerms.some((t) => text.includes(t));
+
+    // scope indicators (individual vs community)
+    const scopeTerms = [
+      "my house",
+      "our house",
+      "my home",
+      "our home",
+      "apartment",
+      "flat",
+      "society",
+      "colony",
+      "building",
+      "school",
+      "hospital",
+      "market",
+      "area",
+      "locality",
+      "neighborhood",
+      "neighbourhood",
+      "community",
+      "multiple",
+      "several",
+      "many",
+      "entire",
+      "whole",
+    ];
+    const hasScope = scopeTerms.some((t) => text.includes(t));
+
+    // urgency indicators
+    const urgencyTerms = [
+      "urgent",
+      "immediate",
+      "asap",
+      "emergency",
+      "critical",
+      "danger",
+      "hazard",
+      "accident",
+      "risk",
+      "serious",
+      "severe",
+      "life",
+      "no water",
+      "no electricity",
+      "blackout",
+      "flood",
+      "fire",
+      "burst",
+      "collapse",
+      "blocked",
+    ];
+    const hasUrgency = urgencyTerms.some((t) => text.includes(t));
+
+    const answeredCount = [hasNature, hasLocation, hasScope, hasUrgency].filter(
+      Boolean
+    ).length;
+    // Consider context clear if at least 3 of 4 signals are present
+    return {
+      isClear: answeredCount >= 3,
+      signals: { hasNature, hasLocation, hasScope, hasUrgency },
+    };
+  };
+
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    // First, generate clarifying questions
+    // NEW: Skip clarifying questions if context is already clear enough
+    const { isClear } = assessContextClarity(title, details);
+    if (isClear) {
+      // Skip generating questions, allocate directly
+      setAiQuestions([]);
+      setQuestionAnswers({});
+      try {
+        const allocation = await allocateDepartmentAndStaff({});
+        setAiResults(allocation);
+        setCategory(allocation.category);
+        setDepartment(allocation.departmentName);
+
+        if (allocation.confidence === "low") {
+          setShowSmartQuestionnaire(true);
+          return;
+        }
+
+        submitComplaint(
+          allocation.category,
+          allocation.departmentName,
+          allocation.staffId,
+          allocation.priority
+        );
+      } catch (error) {
+        console.error(
+          "Direct allocation failed, falling back to questionnaire:",
+          error
+        );
+        setShowSmartQuestionnaire(true);
+      }
+      return;
+    }
+
+    // Otherwise, proceed with current question-generation flow
     try {
       await generateClarifyingQuestions();
     } catch (error) {
@@ -1043,9 +1187,7 @@ const Dashboard = () => {
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {complaints && complaints.length > 0 ? (
-              complaints.map((c) => (
-                <ComplaintCard key={c.id} item={c} />
-              ))
+              complaints.map((c) => <ComplaintCard key={c.id} item={c} />)
             ) : (
               <div className="col-span-full text-center text-gray-500">
                 No complaints found.
@@ -1099,98 +1241,100 @@ const Dashboard = () => {
       )}
 
       {/* AI Questionnaire Modal */}
-        {isAskingQuestions && aiQuestions.length > 0 && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4 back"
+      {isAskingQuestions && aiQuestions.length > 0 && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 back"
+          style={{
+            background: "rgba(255,255,255,0.25)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+          }}
+        >
+          <div
+            className="bg-white bg-opacity-80 backdrop-blur-md rounded-lg shadow-lg w-full max-w-md max-h-[80vh] overflow-hidden border border-gray-200"
             style={{
-          background: "rgba(255,255,255,0.25)",
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
+              boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
+              background: "rgba(255,255,255,0.7)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.18)",
             }}
           >
-            <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-lg shadow-lg w-full max-w-md max-h-[80vh] overflow-hidden border border-gray-200"
-          style={{
-            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
-            background: "rgba(255,255,255,0.7)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.18)",
-          }}
-            >
-          <div className="p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <Bot size={18} className="text-blue-600" />
-              <h2 className="text-lg font-bold">
-            Please provide more details
-              </h2>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              To better assist you, please answer the following questions:
-            </p>
-          </div>
-
-          <div className="p-4">
-            <div className="space-y-4">
-              <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-semibold text-blue-700">
-                Question {currentQuestionIndex + 1} of{" "}
-                {aiQuestions.length}
-              </span>
-              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                {currentQuestionIndex === aiQuestions.length - 1
-              ? "Last question"
-              : ""}
-              </span>
-            </div>
-            <p className="text-gray-800">
-              {aiQuestions[currentQuestionIndex]}
-            </p>
+            <div className="p-4 border-b">
+              <div className="flex items-center space-x-2">
+                <Bot size={18} className="text-blue-600" />
+                <h2 className="text-lg font-bold">
+                  Please provide more details
+                </h2>
               </div>
+              <p className="text-sm text-gray-500 mt-2">
+                To better assist you, please answer the following questions:
+              </p>
+            </div>
 
-              <div>
-            <textarea
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              rows={3}
-              placeholder="Type your answer here..."
-              value={
-                questionAnswers[aiQuestions[currentQuestionIndex]] || ""
-              }
-              onChange={(e) => {
-                setQuestionAnswers((prev) => ({
-              ...prev,
-              [aiQuestions[currentQuestionIndex]]: e.target.value,
-                }));
-              }}
-            ></textarea>
+            <div className="p-4">
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-semibold text-blue-700">
+                      Question {currentQuestionIndex + 1} of{" "}
+                      {aiQuestions.length}
+                    </span>
+                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                      {currentQuestionIndex === aiQuestions.length - 1
+                        ? "Last question"
+                        : ""}
+                    </span>
+                  </div>
+                  <p className="text-gray-800">
+                    {aiQuestions[currentQuestionIndex]}
+                  </p>
+                </div>
+
+                <div>
+                  <textarea
+                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={3}
+                    placeholder="Type your answer here..."
+                    value={
+                      questionAnswers[aiQuestions[currentQuestionIndex]] || ""
+                    }
+                    onChange={(e) => {
+                      setQuestionAnswers((prev) => ({
+                        ...prev,
+                        [aiQuestions[currentQuestionIndex]]: e.target.value,
+                      }));
+                    }}
+                  ></textarea>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex justify-between p-4 border-t">
-            <button
-              onClick={() => setIsAskingQuestions(false)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg"
-            >
-              Skip Questions
-            </button>
-            <button
-              onClick={() =>
-            handleAnswerQuestion(
-              questionAnswers[aiQuestions[currentQuestionIndex]] || ""
-            )
-              }
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-            >
-              {currentQuestionIndex === aiQuestions.length - 1 ? (
-            <>Submit Answers</>
-              ) : (
-            <>Next Question</>
-              )}
-            </button>
-          </div>
+            <div className="flex justify-between p-4 border-t">
+              <button
+                onClick={() => setIsAskingQuestions(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg"
+              >
+                Skip Questions
+              </button>
+              <button
+                onClick={() =>
+                  handleAnswerQuestion(
+                    questionAnswers[aiQuestions[currentQuestionIndex]] || ""
+                  )
+                }
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              >
+                {currentQuestionIndex === aiQuestions.length - 1 ? (
+                  <>Submit Answers</>
+                ) : (
+                  <>Next Question</>
+                )}
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };
