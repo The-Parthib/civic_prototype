@@ -15,7 +15,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Dashboard from "../../components/admin/dashboardAdmin/Dashboard";
+import DashboardOverview from "../../components/admin/dashboardOverview/DashboardOverview";
 import Department from "../../components/admin/departmentAdmin/Department";
 import MapView from "../../components/admin/mapAdmin/Map";
 
@@ -24,6 +24,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [name, setName] = useState("");
   const [municipality, setMunicipality] = useState("");
+  const [allocatedComplaints, setAllocatedComplaints] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
@@ -37,18 +38,21 @@ const AdminDashboard = () => {
     } else {
       setName(adminData.name);
       setMunicipality(adminData.municipality);
-      // Fetch complaints for this admin's district and pincode
-      fetch(
-        `http://localhost:${port}/complaints?location.district=${encodeURIComponent(
-          adminData.district
-        )}&location.pincode=${encodeURIComponent(adminData.pincode)}`
-      )
-        .then((res) => res.json())
-        .then((data) => setComplaints(data))
-        .catch((err) => {
-          console.error("Error fetching complaints:", err);
-          setComplaints([]);
-        });
+      
+      // Fetch both allocated departments (AI-processed) and original complaints
+      Promise.all([
+        fetch(`http://localhost:${port}/allocatedDepartment`).then(res => res.json()),
+        fetch(`http://localhost:${port}/complaints`).then(res => res.json())
+      ])
+      .then(([allocatedData, complaintsData]) => {
+        setAllocatedComplaints(allocatedData);
+        setComplaints(complaintsData);
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+        setAllocatedComplaints([]);
+        setComplaints([]);
+      });
     }
   }, []);
 
@@ -152,11 +156,11 @@ const AdminDashboard = () => {
             </div>
 
             <div className="p-6">
-              {activeTab === "Dashboard" && <Dashboard complaints={complaints}/>}
+              {activeTab === "Dashboard" && <DashboardOverview allocatedComplaints={allocatedComplaints} complaints={complaints} />}
 
               {activeTab === "Departments" && <Department/>}
 
-              {activeTab === "Map" && <MapView complaints={complaints} /> }
+              {activeTab === "Map" && <MapView allocatedComplaints={allocatedComplaints} complaints={complaints} /> }
 
               {activeTab === "Updates" && (
                 <div>

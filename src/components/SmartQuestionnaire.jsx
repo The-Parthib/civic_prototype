@@ -11,7 +11,7 @@ const SmartQuestionnaire = ({
   initialData = {},
 }) => {
   const [answers, setAnswers] = useState({});
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); 
 
   // Default questions if AI didn't provide any
   const defaultQuestions = [

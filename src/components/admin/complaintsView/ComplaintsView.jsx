@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Calendar, User, FileText, Bot, Eye, Brain } from 'lucide-react';
 
-const Dashboard = ({ allocatedComplaints = [], complaints = [] }) => {
+const ComplaintsView = ({ allocatedComplaints = [], complaints = [] }) => {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [activeView, setActiveView] = useState("processed"); // "processed" or "original"
 
@@ -64,15 +64,7 @@ const Dashboard = ({ allocatedComplaints = [], complaints = [] }) => {
   };
 
   return (
-    <div className="space-y-6 p-4">
-      {/* Welcome Banner */}
-      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-        <p className="text-blue-800">
-          Welcome to the Jharkhand Government Admin Dashboard. Manage your
-          government services and applications here.
-        </p>
-      </div>
-
+    <div className="space-y-6">
       {/* View Toggle */}
       <div className="flex items-center space-x-4 mb-6">
         <button
@@ -293,4 +285,4 @@ const Dashboard = ({ allocatedComplaints = [], complaints = [] }) => {
   );
 };
 
-export default Dashboard;
+export default ComplaintsView;

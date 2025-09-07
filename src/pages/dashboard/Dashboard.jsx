@@ -255,14 +255,14 @@ const Dashboard = () => {
     setShowSmartQuestionnaire(false);
   };
 
-  // NEW: fetch complaints for a given email (from JSON Server at :3000)
+  // NEW: fetch complaints for a given email (from JSON Server at :5000)
   const fetchComplaintsForUser = async (email) => {
     if (!email) return;
     setComplaintsLoading(true);
     setComplaintsError("");
     try {
       const res = await fetch(
-        `http://localhost:3000/complaints?userInfo.email=${encodeURIComponent(
+        `http://localhost:${port}/complaints?userInfo.email=${encodeURIComponent(
           email
         )}`
       );
@@ -1042,9 +1042,15 @@ const Dashboard = () => {
             )}
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {complaints.map((c) => (
-              <ComplaintCard key={c.id} item={c} />
-            ))}
+            {complaints && complaints.length > 0 ? (
+              complaints.map((c) => (
+                <ComplaintCard key={c.id} item={c} />
+              ))
+            ) : (
+              <div className="col-span-full text-center text-gray-500">
+                No complaints found.
+              </div>
+            )}
           </div>
         </div>
       </main>
