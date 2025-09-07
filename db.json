@@ -285,291 +285,386 @@
     }
   ],
   "createDepartment": [
-    {
-      "id": "1757187883285",
-      "name": "Sanitation & Waste Management Department",
-      "responsibilities": [
-        "Cleaning the city",
-        "Collecting garbage and clearing vats regularly",
-        "Clearing bushes and overgrowth trees",
-        "Segregating biodegradable and non-biodegradable waste",
-        "Operating waste disposal plants",
-        "Promoting recycling programs"
-      ],
-      "department_head_uid": "HOD_Sanitation_1",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Cleaning the city regularly"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Collecting garbage and clearing vats"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Clearing bushes and overgrowth trees"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Segregating biodegradable and non-biodegradable waste"
-        },
-        {
-          "id": "Staff_05",
-          "responsibility": "Operating waste disposal plants"
-        },
-        {
-          "id": "Staff_06",
-          "responsibility": "Promoting recycling programs"
-        }
-      ],
-      "createdAt": "2025-09-07T20:44:43.285Z"
-    },
-    {
-      "id": "1757188201096",
-      "name": "Water Supply Department",
-      "responsibilities": [
-        "Managing water supply throughout the city",
-        "Fixing water leakages",
-        "Supplying drinking water",
-        "Generating monthly usage billing for water"
-      ],
-      "department_head_uid": "HOD_Water_2",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Managing water supply throughout the city"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Fixing water leakages"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Supplying drinking water"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Generating monthly usage billing for water"
-        }
-      ],
-      "createdAt": "2025-09-07T20:50:01.096Z"
-    },
-    {
-      "id": "1757188301150",
-      "name": "Electricity Department",
-      "responsibilities": [
-        "Providing uninterrupted power supply",
-        "Repairing faulty street lights",
-        "Installing new street lights in dark areas",
-        "Addressing electricity complaints",
-        "Monitoring illegal electricity connections"
-      ],
-      "department_head_uid": "HOD_Electricity_3",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Providing uninterrupted power supply"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Repairing faulty street lights"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Installing new street lights"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Handling electricity complaints"
-        },
-        {
-          "id": "Staff_05",
-          "responsibility": "Monitoring illegal electricity connections"
-        }
-      ],
-      "createdAt": "2025-09-07T20:55:30.115Z"
-    },
-    {
-      "id": "1757188402044",
-      "name": "Roads & Transport Department",
-      "responsibilities": [
-        "Maintaining city roads and footpaths",
-        "Repairing potholes and damaged roads",
-        "Managing public transportation",
-        "Installing and maintaining traffic signals"
-      ],
-      "department_head_uid": "HOD_Roads_4",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Maintaining city roads and footpaths"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Repairing potholes and damaged roads"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Managing public transportation"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Installing and maintaining traffic signals"
-        }
-      ],
-      "createdAt": "2025-09-07T21:02:44.044Z"
-    },
-    {
-      "id": "1757188503021",
-      "name": "Public Health Department",
-      "responsibilities": [
-        "Monitoring disease outbreaks",
-        "Running vaccination drives",
-        "Maintaining municipal hospitals and clinics",
-        "Spreading awareness on hygiene and sanitation"
-      ],
-      "department_head_uid": "HOD_Health_5",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Monitoring disease outbreaks"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Running vaccination drives"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Maintaining municipal hospitals and clinics"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Spreading awareness on hygiene and sanitation"
-        }
-      ],
-      "createdAt": "2025-09-07T21:10:21.021Z"
-    },
-    {
-      "id": "1757188604097",
-      "name": "Fire & Emergency Services",
-      "responsibilities": [
-        "Responding to fire incidents",
-        "Conducting fire safety inspections",
-        "Managing disaster rescue operations",
-        "Training citizens in fire safety awareness"
-      ],
-      "department_head_uid": "HOD_Fire_6",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Responding to fire incidents"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Conducting fire safety inspections"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Managing disaster rescue operations"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Training citizens in fire safety awareness"
-        }
-      ],
-      "createdAt": "2025-09-07T21:20:09.097Z"
-    },
-    {
-      "id": "1757188705099",
-      "name": "Revenue & Taxation Department",
-      "responsibilities": [
-        "Collecting property tax",
-        "Managing municipal fees and charges",
-        "Maintaining revenue records",
-        "Preventing tax evasion"
-      ],
-      "department_head_uid": "HOD_Revenue_7",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Collecting property tax"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Managing municipal fees and charges"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Maintaining revenue records"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Preventing tax evasion"
-        }
-      ],
-      "createdAt": "2025-09-07T21:25:09.099Z"
-    },
-    {
-      "id": "1757188806001",
-      "name": "Education & Libraries Department",
-      "responsibilities": [
-        "Managing municipal schools",
-        "Recruiting teachers and staff",
-        "Maintaining public libraries",
-        "Running literacy and awareness programs"
-      ],
-      "department_head_uid": "HOD_Education_8",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Managing municipal schools"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Recruiting teachers and staff"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Maintaining public libraries"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Running literacy and awareness programs"
-        }
-      ],
-      "createdAt": "2025-09-07T21:30:01.001Z"
-    },
-    {
-      "id": "1757188907093",
-      "name": "Parks & Recreation Department",
-      "responsibilities": [
-        "Maintaining public parks and gardens",
-        "Developing recreational spaces",
-        "Organizing cultural and sports events",
-        "Planting trees and maintaining greenery"
-      ],
-      "department_head_uid": "HOD_Parks_9",
-      "staffs": [
-        {
-          "id": "Staff_01",
-          "responsibility": "Maintaining public parks and gardens"
-        },
-        {
-          "id": "Staff_02",
-          "responsibility": "Developing recreational spaces"
-        },
-        {
-          "id": "Staff_03",
-          "responsibility": "Organizing cultural and sports events"
-        },
-        {
-          "id": "Staff_04",
-          "responsibility": "Planting trees and maintaining greenery"
-        }
-      ],
-      "createdAt": "2025-09-07T21:35:09.093Z"
-    }
+   [
+  {
+    "id": "1757187883285",
+    "name": "Sanitation & Waste Management Department",
+    "department_head_uid": "HOD_Sanitation_1",
+    "staffs": [
+      {
+        "id": "staff_sanitation_1",
+        "name": "Sanitation Staff 1",
+        "email": "staff1@sanitation.gov.in",
+        "password": "staff1123",
+        "responsibility": "Cleaning the city"
+      },
+      {
+        "id": "staff_sanitation_2",
+        "name": "Sanitation Staff 2",
+        "email": "staff2@sanitation.gov.in",
+        "password": "staff2123",
+        "responsibility": "Collecting garbage and clearing vats regularly"
+      },
+      {
+        "id": "staff_sanitation_3",
+        "name": "Sanitation Staff 3",
+        "email": "staff3@sanitation.gov.in",
+        "password": "staff3123",
+        "responsibility": "Clearing bushes and overgrowth trees"
+      },
+      {
+        "id": "staff_sanitation_4",
+        "name": "Sanitation Staff 4",
+        "email": "staff4@sanitation.gov.in",
+        "password": "staff4123",
+        "responsibility": "Segregating biodegradable and non-biodegradable waste"
+      },
+      {
+        "id": "staff_sanitation_5",
+        "name": "Sanitation Staff 5",
+        "email": "staff5@sanitation.gov.in",
+        "password": "staff5123",
+        "responsibility": "Operating waste disposal plants"
+      }
+    ]
+  },
+  {
+    "id": "1757188201096",
+    "name": "Water Supply Department",
+    "department_head_uid": "HOD_Water_2",
+    "staffs": [
+      {
+        "id": "staff_water_1",
+        "name": "Water Staff 1",
+        "email": "staff1@water.gov.in",
+        "password": "staff1123",
+        "responsibility": "Managing water supply throughout the city"
+      },
+      {
+        "id": "staff_water_2",
+        "name": "Water Staff 2",
+        "email": "staff2@water.gov.in",
+        "password": "staff2123",
+        "responsibility": "Fixing water leakages"
+      },
+      {
+        "id": "staff_water_3",
+        "name": "Water Staff 3",
+        "email": "staff3@water.gov.in",
+        "password": "staff3123",
+        "responsibility": "Supplying drinking water"
+      },
+      {
+        "id": "staff_water_4",
+        "name": "Water Staff 4",
+        "email": "staff4@water.gov.in",
+        "password": "staff4123",
+        "responsibility": "Generating monthly usage billing for water"
+      },
+      {
+        "id": "staff_water_5",
+        "name": "Water Staff 5",
+        "email": "staff5@water.gov.in",
+        "password": "staff5123",
+        "responsibility": "General support staff"
+      }
+    ]
+  },
+  {
+    "id": "1757188301150",
+    "name": "Electricity Department",
+    "department_head_uid": "HOD_Electricity_3",
+    "staffs": [
+      {
+        "id": "staff_electricity_1",
+        "name": "Electricity Staff 1",
+        "email": "staff1@electricity.gov.in",
+        "password": "staff1123",
+        "responsibility": "Providing uninterrupted power supply"
+      },
+      {
+        "id": "staff_electricity_2",
+        "name": "Electricity Staff 2",
+        "email": "staff2@electricity.gov.in",
+        "password": "staff2123",
+        "responsibility": "Repairing faulty street lights"
+      },
+      {
+        "id": "staff_electricity_3",
+        "name": "Electricity Staff 3",
+        "email": "staff3@electricity.gov.in",
+        "password": "staff3123",
+        "responsibility": "Installing new street lights in dark areas"
+      },
+      {
+        "id": "staff_electricity_4",
+        "name": "Electricity Staff 4",
+        "email": "staff4@electricity.gov.in",
+        "password": "staff4123",
+        "responsibility": "Addressing electricity complaints"
+      },
+      {
+        "id": "staff_electricity_5",
+        "name": "Electricity Staff 5",
+        "email": "staff5@electricity.gov.in",
+        "password": "staff5123",
+        "responsibility": "Monitoring illegal electricity connections"
+      }
+    ]
+  },
+  {
+    "id": "1757188402044",
+    "name": "Roads & Transport Department",
+    "department_head_uid": "HOD_Roads_4",
+    "staffs": [
+      {
+        "id": "staff_roads_1",
+        "name": "Roads Staff 1",
+        "email": "staff1@roads.gov.in",
+        "password": "staff1123",
+        "responsibility": "Maintaining city roads and footpaths"
+      },
+      {
+        "id": "staff_roads_2",
+        "name": "Roads Staff 2",
+        "email": "staff2@roads.gov.in",
+        "password": "staff2123",
+        "responsibility": "Repairing potholes and damaged roads"
+      },
+      {
+        "id": "staff_roads_3",
+        "name": "Roads Staff 3",
+        "email": "staff3@roads.gov.in",
+        "password": "staff3123",
+        "responsibility": "Managing public transportation"
+      },
+      {
+        "id": "staff_roads_4",
+        "name": "Roads Staff 4",
+        "email": "staff4@roads.gov.in",
+        "password": "staff4123",
+        "responsibility": "Installing and maintaining traffic signals"
+      },
+      {
+        "id": "staff_roads_5",
+        "name": "Roads Staff 5",
+        "email": "staff5@roads.gov.in",
+        "password": "staff5123",
+        "responsibility": "General support staff"
+      }
+    ]
+  },
+  {
+    "id": "1757188503021",
+    "name": "Public Health Department",
+    "department_head_uid": "HOD_Health_5",
+    "staffs": [
+      {
+        "id": "staff_health_1",
+        "name": "Health Staff 1",
+        "email": "staff1@health.gov.in",
+        "password": "staff1123",
+        "responsibility": "Monitoring disease outbreaks"
+      },
+      {
+        "id": "staff_health_2",
+        "name": "Health Staff 2",
+        "email": "staff2@health.gov.in",
+        "password": "staff2123",
+        "responsibility": "Running vaccination drives"
+      },
+      {
+        "id": "staff_health_3",
+        "name": "Health Staff 3",
+        "email": "staff3@health.gov.in",
+        "password": "staff3123",
+        "responsibility": "Maintaining municipal hospitals and clinics"
+      },
+      {
+        "id": "staff_health_4",
+        "name": "Health Staff 4",
+        "email": "staff4@health.gov.in",
+        "password": "staff4123",
+        "responsibility": "Spreading awareness on hygiene and sanitation"
+      },
+      {
+        "id": "staff_health_5",
+        "name": "Health Staff 5",
+        "email": "staff5@health.gov.in",
+        "password": "staff5123",
+        "responsibility": "General support staff"
+      }
+    ]
+  },
+  {
+    "id": "1757188604097",
+    "name": "Fire & Emergency Services",
+    "department_head_uid": "HOD_Fire_6",
+    "staffs": [
+      {
+        "id": "staff_fire_1",
+        "name": "Fire Staff 1",
+        "email": "staff1@fire.gov.in",
+        "password": "staff1123",
+        "responsibility": "Responding to fire incidents"
+      },
+      {
+        "id": "staff_fire_2",
+        "name": "Fire Staff 2",
+        "email": "staff2@fire.gov.in",
+        "password": "staff2123",
+        "responsibility": "Conducting fire safety inspections"
+      },
+      {
+        "id": "staff_fire_3",
+        "name": "Fire Staff 3",
+        "email": "staff3@fire.gov.in",
+        "password": "staff3123",
+        "responsibility": "Managing disaster rescue operations"
+      },
+      {
+        "id": "staff_fire_4",
+        "name": "Fire Staff 4",
+        "email": "staff4@fire.gov.in",
+        "password": "staff4123",
+        "responsibility": "Training citizens in fire safety awareness"
+      },
+      {
+        "id": "staff_fire_5",
+        "name": "Fire Staff 5",
+        "email": "staff5@fire.gov.in",
+        "password": "staff5123",
+        "responsibility": "General support staff"
+      }
+    ]
+  },
+  {
+    "id": "1757188705099",
+    "name": "Revenue & Taxation Department",
+    "department_head_uid": "HOD_Revenue_7",
+    "staffs": [
+      {
+        "id": "staff_revenue_1",
+        "name": "Revenue Staff 1",
+        "email": "staff1@revenue.gov.in",
+        "password": "staff1123",
+        "responsibility": "Collecting property tax"
+      },
+      {
+        "id": "staff_revenue_2",
+        "name": "Revenue Staff 2",
+        "email": "staff2@revenue.gov.in",
+        "password": "staff2123",
+        "responsibility": "Managing municipal fees and charges"
+      },
+      {
+        "id": "staff_revenue_3",
+        "name": "Revenue Staff 3",
+        "email": "staff3@revenue.gov.in",
+        "password": "staff3123",
+        "responsibility": "Maintaining revenue records"
+      },
+      {
+        "id": "staff_revenue_4",
+        "name": "Revenue Staff 4",
+        "email": "staff4@revenue.gov.in",
+        "password": "staff4123",
+        "responsibility": "Preventing tax evasion"
+      },
+      {
+        "id": "staff_revenue_5",
+        "name": "Revenue Staff 5",
+        "email": "staff5@revenue.gov.in",
+        "password": "staff5123",
+        "responsibility": "General support staff"
+      }
+    ]
+  },
+  {
+    "id": "1757188806001",
+    "name": "Education & Libraries Department",
+    "department_head_uid": "HOD_Education_8",
+    "staffs": [
+      {
+        "id": "staff_education_1",
+        "name": "Education Staff 1",
+        "email": "staff1@education.gov.in",
+        "password": "staff1123",
+        "responsibility": "Managing municipal schools"
+      },
+      {
+        "id": "staff_education_2",
+        "name": "Education Staff 2",
+        "email": "staff2@education.gov.in",
+        "password": "staff2123",
+        "responsibility": "Recruiting teachers and staff"
+      },
+      {
+        "id": "staff_education_3",
+        "name": "Education Staff 3",
+        "email": "staff3@education.gov.in",
+        "password": "staff3123",
+        "responsibility": "Maintaining public libraries"
+      },
+      {
+        "id": "staff_education_4",
+        "name": "Education Staff 4",
+        "email": "staff4@education.gov.in",
+        "password": "staff4123",
+        "responsibility": "Running literacy and awareness programs"
+      },
+      {
+        "id": "staff_education_5",
+        "name": "Education Staff 5",
+        "email": "staff5@education.gov.in",
+        "password": "staff5123",
+        "responsibility": "General support staff"
+      }
+    ]
+  },
+  {
+    "id": "1757188907093",
+    "name": "Parks & Recreation Department",
+    "department_head_uid": "HOD_Parks_9",
+    "staffs": [
+      {
+        "id": "staff_parks_1",
+        "name": "Parks Staff 1",
+        "email": "staff1@parks.gov.in",
+        "password": "staff1123",
+        "responsibility": "Maintaining public parks and gardens"
+      },
+      {
+        "id": "staff_parks_2",
+        "name": "Parks Staff 2",
+        "email": "staff2@parks.gov.in",
+        "password": "staff2123",
+        "responsibility": "Developing recreational spaces"
+      },
+      {
+        "id": "staff_parks_3",
+        "name": "Parks Staff 3",
+        "email": "staff3@parks.gov.in",
+        "password": "staff3123",
+        "responsibility": "Organizing cultural and sports events"
+      },
+      {
+        "id": "staff_parks_4",
+        "name": "Parks Staff 4",
+        "email": "staff4@parks.gov.in",
+        "password": "staff4123",
+        "responsibility": "Planting trees and maintaining greenery"
+      },
+      {
+        "id": "staff_parks_5",
+        "name": "Parks Staff 5",
+        "email": "staff5@parks.gov.in",
+        "password": "staff5123",
+        "responsibility": "General support staff"
+      }
+    ]
+  }
+]
   ],
   "desiredDepartment": [
     {
