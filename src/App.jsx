@@ -19,6 +19,8 @@ import AdminLogin from "./pages/admin/AdminLogin";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
+import StaffDashboard from "./pages/Staff/StaffDashboard";
+import StaffLogin from "./pages/Staff/StaffLogin";
 
 function App() {
   return (
@@ -29,7 +31,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         {/* <Route path="/register" element={<Register />} /> */}
         <Route path="/register/citizen" element={<CitizenRegister />} />
-        <Route path="/register/admin" element={<AdminRegister/>} />
+        {/* <Route path="/register/admin" element={<AdminRegister/>} /> */}
 
         {/* Private Routes - Protected */}
         <Route path="/p" element={
@@ -41,6 +43,10 @@ function App() {
         {/* Admin Routes - No longer protected */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Staff Routes */}
+        <Route path="/staff/login" element={<StaffLogin/>}/>
+        <Route path="/staff" element={<StaffDashboard/>}/>
 
         {/* Catch all - redirect to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />

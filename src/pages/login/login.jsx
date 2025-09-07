@@ -1,4 +1,4 @@
-import { ArrowBigLeft, Eye, EyeOff, User } from "lucide-react";
+import { ArrowBigLeft, Eye, EyeOff, User, Shield } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -54,49 +54,49 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
-      {/* Top brand bar for consistency */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-blue-800 text-white flex items-center px-6 shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-gray-100 flex items-center justify-center p-4">
+      {/* Government Seal/Emblem Header */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-white border-b border-orange-200 flex items-center justify-center px-6 shadow-sm">
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-            <div className="w-8 h-8 bg-blue-800 rounded-full flex items-center justify-center text-white font-bold">JG</div>
+          <div className="w-14 h-14 bg-orange-600 rounded-full flex items-center justify-center mr-4 shadow-md">
+            <Shield className="text-white" size={32} />
           </div>
-          <div>
-            <h1 className="font-bold text-lg">Jharkhand Government</h1>
-            <p className="text-xs text-blue-200">Citizen Services Portal</p>
+          <div className="text-center">
+            <h1 className="font-bold text-2xl text-gray-800">Government of Jharkhand</h1>
+            <p className="text-sm text-gray-600 mt-1">Official Citizen Portal</p>
           </div>
         </div>
       </div>
 
       <button
         onClick={() => navigate("/")}
-        className="absolute top-24 left-6 flex items-center text-blue-800 hover:text-blue-600 transition-colors"
+        className="absolute top-24 left-6 flex items-center text-orange-700 hover:text-orange-900 transition-colors font-medium"
       >
         <ArrowBigLeft className="mr-1" size={20} />
-        <span>Back to Home</span>
+        <span>Return to Home</span>
       </button>
 
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden mt-12">
+      <div className="bg-white rounded-lg shadow-md w-full max-w-md overflow-hidden mt-24 border border-orange-100">
         {/* Login header */}
-        <div className="bg-blue-800 text-white py-5 px-6">
+        <div className="bg-orange-600 text-white py-5 px-6 border-b-4 border-orange-700">
           <div className="flex items-center justify-center">
-            <div className="bg-blue-700 p-3 rounded-full mr-3">
-              <User size={24} />
+            <div className="bg-white p-2 rounded-full mr-3 shadow-sm">
+              <User className="text-orange-600" size={22} />
             </div>
-            <h2 className="text-2xl font-bold">Citizen Login</h2>
+            <h2 className="text-xl font-semibold tracking-wide">CITIZEN LOGIN PORTAL</h2>
           </div>
-          <p className="text-blue-200 text-sm text-center mt-2">
-            Access your civic complaint dashboard
+          <p className="text-orange-100 text-xs text-center mt-2 tracking-wide">
+            Secure access to government services
           </p>
         </div>
 
         <div className="p-6">
           {message && (
             <div
-              className={`mb-5 p-3 rounded-lg text-center text-sm ${
+              className={`mb-5 p-3 rounded-md text-center text-sm border ${
                 message.includes("✅")
-                  ? "bg-green-100 text-green-700 border border-green-200"
-                  : "bg-red-100 text-red-700 border border-red-200"
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-yellow-50 text-amber-700 border-amber-200"
               }`}
             >
               {message}
@@ -106,12 +106,12 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                Official Email Address
               </label>
               <input
                 type="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                placeholder="john@example.com"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                placeholder="Enter registered email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -125,7 +125,7 @@ const Login = () => {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-12"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition pr-12"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -133,10 +133,10 @@ const Login = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-700"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-700"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -144,10 +144,10 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 rounded-lg text-white font-medium transition ${
+              className={`w-full py-2.5 px-4 rounded-md text-white font-medium transition ${
                 loading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
+                  ? "bg-orange-400 cursor-not-allowed"
+                  : "bg-orange-600 hover:bg-orange-700 shadow-sm hover:shadow-md"
               }`}
             >
               {loading ? (
@@ -172,29 +172,30 @@ const Login = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Logging in...
+                  Authenticating...
                 </span>
               ) : (
-                "Login to Dashboard"
+                "Access Citizen Dashboard"
               )}
             </button>
           </form>
 
           <div className="text-center mt-6 text-sm text-gray-600">
-            Don't have an account?{" "}
+            Not registered?{" "}
             <button
               onClick={() => navigate("/register/citizen")}
-              className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+              className="text-orange-600 hover:text-orange-800 font-medium transition-colors duration-200"
             >
-              Sign up here
+              Create citizen account
             </button>
           </div>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h3 className="text-sm font-semibold text-blue-800 mb-2">
-              Demo Civilian Account:
+          <div className="mt-6 p-3 bg-amber-50 rounded-md border border-amber-200">
+            <h3 className="text-sm font-semibold text-amber-800 mb-2 flex items-center">
+              <Shield size={16} className="mr-1" />
+              Demo Account Credentials:
             </h3>
-            <div className="text-xs text-blue-700 space-y-1">
+            <div className="text-xs text-amber-700 space-y-1">
               <p>
                 <span className="font-medium">Email:</span> john@example.com
               </p>
@@ -204,9 +205,21 @@ const Login = () => {
             </div>
           </div>
 
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="flex justify-center space-x-4">
+              <button className="text-xs text-orange-600 hover:text-orange-800">
+                Forgot Password?
+              </button>
+              <span className="text-gray-400">|</span>
+              <button className="text-xs text-orange-600 hover:text-orange-800">
+                Help & Support
+              </button>
+            </div>
+          </div>
+
           <div className="mt-6 text-center text-xs text-gray-500">
-            <p>Access citizen services and submit complaints</p>
-            <p className="mt-1">© 2025 Jharkhand Government</p>
+            <p>Secure access to government services and grievance portal</p>
+            <p className="mt-1">© 2025 Government of Jharkhand. All rights reserved.</p>
           </div>
         </div>
       </div>
