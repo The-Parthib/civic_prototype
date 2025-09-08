@@ -754,10 +754,8 @@ const Dashboard = () => {
           }, 1000);
         }
 
-        // Trigger background analysis (this will happen after navigation)
-        setTimeout(() => {
-          triggerBackgroundAnalysis(reportId, complaint);
-        }, 2000);
+        // Trigger background analysis immediately (no delay)
+        triggerBackgroundAnalysis(reportId, complaint);
         
       } else {
         throw new Error("Failed to submit complaint");
@@ -767,17 +765,31 @@ const Dashboard = () => {
     }
   };
 
-  // Trigger background analysis after submission
+  // Trigger background analysis after submission - More efficient
   const triggerBackgroundAnalysis = async (reportId, complaintData) => {
     try {
-      console.log("Starting background analysis for report:", reportId);
+      console.log("Starting AI analysis for report:", reportId);
       
-      // Call the background analysis service directly
-      setTimeout(async () => {
-        await BackgroundAnalysisService.analyzeReport(reportId, complaintData);
-      }, 3000); // Start analysis after 3 seconds
+      // Start analysis immediately instead of delaying
+      const result = await BackgroundAnalysisService.analyzeReport(reportId, complaintData);
       
-      console.log("Background analysis triggered for report:", reportId);
+      if (result.success) {
+        console.log(`AI analysis completed for report ${reportId}:`, {
+          needsQuestions: result.needsQuestions,
+          questionsCount: result.questions?.length || 0
+        });
+        
+        if (!result.needsQuestions && result.allocation) {
+          // Report was processed completely
+          console.log("Report processed successfully without questions");
+        } else if (result.needsQuestions) {
+          // Questions will be shown in ReportDetails page
+          console.log(`${result.questions?.length || 0} questions generated for user`);
+        }
+      } else {
+        console.error("AI analysis failed:", result.error);
+      }
+      
     } catch (error) {
       console.error("Failed to trigger background analysis:", error);
     }

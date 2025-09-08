@@ -6,7 +6,6 @@ import viteLogo from "/vite.svg";
 // Public pages
 import Landing from "./pages/landing/Landing";
 import Login from "./pages/login/login";
-import Register from "./pages/register/Register";
 
 // Private pages
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -19,7 +18,6 @@ import ProfileScreen from "./pages/profile/ProfileScreen";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CitizenRegister from "./pages/register/CitizenRegister";
-import AdminRegister from "./pages/register/AdminRegister";
 import AdminLogin from "./pages/admin/AdminLogin";
 
 // Components
@@ -54,9 +52,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/register" element={<Register />} /> */}
         <Route path="/register/citizen" element={<CitizenRegister />} />
-        {/* <Route path="/register/admin" element={<AdminRegister/>} /> */}
 
         {/* Private Routes - Protected */}
         <Route path="/p" element={

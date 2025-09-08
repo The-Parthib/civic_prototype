@@ -69,7 +69,7 @@ export default defineConfig({
     }),
   ],
   server: {
-    host: "192.168.0.193",
+    host: process.env.VITE_API_BASE_URL,
     https: false, // Set to true if you have SSL certificates
     port: 5173
   }

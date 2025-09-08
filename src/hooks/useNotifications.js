@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import notificationService from '../services/notificationService';
+import notificationService from '../services/notificationService.js';
 
 export const useNotifications = () => {
   const [isSupported, setIsSupported] = useState(false);

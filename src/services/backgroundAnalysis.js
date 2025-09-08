@@ -155,74 +155,205 @@ export class BackgroundAnalysisService {
     }
   }
 
-  // Main analysis function
+  // Store allocation in specified format with better duplicate prevention
+  static async storeAllocation(reportData, allocation, questionaryPayload = null) {
+    try {
+      // Use reportData.id as the allocation ID to prevent duplicates
+      const allocationPayload = {
+        id: reportData.id || Date.now().toString(),
+        title: reportData.title,
+        details: reportData.details,
+        hasImage: !!(reportData.photo || reportData.capturedImage),
+        department: allocation.departmentName,
+        category: allocation.category,
+        priority: allocation.priority,
+        confidence: allocation.confidence,
+        staffId: allocation.staffId,
+        analysis: allocation.summary,
+        timestamp: new Date().toISOString(),
+        createdAt: reportData.createdAt || new Date().toISOString(),
+        // Include the questionnaire data in the allocation payload
+        questionnaire: questionaryPayload,
+        photo: reportData.photo || null,
+        capturedImage: reportData.capturedImage || null,
+        // Add user info for better tracking
+        userInfo: reportData.userInfo || {},
+      };
+
+      // Check if allocation already exists to prevent duplicates
+      const existingResponse = await fetch(`http://localhost:${port}/allocatedDepartment`);
+      const existingAllocations = await existingResponse.json();
+      
+      // More comprehensive duplicate checking
+      const existingAllocation = existingAllocations.find(a => {
+        // Primary check by ID
+        if (a.id === allocationPayload.id) return true;
+        
+        // Secondary check by title and user info to catch different ID same report
+        if (a.title === allocationPayload.title && 
+            a.userInfo?.email === allocationPayload.userInfo?.email &&
+            Math.abs(new Date(a.createdAt || a.timestamp) - new Date(allocationPayload.createdAt)) < 60000) {
+          return true; // Same report within 1 minute
+        }
+        
+        return false;
+      });
+
+      if (existingAllocation) {
+        // Update existing allocation instead of creating new one
+        const updatePayload = { ...allocationPayload, id: existingAllocation.id };
+        await fetch(`http://localhost:${port}/allocatedDepartment/${existingAllocation.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatePayload),
+        });
+        console.log(`Allocation updated for report: ${reportData.title} (prevented duplicate)`);
+      } else {
+        // Create new allocation
+        await fetch(`http://localhost:${port}/allocatedDepartment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(allocationPayload),
+        });
+        console.log(`Allocation stored for report: ${reportData.title}`);
+      }
+
+      return { success: true, allocationPayload };
+    } catch (error) {
+      console.error("Error storing allocation:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Main analysis function - Improved workflow to prevent confusion
   static async analyzeReport(reportId, reportData) {
     try {
       console.log(`Starting background analysis for report ${reportId}`);
       
-      // Step 1: Assess if questions are needed
-      const contextAssessment = await this.assessContextClarity(
-        reportData.title, 
-        reportData.details
-      );
-
-      // Step 2: Allocate department (basic allocation first)
-      const allocation = await this.allocateDepartmentAndStaff(
-        reportData.title,
-        reportData.details,
-        {}
-      );
-
-      // Step 3: Update the report with initial analysis
-      const updateData = {
-        category: allocation.category,
-        department: allocation.departmentName,
-        priority: allocation.priority,
-        assignedTo: allocation.staffId,
-        aiAnalysis: {
-          contextAssessment,
-          questions: contextAssessment.questions || [],
-          answers: {},
-          departmentAllocation: allocation,
-          processed: true,
-          needsQuestions: contextAssessment.needsQuestions
-        },
-        needsAnalysis: false,
-        updatedAt: new Date().toISOString()
-      };
-
-      // Update the report in the database
-      await fetch(`http://localhost:${port}/complaints/${reportId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData)
-      });
-
-      // Step 4: Send notification if questions are needed
-      if (contextAssessment.needsQuestions && contextAssessment.questions.length > 0) {
-        await reportNotifications.notifyQuestionsNeeded(
-          reportId,
-          reportData.title,
-          contextAssessment.questions.length
-        );
+      // Prevent multiple simultaneous analyses of the same report
+      const analysisKey = `analysis_${reportId}`;
+      if (this.activeAnalyses?.has(analysisKey)) {
+        console.log(`Analysis already in progress for report ${reportId}`);
+        return { success: false, error: "Analysis already in progress" };
       }
+      
+      // Track active analysis
+      if (!this.activeAnalyses) this.activeAnalyses = new Set();
+      this.activeAnalyses.add(analysisKey);
 
-      console.log(`Background analysis completed for report ${reportId}`);
-      return { success: true, needsQuestions: contextAssessment.needsQuestions };
+      try {
+        // Step 1: Assess if questions are needed first
+        const contextAssessment = await this.assessContextClarity(
+          reportData.title, 
+          reportData.details
+        );
+
+        console.log(`AI Assessment completed: needsQuestions = ${contextAssessment.needsQuestions}`);
+
+        if (!contextAssessment.needsQuestions) {
+          // Step 2A: No questions needed - proceed with allocation immediately
+          console.log(`No questions needed, proceeding with department allocation...`);
+          
+          const allocation = await this.allocateDepartmentAndStaff(
+            reportData.title,
+            reportData.details,
+            {}
+          );
+
+          // Store allocation immediately
+          await this.storeAllocation(reportData, allocation, null);
+
+          // Update report with complete analysis - mark as ready
+          const updateData = {
+            category: allocation.category,
+            department: allocation.departmentName,
+            priority: allocation.priority,
+            assignedTo: allocation.staffId,
+            status: "Submitted", // Keep status as submitted but mark analysis complete
+            aiAnalysis: {
+              contextAssessment,
+              questions: [],
+              answers: {},
+              departmentAllocation: allocation,
+              processed: true,
+              needsQuestions: false,
+              questionsCompleted: true,
+              analysisCompleted: true
+            },
+            needsAnalysis: false,
+            updatedAt: new Date().toISOString()
+          };
+
+          await fetch(`http://localhost:${port}/complaints/${reportId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updateData)
+          });
+
+          console.log(`Background analysis completed for report ${reportId} - No questions needed`);
+          return { success: true, needsQuestions: false, allocation };
+
+        } else {
+          // Step 2B: Questions are needed - DON'T allocate department yet, but prepare for questions
+          console.log(`Questions needed, preparing questionnaire for user...`);
+          
+          const updateData = {
+            status: "Pending Additional Info", // Change status to indicate questions needed
+            aiAnalysis: {
+              contextAssessment,
+              questions: contextAssessment.questions || [],
+              answers: {},
+              processed: true,
+              needsQuestions: true,
+              questionsCompleted: false,
+              analysisCompleted: false // Analysis not complete until questions answered
+            },
+            needsAnalysis: false,
+            updatedAt: new Date().toISOString()
+          };
+
+          await fetch(`http://localhost:${port}/complaints/${reportId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updateData)
+          });
+
+          // Send notification for questions AFTER updating status
+          await reportNotifications.notifyQuestionsNeeded(
+            reportId,
+            reportData.title,
+            contextAssessment.questions.length
+          );
+
+          console.log(`Background analysis completed for report ${reportId} - Questions required`);
+          return { success: true, needsQuestions: true, questions: contextAssessment.questions };
+        }
+        
+      } finally {
+        // Clean up active analysis tracking
+        this.activeAnalyses.delete(analysisKey);
+      }
       
     } catch (error) {
       console.error(`Background analysis failed for report ${reportId}:`, error);
+      
+      // Clean up on error
+      if (this.activeAnalyses) {
+        this.activeAnalyses.delete(`analysis_${reportId}`);
+      }
       
       // Update report with error status
       await fetch(`http://localhost:${port}/complaints/${reportId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          status: "Analysis Failed",
           needsAnalysis: false,
           aiAnalysis: {
             processed: true,
             error: error.message,
-            needsQuestions: false
+            needsQuestions: false,
+            analysisCompleted: false
           },
           updatedAt: new Date().toISOString()
         })
@@ -232,31 +363,40 @@ export class BackgroundAnalysisService {
     }
   }
 
-  // Update report with question answers
+  // Update report with question answers and complete allocation
   static async updateReportWithAnswers(reportId, answers) {
     try {
+      console.log(`Processing question answers for report ${reportId}`);
+      
       // Get current report
       const reportResponse = await fetch(`http://localhost:${port}/complaints/${reportId}`);
       const report = await reportResponse.json();
 
-      // Re-analyze with answers
+      // Re-analyze with answers to determine final allocation
       const allocation = await this.allocateDepartmentAndStaff(
         report.title,
         report.details,
         answers
       );
 
-      // Update the report
+      console.log(`Final allocation determined:`, allocation);
+
+      // Store allocation after questions are answered
+      await this.storeAllocation(report, allocation, answers);
+
+      // Update the report with complete analysis and proper status
       const updateData = {
         category: allocation.category,
         department: allocation.departmentName,
         priority: allocation.priority,
         assignedTo: allocation.staffId,
+        status: "Submitted", // Return to submitted status now that analysis is complete
         aiAnalysis: {
           ...report.aiAnalysis,
           answers,
           departmentAllocation: allocation,
-          questionsCompleted: true
+          questionsCompleted: true,
+          analysisCompleted: true // Mark analysis as fully complete
         },
         updatedAt: new Date().toISOString()
       };
@@ -267,6 +407,7 @@ export class BackgroundAnalysisService {
         body: JSON.stringify(updateData)
       });
 
+      console.log(`Report ${reportId} updated with final allocation after questions completed`);
       return { success: true, allocation };
     } catch (error) {
       console.error("Error updating report with answers:", error);
