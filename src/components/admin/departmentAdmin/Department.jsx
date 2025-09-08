@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { ChevronDown, ChevronRight, Users, MapPin, Settings, UserCheck } from "lucide-react";
 
 const port = import.meta.env.VITE_DB_PORT;
 
@@ -22,6 +23,12 @@ const Department = () => {
   const [selectedStaff, setSelectedStaff] = useState("");
   const [assignError, setAssignError] = useState("");
   const [assignSubmitting, setAssignSubmitting] = useState(false);
+  
+  // New state for auto-allocation features
+  const [allStaff, setAllStaff] = useState([]);
+  const [allComplaints, setAllComplaints] = useState([]);
+  const [showManagement, setShowManagement] = useState(false);
+  const [autoAllocating, setAutoAllocating] = useState(false);
 
   useEffect(() => {
     let admin = sessionStorage.getItem("adminName");
@@ -76,7 +83,112 @@ const Department = () => {
 
   useEffect(() => {
     fetchData();
+    fetchAllStaff();
+    fetchAllComplaints();
   }, []);
+
+  // Fetch all staff for auto-allocation
+  const fetchAllStaff = async () => {
+    try {
+      const response = await fetch(`http://localhost:${port}/staffs`);
+      if (response.ok) {
+        const staff = await response.json();
+        setAllStaff(staff);
+      }
+    } catch (error) {
+      console.error('Error fetching staff:', error);
+    }
+  };
+
+  // Fetch all complaints for auto-allocation
+  const fetchAllComplaints = async () => {
+    try {
+      const response = await fetch(`http://localhost:${port}/complaints`);
+      if (response.ok) {
+        const complaints = await response.json();
+        setAllComplaints(complaints);
+      }
+    } catch (error) {
+      console.error('Error fetching complaints:', error);
+    }
+  };
+
+  // Auto-allocation algorithm
+  const getWorkloadForStaff = (staffId) => {
+    return allComplaints.filter(complaint => 
+      complaint.assignedTo === staffId && 
+      complaint.status !== "Rejected"
+    ).length;
+  };
+
+  const autoAllocateStaff = async () => {
+    setAutoAllocating(true);
+    try {
+      // Get unassigned complaints
+      const unassignedComplaints = allComplaints.filter(complaint => 
+        !complaint.assignedTo && complaint.status === "Submitted"
+      );
+
+      for (const complaint of unassignedComplaints) {
+        // Find staff members for this complaint's department
+        const availableStaff = allStaff.filter(staff => 
+          staff.departmentName === complaint.department
+        );
+
+        if (availableStaff.length > 0) {
+          // Find staff member with least workload
+          const staffWithWorkload = availableStaff.map(staff => ({
+            ...staff,
+            currentWorkload: getWorkloadForStaff(staff.id)
+          }));
+
+          const selectedStaff = staffWithWorkload.reduce((min, current) => 
+            current.currentWorkload < min.currentWorkload ? current : min
+          );
+
+          // Assign the complaint
+          await fetch(`http://localhost:${port}/complaints/${complaint.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              assignedTo: selectedStaff.id,
+              status: 'In Progress',
+              updatedAt: new Date().toISOString()
+            })
+          });
+        }
+      }
+
+      // Refresh data
+      await fetchAllComplaints();
+      
+      // Refresh department complaints if any department is open
+      if (openDept) {
+        const openDepartment = departments.find(d => d.id === openDept);
+        if (openDepartment) {
+          await fetchDeptComplaints(openDepartment);
+        }
+      }
+
+    } catch (error) {
+      console.error('Auto-allocation failed:', error);
+    } finally {
+      setAutoAllocating(false);
+    }
+  };
+
+  // Calculate unassigned complaints per department
+  const unassignedByDepartment = useMemo(() => {
+    const result = {};
+    departments.forEach(dept => {
+      result[dept.name] = allComplaints.filter(complaint => 
+        complaint.department === dept.name && 
+        !complaint.assignedTo && 
+        complaint.status === "Submitted"
+      ).length;
+    });
+    return result;
+  }, [allComplaints, departments]);
 
   const updateField = (field, value) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -229,6 +341,10 @@ const Department = () => {
             : c
         ),
       }));
+      
+      // Refresh all complaints data for auto-allocation
+      await fetchAllComplaints();
+      
       setAssigning(null);
       setSelectedStaff("");
     } catch (e) {
@@ -245,16 +361,85 @@ const Department = () => {
         <p className="text-gray-600">
           Manage government departments and their administrators.
         </p>
-        <button
-          onClick={() => {
-            setError("");
-            setShowForm((s) => !s);
-          }}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md transition"
-        >
-          {showForm ? "Close" : "Add Department"}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowManagement(!showManagement)}
+            className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-md transition flex items-center gap-2"
+          >
+            <Settings size={16} />
+            {showManagement ? "Hide Management" : "Show Management"}
+          </button>
+          <button
+            onClick={() => {
+              setError("");
+              setShowForm((s) => !s);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md transition"
+          >
+            {showForm ? "Close" : "Add Department"}
+          </button>
+        </div>
       </div>
+
+      {showManagement && (
+        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+          <h3 className="text-lg font-semibold text-blue-800 mb-4 flex items-center gap-2">
+            <UserCheck size={20} />
+            Staff Management Panel
+          </h3>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Auto-allocation section */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-700">Auto-allocation</h4>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-3">
+                  Automatically assign unassigned complaints to staff members based on department and workload balance.
+                </p>
+                <button
+                  onClick={autoAllocateStaff}
+                  disabled={autoAllocating}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {autoAllocating ? "Allocating..." : "Auto-allocate Staff"}
+                </button>
+              </div>
+            </div>
+
+            {/* Unassigned complaints summary */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-700">Unassigned Complaints</h4>
+              <div className="bg-orange-50 p-4 rounded-lg">
+                {departments.length > 0 ? (
+                  <div className="space-y-2">
+                    {departments.map(dept => {
+                      const unassignedCount = unassignedByDepartment[dept.name] || 0;
+                      return (
+                        <div key={dept.id} className="flex justify-between items-center text-sm">
+                          <span className="text-gray-700">{dept.name}</span>
+                          <span className={`font-medium ${unassignedCount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                            {unassignedCount} unassigned
+                          </span>
+                        </div>
+                      );
+                    })}
+                    <div className="border-t pt-2 mt-2">
+                      <div className="flex justify-between items-center text-sm font-medium">
+                        <span>Total Unassigned:</span>
+                        <span className="text-orange-600">
+                          {Object.values(unassignedByDepartment).reduce((sum, count) => sum + count, 0)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">No departments available</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <form
@@ -420,6 +605,7 @@ const Department = () => {
               openDept === d.id || deptComplaints[d.id]
                 ? loadedComplaints.length
                 : null;
+            const unassignedCount = unassignedByDepartment[d.name] || 0;
             return (
               <div
                 key={d.id}
@@ -434,6 +620,11 @@ const Department = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900 text-sm pr-6">
                       {d.name || "Unnamed"}
+                      {unassignedCount > 0 && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          {unassignedCount} unassigned
+                        </span>
+                      )}
                     </h4>
                     {/* changed: display multiple responsibilities */}
                     <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
