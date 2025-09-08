@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 // Using environment variable for port
-const port = import.meta.env.VITE_DB_PORT || 5000
+const port = import.meta.env.VITE_DB_PORT
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("")
@@ -126,7 +126,7 @@ const AdminLogin = () => {
               <input
                 type="email"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
-                placeholder="admin@ranchi.gov.in"
+                placeholder="admin@ranchi.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

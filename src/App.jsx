@@ -1,12 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 
 // Public pages
 import Landing from "./pages/landing/Landing";
 import Login from "./pages/login/login";
-import Register from "./pages/register/Register";
 
 // Private pages
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -14,13 +10,12 @@ import Dashboard from "./pages/dashboard/Dashboard";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CitizenRegister from "./pages/register/CitizenRegister";
-import AdminRegister from "./pages/register/AdminRegister";
 import AdminLogin from "./pages/admin/AdminLogin";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
-import StaffDashboard from "./pages/Staff/StaffDashboard";
 import StaffLogin from "./pages/Staff/StaffLogin";
+import StaffPage from "./pages/Staff/StaffPage";
 
 function App() {
   return (
@@ -46,7 +41,7 @@ function App() {
 
         {/* Staff Routes */}
         <Route path="/staff/login" element={<StaffLogin/>}/>
-        <Route path="/staff" element={<StaffDashboard/>}/>
+        <Route path="/staff" element={<StaffPage/>}/>
 
         {/* Catch all - redirect to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />
