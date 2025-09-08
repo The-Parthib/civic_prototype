@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 // Use Vite env with a safe fallback so it works even if .env isn't loaded
 const port = import.meta.env.VITE_DB_PORT || 5000;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:${port}/users`);
+      const response = await fetch(`${apiBaseUrl}:${port}/users`);
       if (!response.ok) throw new Error("Failed to fetch users");
 
       const users = await response.json();
@@ -40,7 +41,7 @@ const Login = () => {
         sessionStorage.setItem("civicName", JSON.stringify(civicUser));
 
         setTimeout(() => {
-          navigate("/p");
+          navigate("/home");
         }, 1000);
       } else {
         setMessage("❌ Invalid email or password. Please try again.");
@@ -54,172 +55,213 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-gray-100 flex items-center justify-center p-4">
-      {/* Government Seal/Emblem Header */}
-      <div className="absolute top-0 left-0 right-0 h-20 bg-white border-b border-orange-200 flex items-center justify-center px-6 shadow-sm">
-        <div className="flex items-center">
-          <div className="w-14 h-14 bg-orange-600 rounded-full flex items-center justify-center mr-4 shadow-md">
-            <Shield className="text-white" size={32} />
-          </div>
-          <div className="text-center">
-            <h1 className="font-bold text-2xl text-gray-800">Government of Jharkhand</h1>
-            <p className="text-sm text-gray-600 mt-1">Official Citizen Portal</p>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-gray-100">
+      {/* Cross-platform Header */}
+      <div className="bg-white shadow-sm border-b border-orange-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-3 sm:py-4 flex items-center justify-between">
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center text-orange-700 hover:text-orange-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-orange-50 active:bg-orange-100"
+              aria-label="Go back to home"
+            >
+              <ArrowBigLeft size={20} className="sm:mr-1" />
+              <span className="hidden sm:inline ml-1 text-sm font-medium">Back to Home</span>
+              <span className="sm:hidden ml-1 text-sm font-medium">Back</span>
+            </button>
+            
+            <div className="flex items-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-md">
+                <Shield className="text-white" size={16} />
+              </div>
+              <div className="text-center">
+                <h1 className="font-bold text-sm sm:text-lg lg:text-xl text-gray-800">
+                  <span className="hidden sm:inline">Government of Jharkhand</span>
+                  <span className="sm:hidden">Gov. Jharkhand</span>
+                </h1>
+                <p className="hidden sm:block text-xs lg:text-sm text-gray-600 mt-1">
+                  Official Citizen Portal
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <button
-        onClick={() => navigate("/")}
-        className="absolute top-24 left-6 flex items-center text-orange-700 hover:text-orange-900 transition-colors font-medium"
-      >
-        <ArrowBigLeft className="mr-1" size={20} />
-        <span>Return to Home</span>
-      </button>
-
-      <div className="bg-white rounded-lg shadow-md w-full max-w-md overflow-hidden mt-24 border border-orange-100">
-        {/* Login header */}
-        <div className="bg-orange-600 text-white py-5 px-6 border-b-4 border-orange-700">
-          <div className="flex items-center justify-center">
-            <div className="bg-white p-2 rounded-full mr-3 shadow-sm">
-              <User className="text-orange-600" size={22} />
+      {/* Main Content Container */}
+      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        {/* Login Card - Responsive Width */}
+        <div className="bg-white rounded-2xl shadow-lg lg:shadow-xl overflow-hidden border border-orange-100 w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-orange-600 to-orange-700 px-6 sm:px-8 lg:px-10 py-6 sm:py-8 lg:py-10 text-center">
+            <div className="bg-white p-3 lg:p-4 rounded-full inline-flex mb-4 lg:mb-6 shadow-sm">
+              <User className="text-orange-600" size={24} />
             </div>
-            <h2 className="text-xl font-semibold tracking-wide">CITIZEN LOGIN PORTAL</h2>
+            <h2 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold mb-2">
+              Citizen Login Portal
+            </h2>
+            <p className="text-orange-100 text-sm sm:text-base lg:text-lg">
+              Secure access to government services
+            </p>
           </div>
-          <p className="text-orange-100 text-xs text-center mt-2 tracking-wide">
-            Secure access to government services
-          </p>
-        </div>
 
-        <div className="p-6">
-          {message && (
-            <div
-              className={`mb-5 p-3 rounded-md text-center text-sm border ${
-                message.includes("✅")
-                  ? "bg-green-50 text-green-700 border-green-200"
-                  : "bg-yellow-50 text-amber-700 border-amber-200"
-              }`}
-            >
-              {message}
-            </div>
-          )}
+          {/* Form Section */}
+          <div className="p-6 sm:p-8 lg:p-10">
+            {message && (
+              <div
+                className={`mb-6 p-4 lg:p-5 rounded-xl text-center text-sm sm:text-base font-medium ${
+                  message.includes("✅")
+                    ? "bg-green-50 text-green-800 border border-green-200"
+                    : "bg-red-50 text-red-800 border border-red-200"
+                }`}
+              >
+                {message}
+              </div>
+            )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Official Email Address
-              </label>
-              <input
-                type="email"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                placeholder="Enter registered email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
+            <form onSubmit={handleLogin} className="space-y-6 lg:space-y-8">
+              {/* Email Input */}
+              <div>
+                <label className="block text-sm sm:text-base lg:text-lg font-semibold text-gray-700 mb-2 lg:mb-3">
+                  Official Email Address
+                </label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition pr-12"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="email"
+                  className="w-full px-4 lg:px-5 py-3 sm:py-4 lg:py-5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-0 transition-colors text-base lg:text-lg bg-gray-50 focus:bg-white"
+                  placeholder="Enter your registered email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-700"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </div>
+
+              {/* Password Input */}
+              <div>
+                <label className="block text-sm sm:text-base lg:text-lg font-semibold text-gray-700 mb-2 lg:mb-3">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="w-full px-4 lg:px-5 py-3 sm:py-4 lg:py-5 pr-12 lg:pr-14 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-0 transition-colors text-base lg:text-lg bg-gray-50 focus:bg-white"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-4 lg:right-5 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-600 p-1 lg:p-2 rounded-md hover:bg-gray-100 transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Login Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-3 sm:py-4 lg:py-5 px-6 lg:px-8 rounded-xl text-white font-semibold text-base lg:text-lg transition-all duration-200 ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 active:scale-95 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                }`}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 lg:h-6 lg:w-6 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <span className="hidden sm:inline">Authenticating...</span>
+                    <span className="sm:hidden">Signing In...</span>
+                  </span>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Access Citizen Dashboard</span>
+                    <span className="sm:hidden">Sign In</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Register Link */}
+            <div className="text-center mt-6 lg:mt-8">
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mb-3 lg:mb-4">
+                Don't have an account?
+              </p>
+              <button
+                onClick={() => navigate("/register/citizen")}
+                className="text-orange-600 hover:text-orange-800 font-semibold text-base lg:text-lg transition-colors py-2 lg:py-3 px-4 lg:px-6 rounded-lg hover:bg-orange-50 active:bg-orange-100"
+              >
+                Create Citizen Account
+              </button>
+            </div>
+
+            {/* Demo Credentials */}
+            <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-amber-50 rounded-xl border border-amber-200">
+              <div className="flex items-center mb-3 lg:mb-4">
+                <Shield size={16} className="text-amber-600 mr-2" />
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-amber-800">
+                  Demo Account Credentials
+                </h3>
+              </div>
+              <div className="space-y-2 lg:space-y-3 text-xs sm:text-sm lg:text-base text-amber-700">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-1 lg:py-2">
+                  <span className="font-medium mb-1 sm:mb-0">Email:</span>
+                  <span className="bg-white px-2 lg:px-3 py-1 lg:py-2 rounded font-mono text-xs sm:text-sm">
+                    john@example.com
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-1 lg:py-2">
+                  <span className="font-medium mb-1 sm:mb-0">Password:</span>
+                  <span className="bg-white px-2 lg:px-3 py-1 lg:py-2 rounded font-mono text-xs sm:text-sm">
+                    demo123
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Links */}
+            <div className="mt-6 lg:mt-8 pt-6 lg:pt-8 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-6 lg:space-x-8">
+                <button className="text-sm sm:text-base lg:text-lg text-orange-600 hover:text-orange-800 font-medium py-2 lg:py-3 px-3 lg:px-4 rounded-lg hover:bg-orange-50 transition-colors">
+                  Forgot Password?
+                </button>
+                <button className="text-sm sm:text-base lg:text-lg text-orange-600 hover:text-orange-800 font-medium py-2 lg:py-3 px-3 lg:px-4 rounded-lg hover:bg-orange-50 transition-colors">
+                  Help & Support
                 </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-2.5 px-4 rounded-md text-white font-medium transition ${
-                loading
-                  ? "bg-orange-400 cursor-not-allowed"
-                  : "bg-orange-600 hover:bg-orange-700 shadow-sm hover:shadow-md"
-              }`}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Authenticating...
-                </span>
-              ) : (
-                "Access Citizen Dashboard"
-              )}
-            </button>
-          </form>
-
-          <div className="text-center mt-6 text-sm text-gray-600">
-            Not registered?{" "}
-            <button
-              onClick={() => navigate("/register/citizen")}
-              className="text-orange-600 hover:text-orange-800 font-medium transition-colors duration-200"
-            >
-              Create citizen account
-            </button>
-          </div>
-
-          <div className="mt-6 p-3 bg-amber-50 rounded-md border border-amber-200">
-            <h3 className="text-sm font-semibold text-amber-800 mb-2 flex items-center">
-              <Shield size={16} className="mr-1" />
-              Demo Account Credentials:
-            </h3>
-            <div className="text-xs text-amber-700 space-y-1">
-              <p>
-                <span className="font-medium">Email:</span> john@example.com
+            {/* Copyright */}
+            <div className="mt-6 lg:mt-8 text-center">
+              <p className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
+                Secure access to government services and grievance portal
               </p>
-              <p>
-                <span className="font-medium">Password:</span> demo123
+              <p className="text-xs sm:text-sm text-gray-400 mt-2 lg:mt-3">
+                © 2025 Government of Jharkhand. All rights reserved.
               </p>
             </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <div className="flex justify-center space-x-4">
-              <button className="text-xs text-orange-600 hover:text-orange-800">
-                Forgot Password?
-              </button>
-              <span className="text-gray-400">|</span>
-              <button className="text-xs text-orange-600 hover:text-orange-800">
-                Help & Support
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center text-xs text-gray-500">
-            <p>Secure access to government services and grievance portal</p>
-            <p className="mt-1">© 2025 Government of Jharkhand. All rights reserved.</p>
           </div>
         </div>
       </div>

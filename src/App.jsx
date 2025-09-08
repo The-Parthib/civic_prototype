@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 
@@ -10,6 +10,11 @@ import Register from "./pages/register/Register";
 
 // Private pages
 import Dashboard from "./pages/dashboard/Dashboard";
+import ReportDetails from "./pages/reportDetails/ReportDetails";
+import HomeScreen from "./pages/home/HomeScreen";
+import CreatePostScreen from "./pages/create-post/CreatePostScreen";
+import PostsScreen from "./pages/posts/PostsScreen";
+import ProfileScreen from "./pages/profile/ProfileScreen";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -22,7 +27,27 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import StaffDashboard from "./pages/Staff/StaffDashboard";
 import StaffLogin from "./pages/Staff/StaffLogin";
 
+// Notification setup
+import { useNotifications } from "./hooks/useNotifications";
+import { setupComplaintStatusMonitoring } from "./utils/notificationHelpers.jsx";
+
 function App() {
+  const notifications = useNotifications();
+
+  useEffect(() => {
+    // Initialize notifications when app loads
+    if (notifications.isSupported) {
+      // Setup monitoring for complaint status changes
+      setupComplaintStatusMonitoring(notifications);
+      
+      // Auto-request permission if user previously granted it
+      const wasGranted = localStorage.getItem('notificationsEnabled') === 'true';
+      if (wasGranted && notifications.permission === 'default') {
+        notifications.requestPermission();
+      }
+    }
+  }, [notifications.isSupported]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -39,6 +64,36 @@ function App() {
             <Dashboard />
           </ProtectedRoute>
         } />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/home" element={
+          <ProtectedRoute>
+            <HomeScreen />
+          </ProtectedRoute>
+        } />
+        <Route path="/create-post" element={
+          <ProtectedRoute>
+            <CreatePostScreen />
+          </ProtectedRoute>
+        } />
+        <Route path="/posts" element={
+          <ProtectedRoute>
+            <PostsScreen />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <ProfileScreen />
+          </ProtectedRoute>
+        } />
+        <Route path="/report/:reportId" element={
+          <ProtectedRoute>
+            <ReportDetails />
+          </ProtectedRoute>
+        } />
 
         {/* Admin Routes - No longer protected */}
         <Route path="/admin" element={<AdminDashboard />} />
@@ -48,7 +103,7 @@ function App() {
         <Route path="/staff/login" element={<StaffLogin/>}/>
         <Route path="/staff" element={<StaffDashboard/>}/>
 
-        {/* Catch all - redirect to landing */}
+        {/* Catch all - redirect based on login status */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

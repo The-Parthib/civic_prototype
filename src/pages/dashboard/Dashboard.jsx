@@ -7,6 +7,8 @@ import SmartQuestionnaire from "../../components/SmartQuestionnaire";
 import { determineDepartment } from "../../services/aiService";
 import { Bot, LogOut, Menu, X, Loader2 } from "lucide-react";
 import axios from "axios";
+import { reportNotifications, initializeNotifications } from "../../utils/reportNotifications";
+import { BackgroundAnalysisService } from "../../services/backgroundAnalysis";
 
 const categories = ["Roads", "Water", "Electricity", "Sanitation", "Other"];
 const departments = [
@@ -228,6 +230,9 @@ const Dashboard = () => {
       navigate("/login");
     }
     console.log(user);
+
+    // Initialize PWA notifications
+    initializeNotifications();
   }, []);
 
   // NEW: fetch the user's complaints on mount (by email from sessionStorage)
@@ -240,6 +245,7 @@ const Dashboard = () => {
   }, []);
 
   const port = import.meta.env.VITE_DB_PORT || 5000;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost';
 
   // NEW: reset form helper
   const resetForm = () => {
@@ -262,7 +268,7 @@ const Dashboard = () => {
     setComplaintsError("");
     try {
       const res = await fetch(
-        `http://localhost:${port}/complaints?userInfo.email=${encodeURIComponent(
+        `${apiBaseUrl}:${port}/complaints?userInfo.email=${encodeURIComponent(
           email
         )}`
       );
@@ -319,7 +325,7 @@ const Dashboard = () => {
   // Function to fetch municipal structure
   const fetchMunicipalStructure = async () => {
     try {
-      const response = await fetch(`http://localhost:${port}/createDepartment`);
+      const response = await fetch(`${apiBaseUrl}:${port}/createDepartment`);
       if (!response.ok) throw new Error("Failed to fetch departments");
 
       const departments = await response.json();
@@ -424,7 +430,7 @@ const Dashboard = () => {
         timestamp: new Date().toISOString(),
       };
 
-      await fetch(`http://localhost:${port}/questionaries`, {
+      await fetch(`${apiBaseUrl}:${port}/questionaries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(questionaryPayload),
@@ -447,7 +453,7 @@ const Dashboard = () => {
         questionnaire: questionaryPayload,
       };
 
-      await fetch(`http://localhost:${port}/allocatedDepartment`, {
+      await fetch(`${apiBaseUrl}:${port}/allocatedDepartment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(allocationPayload),
@@ -575,213 +581,117 @@ const Dashboard = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // NEW: heuristic to decide if title+details give enough context to skip clarifying questions
-  const assessContextClarity = (titleText, detailsText) => {
-    const text = `${(titleText || "").toLowerCase()} ${(
-      detailsText || ""
-    ).toLowerCase()}`;
+  // NEW: AI-based method to assess if title+details have enough context to skip clarifying questions
+  const assessContextClarity = async (titleText, detailsText) => {
+    try {
+      // Municipal context clearing questions that need to be answered
+      const contextQuestions = [
+        "What is the nature/type of the civic issue? (e.g., water supply, road repair, electricity, sanitation, etc.)",
+        "Where is the issue located? (specific address, landmark, area, or coordinates)",
+        "What is the scope of the issue? (affects individual household, building, community, or larger area)",
+        "What is the urgency level of this issue? (low, medium, high priority or emergency)"
+      ];
 
-    // nature (issue type) via department keywords
-    const natureKeywords = new Set(
-      departmentsRef.flatMap((d) =>
-        (d.keywords || []).map((k) => k.toLowerCase())
-      )
-    );
-    const hasNature = Array.from(natureKeywords).some((kw) =>
-      text.includes(kw)
-    );
+      const assessmentPrompt = `
+        You are assessing whether a civic complaint report has sufficient context to proceed without asking additional clarifying questions.
 
-    // location indicators
-    const locationTerms = [
-      "road",
-      "street",
-      "lane",
-      "avenue",
-      "sector",
-      "block",
-      "phase",
-      "ward",
-      "colony",
-      "marg",
-      "nagar",
-      "chowk",
-      "square",
-      "junction",
-      "near",
-      "opposite",
-      "beside",
-      "behind",
-      "in front of",
-      "at",
-      "address",
-      "pincode",
-      "pin code",
-      "landmark",
-    ];
-    const hasPincode = /\b\d{6}\b/.test(text); // Indian PIN
-    const hasCoords = /\b(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)\b/.test(text);
-    const hasLocation =
-      hasPincode || hasCoords || locationTerms.some((t) => text.includes(t));
+        Report Title: "${titleText || ''}"
+        Report Details: "${detailsText || ''}"
 
-    // scope indicators (individual vs community)
-    const scopeTerms = [
-      "my house",
-      "our house",
-      "my home",
-      "our home",
-      "apartment",
-      "flat",
-      "society",
-      "colony",
-      "building",
-      "school",
-      "hospital",
-      "market",
-      "area",
-      "locality",
-      "neighborhood",
-      "neighbourhood",
-      "community",
-      "multiple",
-      "several",
-      "many",
-      "entire",
-      "whole",
-    ];
-    const hasScope = scopeTerms.some((t) => text.includes(t));
+        Municipal Context Questions that need to be answered:
+        ${contextQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-    // urgency indicators
-    const urgencyTerms = [
-      "urgent",
-      "immediate",
-      "asap",
-      "emergency",
-      "critical",
-      "danger",
-      "hazard",
-      "accident",
-      "risk",
-      "serious",
-      "severe",
-      "life",
-      "no water",
-      "no electricity",
-      "blackout",
-      "flood",
-      "fire",
-      "burst",
-      "collapse",
-      "blocked",
-    ];
-    const hasUrgency = urgencyTerms.some((t) => text.includes(t));
+        Based on the provided title and details, analyze whether the report contains enough information to answer the above municipal context questions.
 
-    const answeredCount = [hasNature, hasLocation, hasScope, hasUrgency].filter(
-      Boolean
-    ).length;
-    // Consider context clear if at least 3 of 4 signals are present
-    return {
-      isClear: answeredCount >= 3,
-      signals: { hasNature, hasLocation, hasScope, hasUrgency },
-    };
+        Consider the following:
+        - Can you determine the nature/type of the civic issue from the description?
+        - Is there sufficient location information (address, area, landmark, coordinates)?
+        - Can you understand the scope (individual vs community impact)?
+        - Is the urgency level clear from the description?
+
+        Return your response as a JSON object with this exact structure:
+        {
+          "isClear": boolean,
+          "confidence": "low" | "medium" | "high",
+          "answeredQuestions": number,
+          "missingInformation": string[],
+          "reasoning": "Brief explanation of your assessment"
+        }
+
+        Set "isClear" to true only if at least 3 out of 4 context questions can be answered with high confidence from the provided information.
+      `;
+
+      const assessment = await callGeminiApi(assessmentPrompt);
+      
+      return {
+        isClear: assessment.isClear || false,
+        confidence: assessment.confidence || "low",
+        answeredQuestions: assessment.answeredQuestions || 0,
+        missingInformation: assessment.missingInformation || [],
+        reasoning: assessment.reasoning || "Unable to assess context",
+        signals: {
+          hasNature: assessment.answeredQuestions >= 1,
+          hasLocation: assessment.answeredQuestions >= 2,
+          hasScope: assessment.answeredQuestions >= 3,
+          hasUrgency: assessment.answeredQuestions >= 4
+        }
+      };
+    } catch (error) {
+      console.error("Error assessing context clarity with AI:", error);
+      // Fallback to a simple check if AI fails
+      const text = `${(titleText || "").toLowerCase()} ${(detailsText || "").toLowerCase()}`;
+      const hasBasicInfo = text.length > 20 && (titleText || "").trim().length > 5;
+      
+      return {
+        isClear: false, // Default to false to ensure questions are asked when AI fails
+        confidence: "low",
+        answeredQuestions: hasBasicInfo ? 1 : 0,
+        missingInformation: ["AI assessment failed - manual review needed"],
+        reasoning: "AI assessment failed, using fallback evaluation",
+        signals: { hasNature: false, hasLocation: false, hasScope: false, hasUrgency: false }
+      };
+    }
   };
 
-  // Function to handle form submission
+  // Function to handle form submission - Submit immediately without AI blocking
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    // NEW: Skip clarifying questions if context is already clear enough
-    const { isClear } = assessContextClarity(title, details);
-    if (isClear) {
-      // Skip generating questions, allocate directly
-      setAiQuestions([]);
-      setQuestionAnswers({});
-      try {
-        const allocation = await allocateDepartmentAndStaff({});
-        setAiResults(allocation);
-        setCategory(allocation.category);
-        setDepartment(allocation.departmentName);
-
-        if (allocation.confidence === "low") {
-          setShowSmartQuestionnaire(true);
-          return;
-        }
-
-        submitComplaint(
-          allocation.category,
-          allocation.departmentName,
-          allocation.staffId,
-          allocation.priority
-        );
-      } catch (error) {
-        console.error(
-          "Direct allocation failed, falling back to questionnaire:",
-          error
-        );
-        setShowSmartQuestionnaire(true);
-      }
-      return;
-    }
-
-    // Otherwise, proceed with current question-generation flow
+    // Submit complaint immediately without any AI processing
+    setIsAIProcessing(true);
     try {
-      await generateClarifyingQuestions();
+      await submitComplaintDirectly();
     } catch (error) {
-      console.error("Could not generate questions:", error);
-      // Fall back to the traditional AI analysis
-      setIsAIProcessing(true);
-      try {
-        const result = await determineDepartment(
-          title,
-          details,
-          photo || capturedImage,
-          departmentsRef
-        );
-        setAiResults(result);
-        setCategory(result.category);
-        setDepartment(result.department);
-
-        if (result.confidence === "low") {
-          setShowSmartQuestionnaire(true);
-          setIsAIProcessing(false);
-          return;
-        }
-
-        submitComplaint(result.category, result.department);
-      } catch (error) {
-        console.error("AI analysis failed:", error);
-        setIsAIProcessing(false);
-        setShowSmartQuestionnaire(true);
-      }
+      console.error("Failed to submit complaint:", error);
+      alert("Error submitting complaint. Please try again.");
+    } finally {
+      setIsAIProcessing(false);
     }
   };
 
-  // Modified function to submit complaint with staffId
-  const submitComplaint = async (
-    selectedCategory,
-    selectedDepartment,
-    staffId = null,
-    priority = "medium"
-  ) => {
+  // Submit complaint directly without AI analysis
+  const submitComplaintDirectly = async () => {
     // Get user info from sessionStorage
     const storedUser = sessionStorage.getItem("civicName");
     const user = storedUser ? JSON.parse(storedUser) : {};
 
-    // Create complaint object
+    // Create complaint object with basic info
     const complaint = {
       id: Date.now().toString(),
       userId: user.id || "anonymous",
       title,
       details,
-      category: selectedCategory,
-      department: selectedDepartment,
+      category: null, // Will be filled by background processing
+      department: null, // Will be filled by background processing
       photo: photo || capturedImage,
       photoMethod,
       capturedImage,
       status: "Submitted",
-      priority: priority || aiResults?.priority || "medium",
-      assignedTo: staffId || null,
+      priority: "medium", // Default priority
+      assignedTo: null, // Will be assigned by background processing
+      needsAnalysis: true, // Flag to indicate background processing needed
       location: {
         address: "Ranchi Municipal Corporation Area",
         municipality: user.municipality,
@@ -802,11 +712,18 @@ const Dashboard = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       adminComments: [],
+      aiAnalysis: {
+        contextAssessment: null,
+        questions: [],
+        answers: {},
+        departmentAllocation: null,
+        processed: false
+      }
     };
 
     try {
-      // Send complaint to server
-      const response = await fetch(`http://localhost:${port}/complaints`, {
+      // Send complaint to server immediately
+      const response = await fetch(`${apiBaseUrl}:${port}/complaints`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -815,28 +732,62 @@ const Dashboard = () => {
       });
 
       if (response.ok) {
-        alert("Complaint submitted successfully!");
+        const responseData = await response.json();
+        const reportId = responseData.id || complaint.id;
+        
+        // Reset form and navigate immediately
         resetForm();
+        
+        // Send background processing notification
+        await reportNotifications.notifyBackgroundProcessing(
+          reportId,
+          complaint.title
+        );
+        
+        // Navigate to report details page immediately
+        navigate(`/report/${reportId}`);
+        
+        // Update complaints list in background
         if (user?.email) {
-          fetchComplaintsForUser(user.email);
+          setTimeout(() => {
+            fetchComplaintsForUser(user.email);
+          }, 1000);
         }
+
+        // Trigger background analysis (this will happen after navigation)
+        setTimeout(() => {
+          triggerBackgroundAnalysis(reportId, complaint);
+        }, 2000);
+        
       } else {
-        console.log("Failed to submit complaint. Please try again.");
+        throw new Error("Failed to submit complaint");
       }
     } catch (error) {
-      console.error("Error submitting complaint:", error);
-    } finally {
-      setIsAIProcessing(false);
-      setIsProcessingAllocation(false);
+      throw error;
     }
   };
 
-  // Handle smart questionnaire results
+  // Trigger background analysis after submission
+  const triggerBackgroundAnalysis = async (reportId, complaintData) => {
+    try {
+      console.log("Starting background analysis for report:", reportId);
+      
+      // Call the background analysis service directly
+      setTimeout(async () => {
+        await BackgroundAnalysisService.analyzeReport(reportId, complaintData);
+      }, 3000); // Start analysis after 3 seconds
+      
+      console.log("Background analysis triggered for report:", reportId);
+    } catch (error) {
+      console.error("Failed to trigger background analysis:", error);
+    }
+  };
+
+  // Handle smart questionnaire results (fallback only)
   const handleSmartQuestionnaireResults = (results) => {
     setShowSmartQuestionnaire(false);
-    setCategory(results.category);
-    setDepartment(results.department);
-    submitComplaint(results.category, results.department);
+    // This is now just a fallback - shouldn't be used in normal flow
+    console.log("Smart questionnaire results:", results);
   };
 
   const handleLogout = () => {
@@ -848,7 +799,10 @@ const Dashboard = () => {
   const ComplaintCard = ({ item }) => {
     const imgSrc = item?.photo || item?.capturedImage;
     return (
-      <div className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+      <div 
+        className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() => navigate(`/report/${item.id}`)}
+      >
         <div className="flex flex-col sm:flex-row items-start gap-3">
           {imgSrc ? (
             <img
@@ -985,14 +939,10 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {(isAIProcessing || isFetchingQuestions || isProcessingAllocation) && (
+        {(isAIProcessing) && (
           <div className="mb-6 p-4 bg-blue-50 text-blue-800 rounded-lg flex items-center">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-800 mr-2"></div>
-            {isFetchingQuestions
-              ? "Generating questions..."
-              : isProcessingAllocation
-              ? "Please wait..."
-              : "Submitting your complaint..."}
+            Submitting your report...
           </div>
         )}
 
@@ -1151,7 +1101,7 @@ const Dashboard = () => {
                 className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors disabled:opacity-50"
                 disabled={isAIProcessing}
               >
-                {isAIProcessing ? "Submitting..." : "Submit Complaint"}
+                {isAIProcessing ? "Submitting..." : "Submit Report"}
               </button>
             </div>
           </form>
@@ -1231,109 +1181,13 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Smart Questionnaire Modal */}
+      {/* Smart Questionnaire Modal - Fallback only */}
       {showSmartQuestionnaire && (
         <SmartQuestionnaire
           onResults={handleSmartQuestionnaireResults}
           onCancel={() => setShowSmartQuestionnaire(false)}
           initialData={{ title, details, photo: photo || capturedImage }}
         />
-      )}
-
-      {/* AI Questionnaire Modal */}
-      {isAskingQuestions && aiQuestions.length > 0 && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-50 p-4 back"
-          style={{
-            background: "rgba(255,255,255,0.25)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-          }}
-        >
-          <div
-            className="bg-white bg-opacity-80 backdrop-blur-md rounded-lg shadow-lg w-full max-w-md max-h-[80vh] overflow-hidden border border-gray-200"
-            style={{
-              boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
-              background: "rgba(255,255,255,0.7)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              border: "1px solid rgba(255,255,255,0.18)",
-            }}
-          >
-            <div className="p-4 border-b">
-              <div className="flex items-center space-x-2">
-                <Bot size={18} className="text-blue-600" />
-                <h2 className="text-lg font-bold">
-                  Please provide more details
-                </h2>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">
-                To better assist you, please answer the following questions:
-              </p>
-            </div>
-
-            <div className="p-4">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-semibold text-blue-700">
-                      Question {currentQuestionIndex + 1} of{" "}
-                      {aiQuestions.length}
-                    </span>
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                      {currentQuestionIndex === aiQuestions.length - 1
-                        ? "Last question"
-                        : ""}
-                    </span>
-                  </div>
-                  <p className="text-gray-800">
-                    {aiQuestions[currentQuestionIndex]}
-                  </p>
-                </div>
-
-                <div>
-                  <textarea
-                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={3}
-                    placeholder="Type your answer here..."
-                    value={
-                      questionAnswers[aiQuestions[currentQuestionIndex]] || ""
-                    }
-                    onChange={(e) => {
-                      setQuestionAnswers((prev) => ({
-                        ...prev,
-                        [aiQuestions[currentQuestionIndex]]: e.target.value,
-                      }));
-                    }}
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-between p-4 border-t">
-              <button
-                onClick={() => setIsAskingQuestions(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg"
-              >
-                Skip Questions
-              </button>
-              <button
-                onClick={() =>
-                  handleAnswerQuestion(
-                    questionAnswers[aiQuestions[currentQuestionIndex]] || ""
-                  )
-                }
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                {currentQuestionIndex === aiQuestions.length - 1 ? (
-                  <>Submit Answers</>
-                ) : (
-                  <>Next Question</>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
