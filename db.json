@@ -67,6 +67,398 @@
       "createdAt": "2025-09-05T09:40:02.668Z"
     }
   ],
+  "staffs": [
+    {
+      "id": "san_s_1",
+      "name": "Rohan Sharma",
+      "email": "rohan.sanitation@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Cleaning the city regularly",
+      "departmentId": "1757187883285",
+      "departmentName": "Sanitation & Waste Management Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "san_s_2",
+      "name": "Priya Patel",
+      "email": "priya.sanitation@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Collecting garbage and clearing vats",
+      "departmentId": "1757187883285",
+      "departmentName": "Sanitation & Waste Management Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "san_s_3",
+      "name": "Amit Kumar",
+      "email": "amit.sanitation@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Clearing bushes and overgrowth trees",
+      "departmentId": "1757187883285",
+      "departmentName": "Sanitation & Waste Management Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "san_s_4",
+      "name": "Sneha Gupta",
+      "email": "sneha.sanitation@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Segregating biodegradable and non-biodegradable waste",
+      "departmentId": "1757187883285",
+      "departmentName": "Sanitation & Waste Management Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "san_s_5",
+      "name": "Vikram Singh",
+      "email": "vikram.sanitation@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Operating waste disposal plants",
+      "departmentId": "1757187883285",
+      "departmentName": "Sanitation & Waste Management Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "san_s_6",
+      "name": "Anjali Devi",
+      "email": "anjali.sanitation@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Promoting recycling programs",
+      "departmentId": "1757187883285",
+      "departmentName": "Sanitation & Waste Management Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "wat_s_1",
+      "name": "Suresh Reddy",
+      "email": "suresh.water@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Managing water supply throughout the city",
+      "departmentId": "1757188201096",
+      "departmentName": "Water Supply Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "wat_s_2",
+      "name": "Meena Kumari",
+      "email": "meena.water@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Fixing water leakages",
+      "departmentId": "1757188201096",
+      "departmentName": "Water Supply Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "wat_s_3",
+      "name": "Rajesh Verma",
+      "email": "rajesh.water@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Supplying drinking water",
+      "departmentId": "1757188201096",
+      "departmentName": "Water Supply Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "wat_s_4",
+      "name": "Pooja Jain",
+      "email": "pooja.water@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Generating monthly usage billing for water",
+      "departmentId": "1757188201096",
+      "departmentName": "Water Supply Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "elec_s_1",
+      "name": "Deepak Yadav",
+      "email": "deepak.electricity@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Providing uninterrupted power supply",
+      "departmentId": "1757188301150",
+      "departmentName": "Electricity Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "elec_s_2",
+      "name": "Sunita Mishra",
+      "email": "sunita.electricity@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Repairing faulty street lights",
+      "departmentId": "1757188301150",
+      "departmentName": "Electricity Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "elec_s_3",
+      "name": "Manoj Tiwari",
+      "email": "manoj.electricity@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Installing new street lights",
+      "departmentId": "1757188301150",
+      "departmentName": "Electricity Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "elec_s_4",
+      "name": "Kavita Chauhan",
+      "email": "kavita.electricity@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Handling electricity complaints",
+      "departmentId": "1757188301150",
+      "departmentName": "Electricity Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "elec_s_5",
+      "name": "Anil Agarwal",
+      "email": "anil.electricity@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Monitoring illegal electricity connections",
+      "departmentId": "1757188301150",
+      "departmentName": "Electricity Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "road_s_1",
+      "name": "Geeta Rao",
+      "email": "geeta.roads@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Maintaining city roads and footpaths",
+      "departmentId": "1757188402044",
+      "departmentName": "Roads & Transport Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "road_s_2",
+      "name": "Arjun Nair",
+      "email": "arjun.roads@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Repairing potholes and damaged roads",
+      "departmentId": "1757188402044",
+      "departmentName": "Roads & Transport Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "road_s_3",
+      "name": "Ritu Khanna",
+      "email": "ritu.roads@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Managing public transportation",
+      "departmentId": "1757188402044",
+      "departmentName": "Roads & Transport Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "road_s_4",
+      "name": "Harish Mehta",
+      "email": "harish.roads@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Installing and maintaining traffic signals",
+      "departmentId": "1757188402044",
+      "departmentName": "Roads & Transport Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "hlth_s_1",
+      "name": "Neha Sharma",
+      "email": "neha.health@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Monitoring disease outbreaks",
+      "departmentId": "1757188503021",
+      "departmentName": "Public Health Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "hlth_s_2",
+      "name": "Vinod Joshi",
+      "email": "vinod.health@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Running vaccination drives",
+      "departmentId": "1757188503021",
+      "departmentName": "Public Health Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "hlth_s_3",
+      "name": "Usha Rani",
+      "email": "usha.health@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Maintaining municipal hospitals and clinics",
+      "departmentId": "1757188503021",
+      "departmentName": "Public Health Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "hlth_s_4",
+      "name": "Sanjay Das",
+      "email": "sanjay.health@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Spreading awareness on hygiene and sanitation",
+      "departmentId": "1757188503021",
+      "departmentName": "Public Health Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "fire_s_1",
+      "name": "Lakshmi Iyer",
+      "email": "lakshmi.fire@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Responding to fire incidents",
+      "departmentId": "1757188604097",
+      "departmentName": "Fire & Emergency Services",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "fire_s_2",
+      "name": "Ashok Prasad",
+      "email": "ashok.fire@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Conducting fire safety inspections",
+      "departmentId": "1757188604097",
+      "departmentName": "Fire & Emergency Services",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "fire_s_3",
+      "name": "Rekha Sen",
+      "email": "rekha.fire@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Managing disaster rescue operations",
+      "departmentId": "1757188604097",
+      "departmentName": "Fire & Emergency Services",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "fire_s_4",
+      "name": "Gopal Krishnan",
+      "email": "gopal.fire@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Training citizens in fire safety awareness",
+      "departmentId": "1757188604097",
+      "departmentName": "Fire & Emergency Services",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "rev_s_1",
+      "name": "Madhu Bala",
+      "email": "madhu.revenue@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Collecting property tax",
+      "departmentId": "1757188705099",
+      "departmentName": "Revenue & Taxation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "rev_s_2",
+      "name": "Kishan Lal",
+      "email": "kishan.revenue@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Managing municipal fees and charges",
+      "departmentId": "1757188705099",
+      "departmentName": "Revenue & Taxation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "rev_s_3",
+      "name": "Sarita Patil",
+      "email": "sarita.revenue@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Maintaining revenue records",
+      "departmentId": "1757188705099",
+      "departmentName": "Revenue & Taxation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "rev_s_4",
+      "name": "Mohan Das",
+      "email": "mohan.revenue@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Preventing tax evasion",
+      "departmentId": "1757188705099",
+      "departmentName": "Revenue & Taxation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "edu_s_1",
+      "name": "Preeti Soni",
+      "email": "preeti.education@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Managing municipal schools",
+      "departmentId": "1757188806001",
+      "departmentName": "Education & Libraries Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "edu_s_2",
+      "name": "Alok Nath",
+      "email": "alok.education@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Recruiting teachers and staff",
+      "departmentId": "1757188806001",
+      "departmentName": "Education & Libraries Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "edu_s_3",
+      "name": "Jyoti Singh",
+      "email": "jyoti.education@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Maintaining public libraries",
+      "departmentId": "1757188806001",
+      "departmentName": "Education & Libraries Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "edu_s_4",
+      "name": "Ramesh Babu",
+      "email": "ramesh.education@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Running literacy and awareness programs",
+      "departmentId": "1757188806001",
+      "departmentName": "Education & Libraries Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "prk_s_1",
+      "name": "Aarti Shah",
+      "email": "aarti.parks@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Maintaining public parks and gardens",
+      "departmentId": "1757188907093",
+      "departmentName": "Parks & Recreation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "prk_s_2",
+      "name": "Chandan Kumar",
+      "email": "chandan.parks@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Developing recreational spaces",
+      "departmentId": "1757188907093",
+      "departmentName": "Parks & Recreation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "prk_s_3",
+      "name": "Pinky Verma",
+      "email": "pinky.parks@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Organizing cultural and sports events",
+      "departmentId": "1757188907093",
+      "departmentName": "Parks & Recreation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    },
+    {
+      "id": "prk_s_4",
+      "name": "Tarun Roy",
+      "email": "tarun.parks@ranchi.com",
+      "password": "staff123",
+      "responsibility": "Planting trees and maintaining greenery",
+      "departmentId": "1757188907093",
+      "departmentName": "Parks & Recreation Department",
+      "municipality": "Ranchi Municipal Corporation"
+    }
+  ],
   "complaints": [
     {
       "id": "1757181253479",
@@ -882,7 +1274,7 @@
       "category": "Sanitation",
       "priority": "high",
       "confidence": "high",
-      "staffId": "Staff_02",
+      "staffId": "san_s_2",
       "analysis": "An overflowing garbage vat near Ranchi JC road is emitting a strong rotten smell, attracting insects and bugs, and poses a significant health hazard. It is directly impacting nearby homes, the Nova Office building, all road users, and a hospital, requiring urgent cleaning.",
       "timestamp": "2025-09-06T20:56:11.668Z",
       "questionnaire": {
@@ -913,7 +1305,7 @@
       "category": "Electricity",
       "priority": "high",
       "confidence": "high",
-      "staffId": "Staff_02",
+      "staffId": "elec_s_3",
       "analysis": "A street light near the market is underpowered, using a CFL bulb instead of a brighter one, leading to an overly dark area and potential safety concerns, particularly for women.",
       "timestamp": "2025-09-06T21:07:19.740Z",
       "questionnaire": {
@@ -946,7 +1338,7 @@
       "category": "Water",
       "priority": "high",
       "confidence": "high",
-      "staffId": "Staff_01",
+      "staffId": "wat_s_3",
       "analysis": "Report of no water supply for 3 days, affecting residents near the big tank, including neighbors.",
       "timestamp": "2025-09-07T06:39:19.281Z",
       "questionnaire": {
@@ -978,7 +1370,7 @@
       "category": "Sanitation",
       "priority": "high",
       "confidence": "high",
-      "staffId": "Staff_01",
+      "staffId": "san_s_1",
       "analysis": "A strong sewage smell is present on the road near a club, especially with rainwater. It has been ongoing for approximately 4 days, affecting many residents and causing physical discomfort or health issues.",
       "timestamp": "2025-09-07T06:47:46.167Z",
       "questionnaire": {
