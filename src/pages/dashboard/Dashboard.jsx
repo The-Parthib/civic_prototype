@@ -451,6 +451,8 @@ const Dashboard = () => {
         timestamp: new Date().toISOString(),
         // Include the questionnaire data in the allocation payload
         questionnaire: questionaryPayload,
+        // photo: photo,
+        // capturedImage: capturedImage,
       };
 
       await fetch(`${apiBaseUrl}:${port}/allocatedDepartment`, {

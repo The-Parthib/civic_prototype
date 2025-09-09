@@ -13,24 +13,44 @@ const UnifiedComplaintsView = ({ allocatedComplaints = [], complaints = [] }) =>
   useEffect(() => {
     const fetchStaffList = async () => {
       try {
-        const response = await fetch(`http://localhost:${port}/allocatedDepartment`);
-        const departments = await response.json();
+        // Fetch staff data directly from staffs endpoint
+        const staffResponse = await fetch(`http://localhost:${port}/staffs`);
+        const staffData = await staffResponse.json();
         
-        // Extract all staff from all departments
-        const allStaff = [];
-        departments.forEach(dept => {
-          if (dept.staffs && Array.isArray(dept.staffs)) {
-            dept.staffs.forEach(staff => {
-              allStaff.push({
-                ...staff,
-                department: dept.name
-              });
-            });
-          }
-        });
-        setStaffList(allStaff);
+        // Extract unique staff members with their department info
+        const uniqueStaff = staffData.map(staff => ({
+          id: staff.id,
+          name: staff.name,
+          responsibility: staff.responsibility,
+          department: staff.departmentName,
+          municipality: staff.municipality
+        }));
+        
+        setStaffList(uniqueStaff);
       } catch (error) {
         console.error('Error fetching staff list:', error);
+        
+        // Fallback: Try the old method as backup
+        try {
+          const response = await fetch(`http://localhost:${port}/allocatedDepartment`);
+          const departments = await response.json();
+          
+          // Extract all staff from all departments
+          const allStaff = [];
+          departments.forEach(dept => {
+            if (dept.staffs && Array.isArray(dept.staffs)) {
+              dept.staffs.forEach(staff => {
+                allStaff.push({
+                  ...staff,
+                  department: dept.name
+                });
+              });
+            }
+          });
+          setStaffList(allStaff);
+        } catch (fallbackError) {
+          console.error('Error in fallback staff fetch:', fallbackError);
+        }
       }
     };
 
@@ -80,6 +100,72 @@ const UnifiedComplaintsView = ({ allocatedComplaints = [], complaints = [] }) =>
       };
     });
   }, [allocatedComplaints, complaints]);
+
+  // Auto-allocation function based on department matching and workload
+  const autoAllocateStaff = (complaint) => {
+    if (complaint.assignedTo) {
+      return complaint.assignedTo; // Already assigned
+    }
+
+    const complaintDepartment = complaint.department;
+    if (!complaintDepartment) {
+      return null; // No department identified
+    }
+
+    // Find staff members from the same department
+    const departmentStaff = staffList.filter(staff => 
+      staff.department === complaintDepartment
+    );
+
+    if (departmentStaff.length === 0) {
+      return null; // No staff available for this department
+    }
+
+    // Count current assignments for each staff member to distribute workload
+    const staffWorkload = {};
+    departmentStaff.forEach(staff => {
+      staffWorkload[staff.id] = mergedComplaints.filter(c => 
+        c.assignedTo === staff.id && c.status !== 'Resolved'
+      ).length;
+    });
+
+    // Find staff member with minimum workload
+    const leastBusyStaff = departmentStaff.reduce((min, staff) => {
+      const currentWorkload = staffWorkload[staff.id];
+      const minWorkload = staffWorkload[min.id];
+      return currentWorkload < minWorkload ? staff : min;
+    });
+
+    return leastBusyStaff.id;
+  };
+
+  // Apply auto-allocation when complaints and staff data are ready
+  useEffect(() => {
+    const applyAutoAllocation = async () => {
+      if (staffList.length === 0) return;
+
+      const unassignedComplaints = mergedComplaints.filter(c => !c.assignedTo);
+      
+      for (const complaint of unassignedComplaints) {
+        const suggestedStaff = autoAllocateStaff(complaint);
+        
+        if (suggestedStaff) {
+          try {
+            console.log(`Auto-allocating ${suggestedStaff} to complaint ${complaint.id} (${complaint.department})`);
+            // Auto-assign staff to unassigned complaints
+            await assignStaff(complaint.id, suggestedStaff, true);
+          } catch (error) {
+            console.error('Error in auto-allocation:', error);
+          }
+        }
+      }
+    };
+
+    // Only run auto-allocation if we have staff data and complaints
+    if (staffList.length > 0 && mergedComplaints.length > 0) {
+      applyAutoAllocation();
+    }
+  }, [staffList, mergedComplaints]);
 
   // Admin management functions
   const updateComplaintStatus = async (complaintId, newStatus) => {
@@ -170,7 +256,7 @@ const UnifiedComplaintsView = ({ allocatedComplaints = [], complaints = [] }) =>
     }
   };
 
-  const assignStaff = async (complaintId, staffId) => {
+  const assignStaff = async (complaintId, staffId, isAutoAssignment = false) => {
     setUpdating(true);
     try {
       const allocatedResponse = await fetch(`http://localhost:${port}/allocatedDepartment`);
@@ -189,11 +275,15 @@ const UnifiedComplaintsView = ({ allocatedComplaints = [], complaints = [] }) =>
         });
       }
 
-      alert('Staff assigned successfully!');
-      window.location.reload();
+      if (!isAutoAssignment) {
+        alert('Staff assigned successfully!');
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Error assigning staff:', error);
-      alert('Error assigning staff');
+      if (!isAutoAssignment) {
+        alert('Error assigning staff');
+      }
     } finally {
       setUpdating(false);
     }
@@ -239,77 +329,126 @@ const UnifiedComplaintsView = ({ allocatedComplaints = [], complaints = [] }) =>
     
     return (
       <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-        {assignedTo}
+        {staff?.name || assignedTo}
       </span>
     );
   };
 
   // Admin Management Panel Component
-  const AdminManagementPanel = ({ complaint }) => (
-    <div className="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
-      <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center">
-        <UserCheck className="h-4 w-4 mr-2" />
-        Admin Management Panel
-      </h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Status Update */}
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-2">Update Status</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={complaint.status || 'Pending'}
-            onChange={(e) => updateComplaintStatus(complaint.id, e.target.value)}
-            disabled={updating}
-          >
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Resolved">Resolved</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-        </div>
+  const AdminManagementPanel = ({ complaint }) => {
+    const assignedStaff = staffList.find(s => s.id === complaint.assignedTo);
+    const departmentStaff = staffList.filter(s => s.department === complaint.department);
+    
+    return (
+      <div className="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+          <UserCheck className="h-4 w-4 mr-2" />
+          Admin Management Panel
+        </h3>
+        
+        {/* Auto-allocation Status */}
+        {complaint.assignedTo && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center text-sm text-blue-800">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              <span className="font-medium">Auto-Allocated:</span>
+              <span className="ml-1">{assignedStaff?.name} ({assignedStaff?.department})</span>
+            </div>
+            <p className="text-xs text-blue-600 mt-1">
+              Staff automatically assigned based on department matching
+            </p>
+          </div>
+        )}
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Status Update */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-2">Update Status</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={complaint.status || 'Pending'}
+              onChange={(e) => updateComplaintStatus(complaint.id, e.target.value)}
+              disabled={updating}
+            >
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
 
-        {/* Priority Update */}
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-2">Set Priority</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={complaint.priority || 'medium'}
-            onChange={(e) => updateComplaintPriority(complaint.id, e.target.value)}
-            disabled={updating}
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
+          {/* Priority Update */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-2">Set Priority</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={complaint.priority || 'medium'}
+              onChange={(e) => updateComplaintPriority(complaint.id, e.target.value)}
+              disabled={updating}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
 
-        {/* Staff Assignment */}
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-2">Assign Staff</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={complaint.assignedTo || ''}
-            onChange={(e) => assignStaff(complaint.id, e.target.value)}
-            disabled={updating}
-          >
-            <option value="">Select Staff Member</option>
-            {staffList.map(staff => (
-              <option key={staff.id} value={staff.id}>
-                {staff.id} - {staff.responsibility} ({staff.department})
+          {/* Staff Assignment/Reassignment */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-2">
+              {complaint.assignedTo ? 'Reassign Staff' : 'Assign Staff'}
+            </label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={complaint.assignedTo || ''}
+              onChange={(e) => assignStaff(complaint.id, e.target.value, false)}
+              disabled={updating}
+            >
+              <option value="">
+                {complaint.assignedTo ? 'Select Different Staff' : 'Select Staff Member'}
               </option>
-            ))}
-          </select>
+              {/* Show department staff first */}
+              {departmentStaff.length > 0 && (
+                <optgroup label={`${complaint.department} Staff (Recommended)`}>
+                  {departmentStaff.map(staff => (
+                    <option key={staff.id} value={staff.id}>
+                      {staff.name} - {staff.responsibility}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {/* Show all other staff */}
+              <optgroup label="All Staff">
+                {staffList.map(staff => (
+                  <option key={staff.id} value={staff.id}>
+                    {staff.name} - {staff.responsibility} ({staff.department})
+                  </option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
         </div>
-      </div>
 
-      {updating && (
-        <div className="mt-3 text-center">
-          <span className="text-sm text-blue-600">Updating...</span>
-        </div>
-      )}
-    </div>
-  );
+        {/* Department Match Info */}
+        {departmentStaff.length > 0 && (
+          <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
+            <span className="font-medium">✓ {departmentStaff.length} staff member(s) available for {complaint.department}</span>
+          </div>
+        )}
+        
+        {departmentStaff.length === 0 && (
+          <div className="mt-3 p-2 bg-orange-50 border border-orange-200 rounded text-xs text-orange-700">
+            <span className="font-medium">⚠ No dedicated staff found for {complaint.department}</span>
+          </div>
+        )}
+
+        {updating && (
+          <div className="mt-3 text-center">
+            <span className="text-sm text-blue-600">Updating...</span>
+          </div>
+        )}
+      </div>
+    );
+  };
   const DepartmentBadge = ({ department }) => {
     const departmentColors = {
       "Water Supply Department": "bg-blue-100 text-blue-800 border border-blue-200",
@@ -489,7 +628,15 @@ const UnifiedComplaintsView = ({ allocatedComplaints = [], complaints = [] }) =>
                 {/* Priority and Assignment Row */}
                 <div className="flex justify-between items-center mb-2">
                   <PriorityBadge priority={complaint.priority} />
-                  <AssignmentBadge assignedTo={complaint.assignedTo} staffList={staffList} />
+                  <div className="flex items-center space-x-2">
+                    <AssignmentBadge assignedTo={complaint.assignedTo} staffList={staffList} />
+                    {/* Auto-allocation indicator */}
+                    {complaint.assignedTo && (
+                      <span className="px-1 py-0.5 rounded text-xs bg-green-100 text-green-700 border border-green-200">
+                        Auto
+                      </span>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Show confidence score if available */}
@@ -580,7 +727,7 @@ const UnifiedComplaintsView = ({ allocatedComplaints = [], complaints = [] }) =>
                     <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                       <h4 className="text-sm font-semibold text-indigo-900 mb-2 flex items-center">
                         <Bot className="h-4 w-4 mr-2" />
-                        AI Analysis
+                        Detailed Analysis
                       </h4>
                       <p className="text-indigo-800 text-sm">{selectedComplaint.analysis}</p>
                       {selectedComplaint.confidence && (

@@ -22,8 +22,8 @@ import AdminLogin from "./pages/admin/AdminLogin";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
-import StaffDashboard from "./pages/Staff/StaffDashboard";
 import StaffLogin from "./pages/Staff/StaffLogin";
+import StaffPage from "./pages/Staff/StaffPage";
 
 // Notification setup
 import { useNotifications } from "./hooks/useNotifications";
@@ -97,7 +97,7 @@ function App() {
 
         {/* Staff Routes */}
         <Route path="/staff/login" element={<StaffLogin/>}/>
-        <Route path="/staff" element={<StaffDashboard/>}/>
+        <Route path="/staff" element={<StaffPage/>}/>
 
         {/* Catch all - redirect based on login status */}
         <Route path="*" element={<Navigate to="/" replace />} />

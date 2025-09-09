@@ -104,12 +104,12 @@ const DashboardOverview = ({ allocatedComplaints = [], complaints = [] }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Complaints"
-          value={totalComplaints + processedComplaints}
+          value={totalComplaints}
           icon={BarChart3}
           color="blue"
           subtitle="All complaints (regular + AI processed)"
         />
-        <StatCard
+        {/* <StatCard
           title="AI Processed"
           value={processedComplaints}
           icon={TrendingUp}
@@ -122,7 +122,7 @@ const DashboardOverview = ({ allocatedComplaints = [], complaints = [] }) => {
           icon={Clock}
           color="orange"
           subtitle="Awaiting action"
-        />
+        /> */}
         <StatCard
           title="In Progress"
           value={inProgressComplaints + allocatedInProgress}
@@ -138,13 +138,13 @@ const DashboardOverview = ({ allocatedComplaints = [], complaints = [] }) => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold mb-4 text-gray-800">Status Distribution</h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
                 <span className="text-sm text-gray-600">Submitted</span>
               </div>
               <span className="font-semibold text-gray-800">{submittedComplaints + allocatedSubmitted}</span>
-            </div>
+            </div> */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
