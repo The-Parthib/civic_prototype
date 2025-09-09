@@ -1,43 +1,45 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Webcam from 'react-webcam';
-import { Camera, Image, X, ArrowLeft, Mic, MicOff, Send } from 'lucide-react';
-import BottomNavigation from '../../components/BottomNavigation';
-import { BackgroundAnalysisService } from '../../services/backgroundAnalysis';
-import { reportNotifications, initializeNotifications } from '../../utils/reportNotifications';
+import React, { useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import Webcam from "react-webcam";
+import { Camera, Image, X, ArrowLeft, Mic, MicOff, Send } from "lucide-react";
+import BottomNavigation from "../../components/BottomNavigation";
+import { BackgroundAnalysisService } from "../../services/backgroundAnalysis";
+import {
+  reportNotifications,
+  initializeNotifications,
+} from "../../utils/reportNotifications";
 
 const CreatePostScreen = () => {
   const navigate = useNavigate();
   const webcamRef = useRef(null);
-  const port = import.meta.env.VITE_DB_PORT || 5000;
 
   // State for camera interface
   const [showCamera, setShowCamera] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  
+
   // State for text description
   const [showTextInput, setShowTextInput] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
   // State for voice recording
   const [isRecording, setIsRecording] = useState(false);
   const [recordedAudio, setRecordedAudio] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
-  
+
   // State for submission
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Gallery images for demo (in real app, these would come from device gallery)
   const galleryImages = [
-    '/placeholder.svg',
-    '/placeholder.svg',
-    '/placeholder.svg',
-    '/placeholder.svg',
-    '/placeholder.svg',
-    '/placeholder.svg'
+    "/placeholder.svg",
+    "/placeholder.svg",
+    "/placeholder.svg",
+    "/placeholder.svg",
+    "/placeholder.svg",
+    "/placeholder.svg",
   ];
 
   // Initialize camera view
@@ -95,24 +97,24 @@ const CreatePostScreen = () => {
       };
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
         const audioUrl = URL.createObjectURL(audioBlob);
         setRecordedAudio(audioUrl);
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
 
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
     } catch (error) {
-      console.error('Error starting recording:', error);
-      alert('Could not access microphone. Please check permissions.');
+      console.error("Error starting recording:", error);
+      alert("Could not access microphone. Please check permissions.");
     }
   };
 
   // Stop voice recording
   const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
       mediaRecorder.stop();
       setIsRecording(false);
       setMediaRecorder(null);
@@ -130,7 +132,7 @@ const CreatePostScreen = () => {
   // Submit the report
   const submitReport = async () => {
     if (!title.trim() && !description.trim()) {
-      alert('Please provide a title or description for your report.');
+      alert("Please provide a title or description for your report.");
       return;
     }
 
@@ -146,7 +148,8 @@ const CreatePostScreen = () => {
         id: Date.now().toString(),
         userId: user.id || "anonymous",
         title: title.trim() || "Voice/Image Report",
-        details: description.trim() || "Report submitted with voice/image content",
+        details:
+          description.trim() || "Report submitted with voice/image content",
         category: null,
         department: null,
         photo: selectedImage || capturedImage,
@@ -182,18 +185,21 @@ const CreatePostScreen = () => {
           questions: [],
           answers: {},
           departmentAllocation: null,
-          processed: false
-        }
+          processed: false,
+        },
       };
 
       // Submit to server
-      const response = await fetch(`http://localhost:${port}/complaints`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(complaint),
-      });
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/complaints`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(complaint),
+        }
+      );
 
       if (response.ok) {
         const responseData = await response.json();
@@ -201,7 +207,7 @@ const CreatePostScreen = () => {
 
         // Initialize notifications
         await initializeNotifications();
-        
+
         // Send background processing notification
         await reportNotifications.notifyBackgroundProcessing(
           reportId,
@@ -215,7 +221,6 @@ const CreatePostScreen = () => {
         setTimeout(() => {
           BackgroundAnalysisService.analyzeReport(reportId, complaint);
         }, 2000);
-
       } else {
         throw new Error("Failed to submit report");
       }
@@ -231,8 +236,8 @@ const CreatePostScreen = () => {
   const resetForm = () => {
     setCapturedImage(null);
     setSelectedImage(null);
-    setTitle('');
-    setDescription('');
+    setTitle("");
+    setDescription("");
     removeAudio();
     setShowCamera(false);
     setShowGallery(false);
@@ -246,7 +251,7 @@ const CreatePostScreen = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 text-white">
           <button
-            onClick={() => navigate('/home')}
+            onClick={() => navigate("/home")}
             className="p-2 rounded-full hover:bg-gray-800"
           >
             <ArrowLeft size={24} />
@@ -286,7 +291,9 @@ const CreatePostScreen = () => {
             <div className="text-center text-white">
               <Camera size={48} className="mx-auto mb-4 opacity-50" />
               <p className="text-lg">Tap to take a photo</p>
-              <p className="text-sm opacity-75 mt-1">or select from gallery above</p>
+              <p className="text-sm opacity-75 mt-1">
+                or select from gallery above
+              </p>
             </div>
           </div>
           <button
@@ -304,14 +311,14 @@ const CreatePostScreen = () => {
             >
               <Image size={24} />
             </button>
-            
+
             <button
               onClick={openCamera}
               className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg"
             >
               <div className="w-16 h-16 rounded-full bg-white border-4 border-gray-300"></div>
             </button>
-            
+
             <button
               onClick={() => setShowTextInput(true)}
               className="p-4 rounded-full bg-gray-800 text-white"
@@ -319,7 +326,7 @@ const CreatePostScreen = () => {
               <Send size={24} />
             </button>
           </div>
-          
+
           <div className="text-center mt-4">
             <button
               onClick={() => setShowTextInput(true)}
@@ -463,7 +470,7 @@ const CreatePostScreen = () => {
               disabled={isSubmitting}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>
@@ -523,14 +530,14 @@ const CreatePostScreen = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Voice Note (Optional)
             </label>
-            
+
             {!recordedAudio ? (
               <button
                 onClick={isRecording ? stopRecording : startRecording}
                 className={`flex items-center justify-center space-x-2 w-full p-4 border-2 border-dashed rounded-lg ${
-                  isRecording 
-                    ? 'border-red-400 bg-red-50 text-red-600' 
-                    : 'border-gray-300 text-gray-600 hover:border-blue-400'
+                  isRecording
+                    ? "border-red-400 bg-red-50 text-red-600"
+                    : "border-gray-300 text-gray-600 hover:border-blue-400"
                 }`}
               >
                 {isRecording ? (

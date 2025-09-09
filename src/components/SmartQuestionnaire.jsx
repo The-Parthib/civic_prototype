@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Bot, X } from "lucide-react";
 
-const port = import.meta.env.VITE_DB_PORT || 5000;
 const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 const SmartQuestionnaire = ({
@@ -11,7 +10,7 @@ const SmartQuestionnaire = ({
   initialData = {},
 }) => {
   const [answers, setAnswers] = useState({});
-  const [isProcessing, setIsProcessing] = useState(false); 
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Default questions if AI didn't provide any
   const defaultQuestions = [
@@ -125,22 +124,25 @@ Based on ALL of this information, determine the most appropriate department and 
 
           // Save determination to database
           try {
-            await fetch(`http://localhost:${port}/desiredDepartment`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                id: Date.now().toString(),
-                title: initialData.title?.substring(0, 100),
-                details: initialData.details?.substring(0, 200),
-                hasImage: Boolean(initialData.photo),
-                department,
-                category,
-                additionalInfo: answers,
-                timestamp: new Date().toISOString(),
-              }),
-            });
+            await fetch(
+              `https://jansamadhan-json-server.onrender.com/desiredDepartment`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  id: Date.now().toString(),
+                  title: initialData.title?.substring(0, 100),
+                  details: initialData.details?.substring(0, 200),
+                  hasImage: Boolean(initialData.photo),
+                  department,
+                  category,
+                  additionalInfo: answers,
+                  timestamp: new Date().toISOString(),
+                }),
+              }
+            );
           } catch (e) {
             console.error("Error saving questionnaire result:", e);
           }

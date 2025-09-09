@@ -10,18 +10,15 @@ import {
   X,
   Calendar,
   MessageSquare,
-  Clipboard,
   ArrowUpRight,
   MapPin,
   Bot,
-  Brain,
   Loader,
 } from "lucide-react";
 import axios from "axios";
 
-const DashboardStaff = ({ complaints, allocation }) => {
-  console.log("allocation",allocation);
-  console.log("complaints",complaints);
+const DashboardStaff = ({ allocation }) => {
+  console.log("allocation", allocation);
   const [complaintsData, setComplaintsData] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -34,49 +31,22 @@ const DashboardStaff = ({ complaints, allocation }) => {
   const [showModal, setShowModal] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const port = import.meta.env.VITE_DB_PORT;
 
   useEffect(() => {
     let mergedComplaints = [];
-    let allocMap = {};
 
-    // Create a map of allocation data by ID
+    // Process allocation data
     if (allocation) {
       let allocArray = Array.isArray(allocation)
         ? allocation
         : Object.values(allocation);
+
       allocArray.forEach((alloc) => {
-        if (alloc.id) allocMap[alloc.id] = alloc;
-      });
-    }
-
-    // Merge complaints with allocation data
-    if (complaints) {
-      let compArray = Array.isArray(complaints)
-        ? complaints
-        : Object.values(complaints);
-      compArray.forEach((comp) => {
-        let merged = { ...comp };
-        if (allocMap[comp.id]) {
-          let alloc = allocMap[comp.id];
-          merged.category = alloc.category || merged.category;
-          merged.priority = alloc.priority || merged.priority;
-          // Remove from map to avoid duplicate addition
-          delete allocMap[comp.id];
+        if (alloc && Object.keys(alloc).length > 0) {
+          mergedComplaints.push(alloc);
         }
-        mergedComplaints.push(merged);
       });
     }
-
-    // Add remaining allocation entries that didn't match any complaints
-    Object.values(allocMap).forEach((alloc) => {
-      mergedComplaints.push(alloc);
-    });
-
-    // Filter out empty objects
-    mergedComplaints = mergedComplaints.filter(
-      (complaint) => complaint && Object.keys(complaint).length > 0
-    );
 
     setComplaintsData(mergedComplaints);
 
@@ -115,7 +85,7 @@ const DashboardStaff = ({ complaints, allocation }) => {
 
       setStats(statsCounts);
     }
-  }, [complaints, allocation]);
+  }, [allocation]);
 
   const getStatusBadge = (status) => {
     if (!status)
@@ -175,7 +145,7 @@ const DashboardStaff = ({ complaints, allocation }) => {
     try {
       // Get the specific complaint
       const response = await axios.get(
-        `http://localhost:${port}/allocatedDepartment`
+        `https://jansamadhan-json-server.onrender.com/allocatedDepartment`
       );
       const allComplaints = response.data;
 
@@ -188,7 +158,7 @@ const DashboardStaff = ({ complaints, allocation }) => {
 
         // Save to database
         await axios.put(
-          `http://localhost:${port}/allocatedDepartment/${complaintId}`,
+          `https://jansamadhan-json-server.onrender.com/allocatedDepartment/${complaintId}`,
           complaintToUpdate
         );
 
@@ -400,16 +370,7 @@ const DashboardStaff = ({ complaints, allocation }) => {
                     {complaint.details || "No details provided"}
                   </p>
 
-                  {complaint.location && (
-                    <div className="flex items-center text-xs text-gray-500 mb-2">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {complaint.location.municipality ||
-                        complaint.location ||
-                        "Unknown location"}
-                    </div>
-                  )}
-
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-3">
                     <span className="text-xs text-gray-500">
                       {complaint.category || "Uncategorized"}
                     </span>
@@ -447,7 +408,7 @@ const DashboardStaff = ({ complaints, allocation }) => {
 
       {/* Detail Modal */}
       {showModal && selectedComplaint && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent backdrop-blur-sm bg-opacity-20">
           <div
             className="relative bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}

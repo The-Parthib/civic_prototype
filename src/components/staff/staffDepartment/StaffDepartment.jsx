@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-const port = import.meta.env.VITE_DB_PORT;
 
 const StaffDepartment = () => {
   const [deptId, setDeptId] = useState("");
@@ -10,7 +9,7 @@ const StaffDepartment = () => {
 
   async function getDeptData(deptIde) {
     setLoading(true);
-    fetch(`http://localhost:${port}/createDepartment?id=${deptIde}`)
+    fetch(`https://jansamadhan-json-server.onrender.com/createDepartment?id=${deptIde}`)
       .then((res) => res.json())
       .then((data) => {
         setDeptData(data);

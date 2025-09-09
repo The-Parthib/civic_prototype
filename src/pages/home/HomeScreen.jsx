@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Bell, MapPin, Clock, AlertCircle, Megaphone } from 'lucide-react';
-import BottomNavigation from '../../components/BottomNavigation';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Bell, MapPin, Clock, AlertCircle, Megaphone } from "lucide-react";
+import BottomNavigation from "../../components/BottomNavigation";
 
 const HomeScreen = () => {
   const navigate = useNavigate();
-  const port = import.meta.env.VITE_DB_PORT || 5000;
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost';
-  
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost";
+
   const [user, setUser] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [areaComplaints, setAreaComplaints] = useState([]);
@@ -16,17 +15,19 @@ const HomeScreen = () => {
     {
       id: 1,
       title: "Municipal Water Supply Maintenance",
-      content: "Water supply will be disrupted from 10 AM to 4 PM tomorrow for maintenance work.",
+      content:
+        "Water supply will be disrupted from 10 AM to 4 PM tomorrow for maintenance work.",
       type: "info",
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
     },
     {
       id: 2,
       title: "Road Construction Alert",
-      content: "Main Street road construction in progress. Please use alternate routes.",
+      content:
+        "Main Street road construction in progress. Please use alternate routes.",
       type: "warning",
-      date: new Date().toISOString()
-    }
+      date: new Date().toISOString(),
+    },
   ]);
 
   useEffect(() => {
@@ -44,32 +45,38 @@ const HomeScreen = () => {
   const fetchUserComplaints = async (email) => {
     try {
       const response = await fetch(
-        `${apiBaseUrl}:${port}/complaints?userInfo.email=${encodeURIComponent(email)}`
+        `https://jansamadhan-json-server.onrender.com/complaints?userInfo.email=${encodeURIComponent(
+          email
+        )}`
       );
       if (response.ok) {
         const data = await response.json();
         setComplaints(Array.isArray(data) ? data.slice(0, 3) : []); // Show only recent 3
       }
     } catch (error) {
-      console.error('Error fetching user complaints:', error);
+      console.error("Error fetching user complaints:", error);
     }
   };
 
   const fetchAreaComplaints = async (municipality) => {
     try {
       const response = await fetch(
-        `${apiBaseUrl}:${port}/complaints?userInfo.municipality=${encodeURIComponent(municipality)}`
+        `https://jansamadhan-json-server.onrender.com/complaints?userInfo.municipality=${encodeURIComponent(
+          municipality
+        )}`
       );
       if (response.ok) {
         const data = await response.json();
         // Filter out user's own complaints and show recent 3
-        const otherComplaints = Array.isArray(data) 
-          ? data.filter(complaint => complaint.userInfo?.email !== user?.email).slice(0, 3)
+        const otherComplaints = Array.isArray(data)
+          ? data
+              .filter((complaint) => complaint.userInfo?.email !== user?.email)
+              .slice(0, 3)
           : [];
         setAreaComplaints(otherComplaints);
       }
     } catch (error) {
-      console.error('Error fetching area complaints:', error);
+      console.error("Error fetching area complaints:", error);
     } finally {
       setLoading(false);
     }
@@ -79,32 +86,40 @@ const HomeScreen = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
+
+    if (diffInHours < 1) return "Just now";
     if (diffInHours < 24) return `${diffInHours}h ago`;
     return date.toLocaleDateString();
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Submitted': return 'bg-yellow-100 text-yellow-800';
-      case 'In Progress': return 'bg-blue-100 text-blue-800';
-      case 'Resolved': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "Submitted":
+        return "bg-yellow-100 text-yellow-800";
+      case "In Progress":
+        return "bg-blue-100 text-blue-800";
+      case "Resolved":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const ReportCard = ({ report, onClick }) => (
-    <div 
+    <div
       className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow cursor-pointer"
       onClick={onClick}
     >
@@ -118,14 +133,24 @@ const HomeScreen = () => {
         )}
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-gray-900 truncate">{report.title}</h4>
-          <p className="text-sm text-gray-600 line-clamp-2 mt-1">{report.details}</p>
+          <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+            {report.details}
+          </p>
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center space-x-2">
-              <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(report.status)}`}>
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${getStatusColor(
+                  report.status
+                )}`}
+              >
                 {report.status}
               </span>
-              <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(report.priority)}`}>
-                {report.priority || 'medium'}
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(
+                  report.priority
+                )}`}
+              >
+                {report.priority || "medium"}
               </span>
             </div>
             <span className="text-xs text-gray-500 flex items-center">
@@ -154,7 +179,7 @@ const HomeScreen = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Hello, {user?.name || 'User'}! 👋
+                Hello, {user?.name || "User"}! 👋
               </h1>
               <p className="text-gray-600 mt-1">
                 {user?.municipality}, {user?.district}
@@ -179,20 +204,24 @@ const HomeScreen = () => {
               <div
                 key={announcement.id}
                 className={`p-4 rounded-lg border-l-4 ${
-                  announcement.type === 'warning'
-                    ? 'bg-amber-50 border-amber-400'
-                    : 'bg-blue-50 border-blue-400'
+                  announcement.type === "warning"
+                    ? "bg-amber-50 border-amber-400"
+                    : "bg-blue-50 border-blue-400"
                 }`}
               >
                 <div className="flex items-start space-x-3">
-                  {announcement.type === 'warning' ? (
+                  {announcement.type === "warning" ? (
                     <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                   ) : (
                     <Bell className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   )}
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{announcement.title}</h3>
-                    <p className="text-sm text-gray-700 mt-1">{announcement.content}</p>
+                    <h3 className="font-medium text-gray-900">
+                      {announcement.title}
+                    </h3>
+                    <p className="text-sm text-gray-700 mt-1">
+                      {announcement.content}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -203,15 +232,17 @@ const HomeScreen = () => {
         {/* Your Reports Section */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-gray-900">Your Reports</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Your Reports
+            </h2>
             <button
-              onClick={() => navigate('/posts')}
+              onClick={() => navigate("/posts")}
               className="text-blue-600 text-sm font-medium hover:text-blue-700"
             >
               View All
             </button>
           </div>
-          
+
           {complaints.length > 0 ? (
             <div className="space-y-3">
               {complaints.map((report) => (
@@ -226,7 +257,7 @@ const HomeScreen = () => {
             <div className="bg-white rounded-lg border p-6 text-center">
               <p className="text-gray-500">No reports yet.</p>
               <button
-                onClick={() => navigate('/create-post')}
+                onClick={() => navigate("/create-post")}
                 className="mt-2 text-blue-600 font-medium hover:text-blue-700"
               >
                 Create your first report
@@ -243,13 +274,13 @@ const HomeScreen = () => {
               Recent Area Activity
             </h2>
             <button
-              onClick={() => navigate('/posts')}
+              onClick={() => navigate("/posts")}
               className="text-blue-600 text-sm font-medium hover:text-blue-700"
             >
               View All
             </button>
           </div>
-          
+
           {areaComplaints.length > 0 ? (
             <div className="space-y-3">
               {areaComplaints.map((report) => (

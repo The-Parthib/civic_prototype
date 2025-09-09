@@ -1,10 +1,7 @@
-import { ArrowBigLeft, Eye, EyeOff, User, Shield } from "lucide-react";
+import { ArrowBigLeft, Eye, EyeOff, User, Shield, Copy } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Use Vite env with a safe fallback so it works even if .env isn't loaded
-const port = import.meta.env.VITE_DB_PORT || 5000;
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +10,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  // Demo credentials array
+  const demoCredentials = [
+    { email: "john@example.com", password: "demo123", label: "Demo Account 1" },
+    { email: "parthib@gmail.com", password: "123456", label: "Demo Account 2" }
+  ];
 
   useEffect(() => {
     sessionStorage.clear();
@@ -24,7 +27,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${apiBaseUrl}:${port}/users`);
+      const response = await fetch(`https://jansamadhan-json-server.onrender.com/users`);
       if (!response.ok) throw new Error("Failed to fetch users");
 
       const users = await response.json();
@@ -54,6 +57,13 @@ const Login = () => {
     }
   };
 
+  // Function to auto-fill demo credentials
+  const fillDemoCredentials = (credential) => {
+    setEmail(credential.email);
+    setPassword(credential.password);
+    setMessage(`✅ ${credential.label} credentials filled`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-gray-100">
       {/* Cross-platform Header */}
@@ -77,7 +87,7 @@ const Login = () => {
               <div className="text-center">
                 <h1 className="font-bold text-sm sm:text-lg lg:text-xl text-gray-800">
                   <span className="hidden sm:inline">Government of Jharkhand</span>
-                  <span className="sm:hidden">Gov. Jharkhand</span>
+                  <span className="sm:hidden">Govt. of Jharkhand</span>
                 </h1>
                 <p className="hidden sm:block text-xs lg:text-sm text-gray-600 mt-1">
                   Official Citizen Portal
@@ -204,6 +214,46 @@ const Login = () => {
               </button>
             </form>
 
+            {/* Demo Credentials */}
+            <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-amber-50 rounded-xl border border-amber-200">
+              <div className="flex items-center mb-3 lg:mb-4">
+                <Shield size={16} className="text-amber-600 mr-2" />
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-amber-800">
+                  Demo Account Credentials
+                </h3>
+              </div>
+              <div className="space-y-4">
+                {demoCredentials.map((cred, index) => (
+                  <div key={index} className="bg-amber-100 p-3 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-medium text-amber-800">{cred.label}</span>
+                      <button
+                        onClick={() => fillDemoCredentials(cred)}
+                        className="flex items-center text-xs bg-amber-500 hover:bg-amber-600 text-white py-1 px-2 rounded transition-colors"
+                      >
+                        <Copy size={12} className="mr-1" />
+                        Fill
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <div className="flex flex-col">
+                        <span className="text-amber-700 font-medium mb-1">Email:</span>
+                        <span className="bg-white px-2 py-1 rounded font-mono truncate">
+                          {cred.email}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-amber-700 font-medium mb-1">Password:</span>
+                        <span className="bg-white px-2 py-1 rounded font-mono truncate">
+                          {cred.password}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Register Link */}
             <div className="text-center mt-6 lg:mt-8">
               <p className="text-gray-600 text-sm sm:text-base lg:text-lg mb-3 lg:mb-4">
@@ -215,42 +265,6 @@ const Login = () => {
               >
                 Create Citizen Account
               </button>
-            </div>
-
-            {/* Demo Credentials */}
-            <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-amber-50 rounded-xl border border-amber-200">
-              <div className="flex items-center mb-3 lg:mb-4">
-                <Shield size={16} className="text-amber-600 mr-2" />
-                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-amber-800">
-                  Demo Account Credentials
-                </h3>
-              </div>
-              <div className="space-y-2 lg:space-y-3 text-xs sm:text-sm lg:text-base text-amber-700">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-1 lg:py-2">
-                  <span className="font-medium mb-1 sm:mb-0">Email:</span>
-                  <span className="bg-white px-2 lg:px-3 py-1 lg:py-2 rounded font-mono text-xs sm:text-sm">
-                    john@example.com
-                  </span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-1 lg:py-2">
-                  <span className="font-medium mb-1 sm:mb-0">Password:</span>
-                  <span className="bg-white px-2 lg:px-3 py-1 lg:py-2 rounded font-mono text-xs sm:text-sm">
-                    demo123
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer Links */}
-            <div className="mt-6 lg:mt-8 pt-6 lg:pt-8 border-t border-gray-200">
-              <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-6 lg:space-x-8">
-                <button className="text-sm sm:text-base lg:text-lg text-orange-600 hover:text-orange-800 font-medium py-2 lg:py-3 px-3 lg:px-4 rounded-lg hover:bg-orange-50 transition-colors">
-                  Forgot Password?
-                </button>
-                <button className="text-sm sm:text-base lg:text-lg text-orange-600 hover:text-orange-800 font-medium py-2 lg:py-3 px-3 lg:px-4 rounded-lg hover:bg-orange-50 transition-colors">
-                  Help & Support
-                </button>
-              </div>
             </div>
 
             {/* Copyright */}

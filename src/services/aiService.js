@@ -3,7 +3,6 @@
  */
 
 const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
-const port = import.meta.env.VITE_DB_PORT || 5000;
 
 /**
  * Analyzes complaint text and image to determine appropriate department
@@ -38,24 +37,27 @@ export const determineDepartment = async (
  */
 const saveDetermination = async (determination) => {
   try {
-    await fetch(`http://localhost:${port}/desiredDepartment`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: Date.now().toString(),
-        title: determination.title?.substring(0, 100),
-        details: determination.details?.substring(0, 200),
-        hasImage: determination.hasImage,
-        department: determination.department,
-        category: determination.category,
-        priority: determination.priority,
-        confidence: determination.confidence,
-        analysis: determination.analysis,
-        timestamp: new Date().toISOString(),
-      }),
-    });
+    await fetch(
+      `https://jansamadhan-json-server.onrender.com/desiredDepartment`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: Date.now().toString(),
+          title: determination.title?.substring(0, 100),
+          details: determination.details?.substring(0, 200),
+          hasImage: determination.hasImage,
+          department: determination.department,
+          category: determination.category,
+          priority: determination.priority,
+          confidence: determination.confidence,
+          analysis: determination.analysis,
+          timestamp: new Date().toISOString(),
+        }),
+      }
+    );
   } catch (error) {
     console.error("Error saving AI determination:", error);
   }

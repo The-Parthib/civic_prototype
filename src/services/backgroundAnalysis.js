@@ -4,7 +4,7 @@ import { reportNotifications } from '../utils/reportNotifications';
 
 const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
-const port = import.meta.env.VITE_DB_PORT || 5000;
+
 
 export class BackgroundAnalysisService {
   
@@ -93,7 +93,7 @@ export class BackgroundAnalysisService {
   // Get municipal structure
   static async fetchMunicipalStructure() {
     try {
-      const response = await fetch(`http://localhost:${port}/createDepartment`);
+      const response = await fetch(`https://jansamadhan-json-server.onrender.com/createDepartment`);
       if (!response.ok) throw new Error("Failed to fetch departments");
 
       const departments = await response.json();
@@ -181,7 +181,7 @@ export class BackgroundAnalysisService {
       };
 
       // Check if allocation already exists to prevent duplicates
-      const existingResponse = await fetch(`http://localhost:${port}/allocatedDepartment`);
+      const existingResponse = await fetch(`https://jansamadhan-json-server.onrender.com/allocatedDepartment`);
       const existingAllocations = await existingResponse.json();
       
       // More comprehensive duplicate checking
@@ -202,7 +202,7 @@ export class BackgroundAnalysisService {
       if (existingAllocation) {
         // Update existing allocation instead of creating new one
         const updatePayload = { ...allocationPayload, id: existingAllocation.id };
-        await fetch(`http://localhost:${port}/allocatedDepartment/${existingAllocation.id}`, {
+        await fetch(`https://jansamadhan-json-server.onrender.com/allocatedDepartment/${existingAllocation.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatePayload),
@@ -210,7 +210,7 @@ export class BackgroundAnalysisService {
         console.log(`Allocation updated for report: ${reportData.title} (prevented duplicate)`);
       } else {
         // Create new allocation
-        await fetch(`http://localhost:${port}/allocatedDepartment`, {
+        await fetch(`https://jansamadhan-json-server.onrender.com/allocatedDepartment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(allocationPayload),
@@ -284,7 +284,7 @@ export class BackgroundAnalysisService {
             updatedAt: new Date().toISOString()
           };
 
-          await fetch(`http://localhost:${port}/complaints/${reportId}`, {
+          await fetch(`https://jansamadhan-json-server.onrender.com/complaints/${reportId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updateData)
@@ -312,7 +312,7 @@ export class BackgroundAnalysisService {
             updatedAt: new Date().toISOString()
           };
 
-          await fetch(`http://localhost:${port}/complaints/${reportId}`, {
+          await fetch(`https://jansamadhan-json-server.onrender.com/complaints/${reportId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updateData)
@@ -343,7 +343,7 @@ export class BackgroundAnalysisService {
       }
       
       // Update report with error status
-      await fetch(`http://localhost:${port}/complaints/${reportId}`, {
+      await fetch(`https://jansamadhan-json-server.onrender.com/complaints/${reportId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -369,7 +369,7 @@ export class BackgroundAnalysisService {
       console.log(`Processing question answers for report ${reportId}`);
       
       // Get current report
-      const reportResponse = await fetch(`http://localhost:${port}/complaints/${reportId}`);
+      const reportResponse = await fetch(`https://jansamadhan-json-server.onrender.com/complaints/${reportId}`);
       const report = await reportResponse.json();
 
       // Re-analyze with answers to determine final allocation
@@ -401,7 +401,7 @@ export class BackgroundAnalysisService {
         updatedAt: new Date().toISOString()
       };
 
-      await fetch(`http://localhost:${port}/complaints/${reportId}`, {
+      await fetch(`https://jansamadhan-json-server.onrender.com/complaints/${reportId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData)

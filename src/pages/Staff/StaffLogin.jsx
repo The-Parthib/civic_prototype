@@ -1,64 +1,62 @@
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
-
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Using environment variable for port
-const port = import.meta.env.VITE_DB_PORT
 
 const StaffLogin = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [message, setMessage] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Clear any existing session storage on component mount
-      sessionStorage.clear()
-  }, [])
+    sessionStorage.clear();
+  }, []);
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setMessage("")
-    setLoading(true)
+    e.preventDefault();
+    setMessage("");
+    setLoading(true);
 
     try {
       // Fetch all users from the API
-      const response = await fetch(`http://localhost:${port}/staffs`)
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/staffs`
+      );
       if (!response.ok) {
-        throw new Error("Failed to fetch users from the server.")
+        throw new Error("Failed to fetch users from the server.");
       }
 
-      const users = await response.json()
+      const users = await response.json();
 
       // Find a user that matches the admin criteria and entered credentials
       const staffUser = users.find(
-        (user) =>
-          user.email === email &&
-          user.password === password,
-      )
+        (user) => user.email === email && user.password === password
+      );
 
       if (staffUser) {
-        setMessage("✅ Login successful! Redirecting...")
-        sessionStorage.setItem("staffName", JSON.stringify(staffUser))
-        
+        setMessage("✅ Login successful! Redirecting...");
+        sessionStorage.setItem("staffName", JSON.stringify(staffUser));
+
         // Redirect to the admin dashboard after a short delay
         setTimeout(() => {
-          navigate("/staff")
-        }, 1000)
+          navigate("/staff");
+        }, 1000);
       } else {
-        setMessage("❌ Invalid admin credentials. Please try again...")
+        setMessage("❌ Invalid admin credentials. Please try again...");
       }
     } catch (error) {
-      console.error("Login error:", error)
-      setMessage("❌ An error occurred during login. Please try again later.")
+      console.error("Login error:", error);
+      setMessage("❌ An error occurred during login. Please try again later.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50 flex items-center justify-center p-4">
@@ -72,9 +70,7 @@ const StaffLogin = () => {
             <h1 className="font-bold text-xl text-gray-800">
               Ranchi Municipal Corporation
             </h1>
-            <p className="text-sm text-gray-600">
-              Government of Jharkhand
-            </p>
+            <p className="text-sm text-gray-600">Government of Jharkhand</p>
           </div>
         </div>
       </div>
@@ -189,18 +185,48 @@ const StaffLogin = () => {
           </form>
 
           {/* Demo Credentials Hint */}
-          <div className="mt-6 p-4  bg-green-50 rounded-lg border border-green-200">
+          <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
             <h3 className="text-sm font-semibold text-green-800 mb-2 flex items-center">
               <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
-              Demo Admin Account:
+              Demo Staff Accounts:
             </h3>
-            <div className="text-xs text-green-700 space-y-1">
-              <p>
-                <span className="font-medium">Email:</span> tarun.parks@ranchi.com
-              </p>
-              <p>
-                <span className="font-medium">Password:</span> staff123
-              </p>
+            <div className="grid grid-cols-2 gap-4 text-xs text-green-700">
+              <div className="space-y-1">
+                <p>
+                  <span className="font-medium">Email:</span>{" "}
+                  tarun.parks@ranchi.com
+                </p>
+                <p>
+                  <span className="font-medium">Password:</span> staff123
+                </p>
+                <button
+                  onClick={() => {
+                    setEmail("tarun.parks@ranchi.com");
+                    setPassword("staff123");
+                  }}
+                  className="mt-2 px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
+                >
+                  Use Credentials
+                </button>
+              </div>
+              <div className="space-y-1">
+                <p>
+                  <span className="font-medium">Email:</span>{" "}
+                  geeta.roads@ranchi.com
+                </p>
+                <p>
+                  <span className="font-medium">Password:</span> staff123
+                </p>
+                <button
+                  onClick={() => {
+                    setEmail("geeta.roads@ranchi.com");
+                    setPassword("staff123");
+                  }}
+                  className="mt-2 px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
+                >
+                  Use Credentials
+                </button>
+              </div>
             </div>
           </div>
 
@@ -213,7 +239,7 @@ const StaffLogin = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default StaffLogin
+export default StaffLogin;

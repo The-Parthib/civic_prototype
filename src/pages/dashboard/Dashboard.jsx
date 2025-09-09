@@ -7,7 +7,10 @@ import SmartQuestionnaire from "../../components/SmartQuestionnaire";
 import { determineDepartment } from "../../services/aiService";
 import { Bot, LogOut, Menu, X, Loader2 } from "lucide-react";
 import axios from "axios";
-import { reportNotifications, initializeNotifications } from "../../utils/reportNotifications";
+import {
+  reportNotifications,
+  initializeNotifications,
+} from "../../utils/reportNotifications";
 import { BackgroundAnalysisService } from "../../services/backgroundAnalysis";
 
 const categories = ["Roads", "Water", "Electricity", "Sanitation", "Other"];
@@ -243,9 +246,7 @@ const Dashboard = () => {
       fetchComplaintsForUser(u.email);
     }
   }, []);
-
-  const port = import.meta.env.VITE_DB_PORT || 5000;
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost';
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost";
 
   // NEW: reset form helper
   const resetForm = () => {
@@ -268,7 +269,7 @@ const Dashboard = () => {
     setComplaintsError("");
     try {
       const res = await fetch(
-        `${apiBaseUrl}:${port}/complaints?userInfo.email=${encodeURIComponent(
+        `https://jansamadhan-json-server.onrender.com/complaints?userInfo.email=${encodeURIComponent(
           email
         )}`
       );
@@ -325,7 +326,9 @@ const Dashboard = () => {
   // Function to fetch municipal structure
   const fetchMunicipalStructure = async () => {
     try {
-      const response = await fetch(`${apiBaseUrl}:${port}/createDepartment`);
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/createDepartment`
+      );
       if (!response.ok) throw new Error("Failed to fetch departments");
 
       const departments = await response.json();
@@ -430,11 +433,14 @@ const Dashboard = () => {
         timestamp: new Date().toISOString(),
       };
 
-      await fetch(`${apiBaseUrl}:${port}/questionaries`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(questionaryPayload),
-      });
+      await fetch(
+        `https://jansamadhan-json-server.onrender.com/questionaries`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(questionaryPayload),
+        }
+      );
 
       // Save the allocation with the questionnaire data included
       const allocationPayload = {
@@ -455,11 +461,14 @@ const Dashboard = () => {
         // capturedImage: capturedImage,
       };
 
-      await fetch(`${apiBaseUrl}:${port}/allocatedDepartment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(allocationPayload),
-      });
+      await fetch(
+        `https://jansamadhan-json-server.onrender.com/allocatedDepartment`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(allocationPayload),
+        }
+      );
 
       return allocation;
     } catch (error) {
@@ -591,17 +600,17 @@ const Dashboard = () => {
         "What is the nature/type of the civic issue? (e.g., water supply, road repair, electricity, sanitation, etc.)",
         "Where is the issue located? (specific address, landmark, area, or coordinates)",
         "What is the scope of the issue? (affects individual household, building, community, or larger area)",
-        "What is the urgency level of this issue? (low, medium, high priority or emergency)"
+        "What is the urgency level of this issue? (low, medium, high priority or emergency)",
       ];
 
       const assessmentPrompt = `
         You are assessing whether a civic complaint report has sufficient context to proceed without asking additional clarifying questions.
 
-        Report Title: "${titleText || ''}"
-        Report Details: "${detailsText || ''}"
+        Report Title: "${titleText || ""}"
+        Report Details: "${detailsText || ""}"
 
         Municipal Context Questions that need to be answered:
-        ${contextQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+        ${contextQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}
 
         Based on the provided title and details, analyze whether the report contains enough information to answer the above municipal context questions.
 
@@ -624,7 +633,7 @@ const Dashboard = () => {
       `;
 
       const assessment = await callGeminiApi(assessmentPrompt);
-      
+
       return {
         isClear: assessment.isClear || false,
         confidence: assessment.confidence || "low",
@@ -635,22 +644,30 @@ const Dashboard = () => {
           hasNature: assessment.answeredQuestions >= 1,
           hasLocation: assessment.answeredQuestions >= 2,
           hasScope: assessment.answeredQuestions >= 3,
-          hasUrgency: assessment.answeredQuestions >= 4
-        }
+          hasUrgency: assessment.answeredQuestions >= 4,
+        },
       };
     } catch (error) {
       console.error("Error assessing context clarity with AI:", error);
       // Fallback to a simple check if AI fails
-      const text = `${(titleText || "").toLowerCase()} ${(detailsText || "").toLowerCase()}`;
-      const hasBasicInfo = text.length > 20 && (titleText || "").trim().length > 5;
-      
+      const text = `${(titleText || "").toLowerCase()} ${(
+        detailsText || ""
+      ).toLowerCase()}`;
+      const hasBasicInfo =
+        text.length > 20 && (titleText || "").trim().length > 5;
+
       return {
         isClear: false, // Default to false to ensure questions are asked when AI fails
         confidence: "low",
         answeredQuestions: hasBasicInfo ? 1 : 0,
         missingInformation: ["AI assessment failed - manual review needed"],
         reasoning: "AI assessment failed, using fallback evaluation",
-        signals: { hasNature: false, hasLocation: false, hasScope: false, hasUrgency: false }
+        signals: {
+          hasNature: false,
+          hasLocation: false,
+          hasScope: false,
+          hasUrgency: false,
+        },
       };
     }
   };
@@ -719,36 +736,39 @@ const Dashboard = () => {
         questions: [],
         answers: {},
         departmentAllocation: null,
-        processed: false
-      }
+        processed: false,
+      },
     };
 
     try {
       // Send complaint to server immediately
-      const response = await fetch(`${apiBaseUrl}:${port}/complaints`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(complaint),
-      });
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/complaints`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(complaint),
+        }
+      );
 
       if (response.ok) {
         const responseData = await response.json();
         const reportId = responseData.id || complaint.id;
-        
+
         // Reset form and navigate immediately
         resetForm();
-        
+
         // Send background processing notification
         await reportNotifications.notifyBackgroundProcessing(
           reportId,
           complaint.title
         );
-        
+
         // Navigate to report details page immediately
         navigate(`/report/${reportId}`);
-        
+
         // Update complaints list in background
         if (user?.email) {
           setTimeout(() => {
@@ -758,7 +778,6 @@ const Dashboard = () => {
 
         // Trigger background analysis immediately (no delay)
         triggerBackgroundAnalysis(reportId, complaint);
-        
       } else {
         throw new Error("Failed to submit complaint");
       }
@@ -771,27 +790,31 @@ const Dashboard = () => {
   const triggerBackgroundAnalysis = async (reportId, complaintData) => {
     try {
       console.log("Starting AI analysis for report:", reportId);
-      
+
       // Start analysis immediately instead of delaying
-      const result = await BackgroundAnalysisService.analyzeReport(reportId, complaintData);
-      
+      const result = await BackgroundAnalysisService.analyzeReport(
+        reportId,
+        complaintData
+      );
+
       if (result.success) {
         console.log(`AI analysis completed for report ${reportId}:`, {
           needsQuestions: result.needsQuestions,
-          questionsCount: result.questions?.length || 0
+          questionsCount: result.questions?.length || 0,
         });
-        
+
         if (!result.needsQuestions && result.allocation) {
           // Report was processed completely
           console.log("Report processed successfully without questions");
         } else if (result.needsQuestions) {
           // Questions will be shown in ReportDetails page
-          console.log(`${result.questions?.length || 0} questions generated for user`);
+          console.log(
+            `${result.questions?.length || 0} questions generated for user`
+          );
         }
       } else {
         console.error("AI analysis failed:", result.error);
       }
-      
     } catch (error) {
       console.error("Failed to trigger background analysis:", error);
     }
@@ -813,7 +836,7 @@ const Dashboard = () => {
   const ComplaintCard = ({ item }) => {
     const imgSrc = item?.photo || item?.capturedImage;
     return (
-      <div 
+      <div
         className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
         onClick={() => navigate(`/report/${item.id}`)}
       >
@@ -953,7 +976,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {(isAIProcessing) && (
+        {isAIProcessing && (
           <div className="mb-6 p-4 bg-blue-50 text-blue-800 rounded-lg flex items-center">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-800 mr-2"></div>
             Submitting your report...

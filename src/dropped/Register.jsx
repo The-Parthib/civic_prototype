@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 
-const port = import.meta.env.VITE_DB_PORT;
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost';
-
 const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -103,13 +100,16 @@ const Register = () => {
       };
 
       // Send to json-server
-      const response = await fetch(`${apiBaseUrl}:${port}/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newUser),
-      });
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/users`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newUser),
+        }
+      );
 
       if (response.ok) {
         setMessage("Registration successful! You can now login.");

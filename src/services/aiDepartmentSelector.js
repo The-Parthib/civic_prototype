@@ -5,7 +5,6 @@
  */
 
 const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
-const port = import.meta.env.VITE_DB_PORT || 5000;
 
 /**
  * Determine department and category using Gemini API
@@ -285,13 +284,16 @@ async function saveDetermination(complaintText, imageBase64, departmentInfo) {
       timestamp: new Date().toISOString(),
     };
 
-    await fetch(`http://localhost:${port}/desiredDepartment`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(determination),
-    });
+    await fetch(
+      `https://jansamadhan-json-server.onrender.com/desiredDepartment`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(determination),
+      }
+    );
 
     console.log("AI determination saved to database");
   } catch (error) {

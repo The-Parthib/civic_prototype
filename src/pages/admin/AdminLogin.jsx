@@ -1,71 +1,76 @@
+import { ArrowLeft, Eye, EyeOff, Shield } from "lucide-react";
 
-import { ArrowLeft, Eye, EyeOff, Shield } from "lucide-react"
-
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Using environment variable for port
-const port = import.meta.env.VITE_DB_PORT
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [message, setMessage] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Clear any existing session storage on component mount
     if (typeof window !== "undefined") {
-      sessionStorage.clear()
+      sessionStorage.clear();
     }
-  }, [])
+  }, []);
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setMessage("")
-    setLoading(true)
+    e.preventDefault();
+    setMessage("");
+    setLoading(true);
 
     try {
       // Fetch all users from the API
-      const response = await fetch(`http://localhost:${port}/users`)
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/users`
+      );
       if (!response.ok) {
-        throw new Error("Failed to fetch users from the server.")
+        throw new Error("Failed to fetch users from the server.");
       }
 
-      const users = await response.json()
+      const users = await response.json();
 
       // Find a user that matches the admin criteria and entered credentials
       const adminUser = users.find(
         (user) =>
           user.role === "admin" &&
           user.email === email &&
-          user.password === password,
-      )
+          user.password === password
+      );
 
       if (adminUser) {
-        setMessage("✅ Login successful! Redirecting...")
+        setMessage("✅ Login successful! Redirecting...");
 
         // Store admin user's data in session storage
         if (typeof window !== "undefined") {
-          sessionStorage.setItem("adminName", JSON.stringify(adminUser))
+          sessionStorage.setItem("adminName", JSON.stringify(adminUser));
         }
 
         // Redirect to the admin dashboard after a short delay
         setTimeout(() => {
-          navigate("/admin")
-        }, 1000)
+          navigate("/admin");
+        }, 1000);
       } else {
-        setMessage("❌ Invalid admin credentials. Please try again...")
+        setMessage("❌ Invalid admin credentials. Please try again...");
       }
     } catch (error) {
-      console.error("Login error:", error)
-      setMessage("❌ An error occurred during login. Please try again later.")
+      console.error("Login error:", error);
+      setMessage("❌ An error occurred during login. Please try again later.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const fillDemoCredentials = () => {
+    setEmail("admin@ranchi.com");
+    setPassword("admin123");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50 flex items-center justify-center p-4">
@@ -79,9 +84,7 @@ const AdminLogin = () => {
             <h1 className="font-bold text-xl text-gray-800">
               Ranchi Municipal Corporation
             </h1>
-            <p className="text-sm text-gray-600">
-              Government of Jharkhand
-            </p>
+            <p className="text-sm text-gray-600">Government of Jharkhand</p>
           </div>
         </div>
       </div>
@@ -208,6 +211,12 @@ const AdminLogin = () => {
               <p>
                 <span className="font-medium">Password:</span> admin123
               </p>
+              <button
+                onClick={fillDemoCredentials}
+                className="mt-3 w-full py-2 px-4 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition"
+              >
+                Use Demo Credentials
+              </button>
             </div>
           </div>
 
@@ -220,7 +229,7 @@ const AdminLogin = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminLogin
+export default AdminLogin;

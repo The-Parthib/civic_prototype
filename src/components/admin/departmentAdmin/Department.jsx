@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { ChevronDown, ChevronRight, Users, MapPin, Settings, UserCheck } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import {
+  Settings,
+  UserCheck,
+} from "lucide-react";
 
-const port = import.meta.env.VITE_DB_PORT;
 
 const Department = () => {
   const [departments, setDepartments] = useState([]);
@@ -23,7 +25,7 @@ const Department = () => {
   const [selectedStaff, setSelectedStaff] = useState("");
   const [assignError, setAssignError] = useState("");
   const [assignSubmitting, setAssignSubmitting] = useState(false);
-  
+
   // New state for auto-allocation features
   const [allStaff, setAllStaff] = useState([]);
   const [allComplaints, setAllComplaints] = useState([]);
@@ -38,7 +40,7 @@ const Department = () => {
     } else {
       // Fetch complaints for this admin's district and pincode
       fetch(
-        `http://localhost:${port}/complaints?location.district=${encodeURIComponent(
+        `https://jansamadhan-json-server.onrender.com/complaints?location.district=${encodeURIComponent(
           adminData.district
         )}&location.pincode=${encodeURIComponent(adminData.pincode)}`
       )
@@ -56,7 +58,7 @@ const Department = () => {
     setLoading(true);
     try {
       const createdRes = await fetch(
-        `http://localhost:${port}/createDepartment`
+        `https://jansamadhan-json-server.onrender.com/createDepartment`
       );
       const created = createdRes.ok ? await createdRes.json() : [];
       // Normalize missing fields and support legacy 'responsibility' -> 'responsibilities'
@@ -90,34 +92,38 @@ const Department = () => {
   // Fetch all staff for auto-allocation
   const fetchAllStaff = async () => {
     try {
-      const response = await fetch(`http://localhost:${port}/staffs`);
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/staffs`
+      );
       if (response.ok) {
         const staff = await response.json();
         setAllStaff(staff);
       }
     } catch (error) {
-      console.error('Error fetching staff:', error);
+      console.error("Error fetching staff:", error);
     }
   };
 
   // Fetch all complaints for auto-allocation
   const fetchAllComplaints = async () => {
     try {
-      const response = await fetch(`http://localhost:${port}/complaints`);
+      const response = await fetch(
+        `https://jansamadhan-json-server.onrender.com/complaints`
+      );
       if (response.ok) {
         const complaints = await response.json();
         setAllComplaints(complaints);
       }
     } catch (error) {
-      console.error('Error fetching complaints:', error);
+      console.error("Error fetching complaints:", error);
     }
   };
 
   // Auto-allocation algorithm
   const getWorkloadForStaff = (staffId) => {
-    return allComplaints.filter(complaint => 
-      complaint.assignedTo === staffId && 
-      complaint.status !== "Rejected"
+    return allComplaints.filter(
+      (complaint) =>
+        complaint.assignedTo === staffId && complaint.status !== "Rejected"
     ).length;
   };
 
@@ -125,53 +131,55 @@ const Department = () => {
     setAutoAllocating(true);
     try {
       // Get unassigned complaints
-      const unassignedComplaints = allComplaints.filter(complaint => 
-        !complaint.assignedTo && complaint.status === "Submitted"
+      const unassignedComplaints = allComplaints.filter(
+        (complaint) => !complaint.assignedTo && complaint.status === "Submitted"
       );
 
       for (const complaint of unassignedComplaints) {
         // Find staff members for this complaint's department
-        const availableStaff = allStaff.filter(staff => 
-          staff.departmentName === complaint.department
+        const availableStaff = allStaff.filter(
+          (staff) => staff.departmentName === complaint.department
         );
 
         if (availableStaff.length > 0) {
           // Find staff member with least workload
-          const staffWithWorkload = availableStaff.map(staff => ({
+          const staffWithWorkload = availableStaff.map((staff) => ({
             ...staff,
-            currentWorkload: getWorkloadForStaff(staff.id)
+            currentWorkload: getWorkloadForStaff(staff.id),
           }));
 
-          const selectedStaff = staffWithWorkload.reduce((min, current) => 
+          const selectedStaff = staffWithWorkload.reduce((min, current) =>
             current.currentWorkload < min.currentWorkload ? current : min
           );
 
           // Assign the complaint
-          await fetch(`http://localhost:${port}/complaints/${complaint.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              assignedTo: selectedStaff.id,
-              status: 'In Progress',
-              updatedAt: new Date().toISOString()
-            })
-          });
+          await fetch(
+            `https://jansamadhan-json-server.onrender.com/complaints/${complaint.id}`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                assignedTo: selectedStaff.id,
+                status: "In Progress",
+                updatedAt: new Date().toISOString(),
+              }),
+            }
+          );
         }
       }
 
       // Refresh data
       await fetchAllComplaints();
-      
+
       // Refresh department complaints if any department is open
       if (openDept) {
-        const openDepartment = departments.find(d => d.id === openDept);
+        const openDepartment = departments.find((d) => d.id === openDept);
         if (openDepartment) {
           await fetchDeptComplaints(openDepartment);
         }
       }
-
     } catch (error) {
-      console.error('Auto-allocation failed:', error);
+      console.error("Auto-allocation failed:", error);
     } finally {
       setAutoAllocating(false);
     }
@@ -180,11 +188,12 @@ const Department = () => {
   // Calculate unassigned complaints per department
   const unassignedByDepartment = useMemo(() => {
     const result = {};
-    departments.forEach(dept => {
-      result[dept.name] = allComplaints.filter(complaint => 
-        complaint.department === dept.name && 
-        !complaint.assignedTo && 
-        complaint.status === "Submitted"
+    departments.forEach((dept) => {
+      result[dept.name] = allComplaints.filter(
+        (complaint) =>
+          complaint.department === dept.name &&
+          !complaint.assignedTo &&
+          complaint.status === "Submitted"
       ).length;
     });
     return result;
@@ -266,11 +275,14 @@ const Department = () => {
       createdAt: new Date().toISOString(),
     };
     try {
-      const res = await fetch(`http://localhost:${port}/createDepartment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `https://jansamadhan-json-server.onrender.com/createDepartment`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
       if (!res.ok) throw new Error("Failed to create department");
       setDepartments((prev) => [payload, ...prev]);
       resetForm();
@@ -287,7 +299,7 @@ const Department = () => {
     setComplaintLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:${port}/complaints?department=${encodeURIComponent(
+        `https://jansamadhan-json-server.onrender.com/complaints?department=${encodeURIComponent(
           dept.name
         )}`
       );
@@ -321,7 +333,7 @@ const Department = () => {
     setAssignSubmitting(true);
     try {
       const res = await fetch(
-        `http://localhost:${port}/complaints/${complaint.id}`,
+        `https://jansamadhan-json-server.onrender.com/complaints/${complaint.id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -341,10 +353,10 @@ const Department = () => {
             : c
         ),
       }));
-      
+
       // Refresh all complaints data for auto-allocation
       await fetchAllComplaints();
-      
+
       setAssigning(null);
       setSelectedStaff("");
     } catch (e) {
@@ -387,14 +399,15 @@ const Department = () => {
             <UserCheck size={20} />
             Staff Management Panel
           </h3>
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             {/* Auto-allocation section */}
             <div className="space-y-4">
               <h4 className="font-medium text-gray-700">Auto-allocation</h4>
               <div className="bg-blue-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600 mb-3">
-                  Automatically assign unassigned complaints to staff members based on department and workload balance.
+                  Automatically assign unassigned complaints to staff members
+                  based on department and workload balance.
                 </p>
                 <button
                   onClick={autoAllocateStaff}
@@ -408,16 +421,28 @@ const Department = () => {
 
             {/* Unassigned complaints summary */}
             <div className="space-y-4">
-              <h4 className="font-medium text-gray-700">Unassigned Complaints</h4>
+              <h4 className="font-medium text-gray-700">
+                Unassigned Complaints
+              </h4>
               <div className="bg-orange-50 p-4 rounded-lg">
                 {departments.length > 0 ? (
                   <div className="space-y-2">
-                    {departments.map(dept => {
-                      const unassignedCount = unassignedByDepartment[dept.name] || 0;
+                    {departments.map((dept) => {
+                      const unassignedCount =
+                        unassignedByDepartment[dept.name] || 0;
                       return (
-                        <div key={dept.id} className="flex justify-between items-center text-sm">
+                        <div
+                          key={dept.id}
+                          className="flex justify-between items-center text-sm"
+                        >
                           <span className="text-gray-700">{dept.name}</span>
-                          <span className={`font-medium ${unassignedCount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                          <span
+                            className={`font-medium ${
+                              unassignedCount > 0
+                                ? "text-orange-600"
+                                : "text-green-600"
+                            }`}
+                          >
                             {unassignedCount} unassigned
                           </span>
                         </div>
@@ -427,13 +452,18 @@ const Department = () => {
                       <div className="flex justify-between items-center text-sm font-medium">
                         <span>Total Unassigned:</span>
                         <span className="text-orange-600">
-                          {Object.values(unassignedByDepartment).reduce((sum, count) => sum + count, 0)}
+                          {Object.values(unassignedByDepartment).reduce(
+                            (sum, count) => sum + count,
+                            0
+                          )}
                         </span>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">No departments available</p>
+                  <p className="text-sm text-gray-500">
+                    No departments available
+                  </p>
                 )}
               </div>
             </div>

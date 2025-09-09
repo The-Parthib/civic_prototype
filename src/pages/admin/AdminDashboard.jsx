@@ -1,4 +1,4 @@
-import   { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,14 +9,14 @@ import {
   Megaphone,
   Settings,
   User,
-  BarChart3
+  BarChart3,
+  Menu,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardOverview from "../../components/admin/dashboardOverview/DashboardOverview";
 import Department from "../../components/admin/departmentAdmin/Department";
 import MapView from "../../components/admin/mapAdmin/Map";
 
-const port = import.meta.env.VITE_DB_PORT;
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [name, setName] = useState("");
@@ -24,6 +24,7 @@ const AdminDashboard = () => {
   const [allocatedComplaints, setAllocatedComplaints] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,21 +36,25 @@ const AdminDashboard = () => {
     } else {
       setName(adminData.name);
       setMunicipality(adminData.municipality);
-      
+
       // Fetch both allocated departments (AI-processed) and original complaints
       Promise.all([
-        fetch(`http://localhost:${port}/allocatedDepartment`).then(res => res.json()),
-        fetch(`http://localhost:${port}/complaints`).then(res => res.json())
+        fetch(
+          `https://jansamadhan-json-server.onrender.com/allocatedDepartment`
+        ).then((res) => res.json()),
+        fetch(`https://jansamadhan-json-server.onrender.com/complaints`).then(
+          (res) => res.json()
+        ),
       ])
-      .then(([allocatedData, complaintsData]) => {
-        setAllocatedComplaints(allocatedData);
-        setComplaints(complaintsData);
-      })
-      .catch((err) => {
-        console.error("Error fetching data:", err);
-        setAllocatedComplaints([]);
-        setComplaints([]);
-      });
+        .then(([allocatedData, complaintsData]) => {
+          setAllocatedComplaints(allocatedData);
+          setComplaints(complaintsData);
+        })
+        .catch((err) => {
+          console.error("Error fetching data:", err);
+          setAllocatedComplaints([]);
+          setComplaints([]);
+        });
     }
   }, []);
 
@@ -65,33 +70,47 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 flex">
       {/* Top header */}
-      <div className="fixed top-0 left-0 right-0 h-16 bg-blue-800 text-white flex items-center px-4 z-10 shadow-md">
-        <div className="flex items-center">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-            <div className="w-8 h-8 bg-blue-800 rounded-full flex items-center justify-center text-white font-bold">JG</div>
+      <div className="fixed top-0 left-0 right-0 h-16 bg-green-800 text-white flex items-center px-4 z-10 shadow-md">
+        <div className="flex items-center flex-shrink-0">
+          <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center mr-3">
+            <div className="w-8 h-8 bg-green-800 rounded-full flex items-center justify-center">
+              <img
+                src="/icon.png"
+                alt="JanSamadhan"
+                className="w-full h-full rounded-full object-cover"
+              />
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-lg">Jharkhand Government</h1>
-            <p className="text-xs text-blue-200">Administration Portal</p>
+          <div className="hidden sm:block">
+            <h1 className="font-bold text-lg">JanSamadhan</h1>
+            <p className="text-xs text-green-200">Government of Jharkhand</p>
           </div>
         </div>
-        
-        <div className="flex-1 flex justify-center">
-          <div className="bg-blue-700 rounded-lg px-4 py-1 text-lg font-semibold text-white">
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden bg-green-700 hover:bg-green-600 p-2 rounded-full"
+          title="Menu"
+        >
+          <Menu size={18} />
+        </button>
+
+        <div className="flex-1 flex justify-center mx-2">
+          <div className="bg-green-700 rounded-lg px-4 py-1 text-lg font-semibold text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px] sm:max-w-none">
             {municipality}
           </div>
         </div>
-        
-        <div className="flex items-center">
-          <div className="mr-4 flex items-center bg-blue-700 rounded-full pl-1 pr-3 py-1">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-2">
+
+        <div className="flex items-center space-x-2">
+          <div className="hidden xs:flex items-center bg-green-700 rounded-full pl-1 pr-3 py-1">
+            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-2">
               <User size={16} />
             </div>
-            <span className="text-sm">{name}</span>
+            <span className="text-sm hidden sm:block">{name}</span>
           </div>
+
           <button
             onClick={() => navigate("/admin/login")}
-            className="bg-blue-700 hover:bg-blue-600 p-2 rounded-full"
+            className="bg-green-700 hover:bg-green-600 p-2 rounded-full"
             title="Logout"
           >
             <LogOut size={18} />
@@ -100,35 +119,42 @@ const AdminDashboard = () => {
       </div>
 
       {/* Sidebar */}
-      <div 
-        className={`fixed top-16 bottom-0 bg-white pt-6 min-h-screen transition-all duration-300 shadow-lg z-10 ${
-          sidebarCollapsed ? "w-16" : "w-56"
-        }`}
+      <div
+        className={`fixed top-16 bottom-0 bg-white pt-6 min-h-screen transition-all duration-300 shadow-lg z-10 w-56 ${
+          mobileMenuOpen ? "left-0" : "-left-56"
+        } md:left-0 md:block ${sidebarCollapsed ? "md:w-16" : "md:w-56"}`}
       >
-        <button 
+        <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="absolute -right-3 top-5 bg-blue-800 text-white p-1 rounded-full"
+          className="absolute -right-3 top-5 bg-green-800 text-white p-1 rounded-full hidden md:block"
         >
-          {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          {sidebarCollapsed ? (
+            <ChevronRight size={16} />
+          ) : (
+            <ChevronLeft size={16} />
+          )}
         </button>
 
         <nav className="px-2">
           {menuItems.map((item) => (
             <button
               key={item.name}
-              onClick={() => setActiveTab(item.name)}
+              onClick={() => {
+                setActiveTab(item.name);
+                setMobileMenuOpen(false);
+              }}
               className={`w-full text-left px-4 py-3 text-sm rounded-md mb-1 flex items-center transition-discrete duration-100 ${
                 activeTab === item.name
-                  ? "bg-blue-100 text-blue-800 border-l-4 border-blue-800 font-semibold"
+                  ? "bg-green-100 text-green-800 border-l-4 border-green-800 font-semibold"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
-              <span className="mr-3 text-blue-700">{item.icon}</span>
+              <span className="mr-3 text-green-700">{item.icon}</span>
               {!sidebarCollapsed && item.name}
             </button>
           ))}
         </nav>
-        
+
         {!sidebarCollapsed && (
           <div className="mt-6 px-4 border-t pt-4 text-xs text-gray-500">
             <p>© 2025 Jharkhand Government</p>
@@ -138,26 +164,40 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main content area */}
-      <div className={`flex-1 pt-16 transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-56"}`}>
-        <div className="p-6">
+      <div
+        className={`flex-1 pt-16 transition-all duration-300 ${
+          sidebarCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-56"
+        }`}
+      >
+        <div className="p-4 sm:p-6">
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm min-h-screen">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h1 className="text-2xl font-bold text-gray-800">
+            <div className="px-4 sm:px-6 py-5 border-b border-gray-200">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
                 {activeTab === "Dashboard" ? `Welcome, ${name}` : activeTab}
               </h1>
               {activeTab === "Dashboard" && (
-                <p className="text-gray-600 mt-1">
+                <p className="text-gray-600 mt-1 text-sm sm:text-base">
                   {municipality} Administration Dashboard
                 </p>
               )}
             </div>
 
-            <div className="p-6">
-              {activeTab === "Dashboard" && <DashboardOverview allocatedComplaints={allocatedComplaints} complaints={complaints} />}
+            <div className="p-4 sm:p-6">
+              {activeTab === "Dashboard" && (
+                <DashboardOverview
+                  allocatedComplaints={allocatedComplaints}
+                  complaints={complaints}
+                />
+              )}
 
-              {activeTab === "Departments" && <Department/>}
+              {activeTab === "Departments" && <Department />}
 
-              {activeTab === "Map" && <MapView allocatedComplaints={allocatedComplaints} complaints={complaints} /> }
+              {activeTab === "Map" && (
+                <MapView
+                  allocatedComplaints={allocatedComplaints}
+                  complaints={complaints}
+                />
+              )}
 
               {activeTab === "Updates" && (
                 <div>
@@ -165,11 +205,11 @@ const AdminDashboard = () => {
                     Manage system updates and maintenance schedules.
                   </p>
                   <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-2 text-blue-800">
+                    <div className="bg-green-50 border border-green-100 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-2 text-green-800">
                         System Updates
                       </h3>
-                      <p className="text-blue-700">No pending updates</p>
+                      <p className="text-green-700">No pending updates</p>
                     </div>
                   </div>
                 </div>
@@ -180,11 +220,11 @@ const AdminDashboard = () => {
                   <p className="text-gray-600 mb-4">
                     Create and manage public announcements.
                   </p>
-                  <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-2 text-blue-800">
+                  <div className="bg-green-50 border border-green-100 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-2 text-green-800">
                       Recent Announcements
                     </h3>
-                    <p className="text-blue-700">No recent announcements</p>
+                    <p className="text-green-700">No recent announcements</p>
                   </div>
                 </div>
               )}
@@ -195,19 +235,19 @@ const AdminDashboard = () => {
                     Configure system settings and preferences.
                   </p>
                   <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-2 text-blue-800">
+                    <div className="bg-green-50 border border-green-100 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-2 text-green-800">
                         General Settings
                       </h3>
-                      <p className="text-blue-700">
+                      <p className="text-green-700">
                         Configure general system settings
                       </p>
                     </div>
-                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-2 text-blue-800">
+                    <div className="bg-green-50 border border-green-100 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-2 text-green-800">
                         User Management
                       </h3>
-                      <p className="text-blue-700">
+                      <p className="text-green-700">
                         Manage user accounts and permissions
                       </p>
                     </div>
