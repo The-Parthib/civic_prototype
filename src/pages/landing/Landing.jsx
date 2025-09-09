@@ -30,6 +30,9 @@ const Landing = () => {
               <button onClick={()=>navigate("/admin/login")} className="px-4 py-2 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg font-medium transition-colors">
                 Admin
               </button>
+              <button onClick={()=>navigate("/staff/login")} className="px-4 py-2 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg font-medium transition-colors">
+                Staff
+              </button>
             </div>
           </div>
         </div>
