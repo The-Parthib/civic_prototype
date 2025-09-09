@@ -1,4 +1,4 @@
-# Civic Prototype - Smart India Hackathon Project
+# Civic Prototype
 
 A digital platform designed to enhance civic engagement and streamline citizen-government interactions through modern web technologies.
 
@@ -43,7 +43,7 @@ This civic prototype aims to bridge the gap between citizens and government serv
 git clone https://github.com/your-username/civic_prototype.git
 
 # Navigate to frontend directory
-cd civic/frontend
+cd civic
 
 # Install dependencies
 npm install
@@ -64,8 +64,6 @@ npm run dev
 ```
 civic/
 ├── frontend/          # React frontend application
-├── backend/           # API server (if applicable)
-├── docs/             # Documentation
 └── README.md         # This file
 ```
 
