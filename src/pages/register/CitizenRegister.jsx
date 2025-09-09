@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const port = import.meta.env.VITE_DB_PORT
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost'
 
 const CitizenRegister = () => {
   const [form, setForm] = useState({
@@ -85,7 +86,7 @@ const CitizenRegister = () => {
       };
 
       // Send to json-server
-      const response = await fetch(`http://localhost:${port}/users`, {
+      const response = await fetch(`${apiBaseUrl}:${port}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

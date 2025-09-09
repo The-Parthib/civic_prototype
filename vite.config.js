@@ -9,35 +9,50 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      devOptions: {
+        enabled: true
+      },
       includeAssets: [
-        "favicon.svg",
-        "favicon.ico",
-        "robots.txt",
-        "apple-touch-icon.png",
+        "icons/*.png",
+        "icons/*.jpg",
+        "icon.png",
       ],
       manifest: {
-        name: "My Vite React PWA",
-        short_name: "VitePWA",
-        description: "My awesome Vite + React PWA!",
-        theme_color: "#ffffff",
+        name: "JanSamadhan",
+        short_name: "JanSamadhan",
+        description: "Civic Issue Management System",
+        theme_color: "#000000",
+        background_color: "#ffffff",
+        display: "standalone",
+        orientation: "portrait",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
-            src: "pwa-192x192.png",
+            src: "icons/manifest-icon-192.maskable.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any"
           },
           {
-            src: "pwa-512x512.png",
-            sizes: "512x512",
+            src: "icons/manifest-icon-192.maskable.png", 
+            sizes: "192x192",
             type: "image/png",
+            purpose: "maskable"
           },
           {
-            src: "pwa-512x512.png",
-            sizes: "512x512",
+            src: "icons/manifest-icon-512.maskable.png",
+            sizes: "512x512", 
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "any"
           },
-        ],
+          {
+            src: "icons/manifest-icon-512.maskable.png",
+            sizes: "512x512",
+            type: "image/png", 
+            purpose: "maskable"
+          }
+        ]
       },
       workbox: {
         runtimeCaching: [
@@ -53,4 +68,9 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    host: process.env.VITE_API_BASE_URL,
+    https: false, // Set to true if you have SSL certificates
+    port: 5173
+  }
 });

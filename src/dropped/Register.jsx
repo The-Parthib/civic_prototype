@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 const port = import.meta.env.VITE_DB_PORT;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -102,7 +103,7 @@ const Register = () => {
       };
 
       // Send to json-server
-      const response = await fetch(`http://localhost:${port}/users`, {
+      const response = await fetch(`${apiBaseUrl}:${port}/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
