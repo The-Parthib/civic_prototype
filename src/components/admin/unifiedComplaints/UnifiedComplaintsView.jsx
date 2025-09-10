@@ -73,7 +73,7 @@ const UnifiedComplaintsView = ({
     };
 
     fetchStaffList();
-  }, [port]);
+  }, []);
 
   // Merge allocated complaints with original complaints data
   const mergedComplaints = useMemo(() => {
