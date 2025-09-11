@@ -51,13 +51,28 @@ function CameraTesting() {
         // Wait for the video to load
         videoRef.current.onloadedmetadata = () => {
           console.log("Video metadata loaded");
-          videoRef.current.play().then(() => {
-            console.log("Video playing successfully");
-            setIsStreaming(true);
-          }).catch((playError) => {
-            console.error("Error playing video:", playError);
-            setError("Unable to start camera preview: " + playError.message);
-          });
+          console.log("Initial video dimensions:", videoRef.current.videoWidth, "x", videoRef.current.videoHeight);
+          
+          const checkVideoReady = () => {
+            if (videoRef.current && videoRef.current.readyState >= 2) {
+              console.log("Initial video is ready for playback");
+              videoRef.current.play().then(() => {
+                console.log("Video playing successfully");
+                // Add a small delay to ensure video is fully streaming
+                setTimeout(() => {
+                  setIsStreaming(true);
+                }, 200);
+              }).catch((playError) => {
+                console.error("Error playing video:", playError);
+                setError("Unable to start camera preview: " + playError.message);
+              });
+            } else {
+              console.log("Initial video not ready yet, checking again...");
+              setTimeout(checkVideoReady, 100);
+            }
+          };
+          
+          checkVideoReady();
         };
 
         videoRef.current.onerror = (e) => {
@@ -82,44 +97,74 @@ function CameraTesting() {
   };
 
   const capturePhoto = () => {
-    if (videoRef.current && isStreaming) {
-      try {
-        const canvas = document.createElement('canvas');
-        const video = videoRef.current;
-        
-        // Wait for video to be ready
-        if (video.videoWidth === 0 || video.videoHeight === 0) {
-          console.error("Video dimensions not ready");
-          setError("Camera not ready. Please try again.");
-          return;
-        }
-        
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        const ctx = canvas.getContext('2d');
-        
-        // If front camera, flip the image horizontally
-        if (facingMode === 'user') {
-          ctx.scale(-1, 1);
-          ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-        } else {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        }
-        
-        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-        console.log("Image captured, data URL length:", imageDataUrl.length);
-        
-        setSource(imageDataUrl);
-        setShowCamera(false);
-        stopCamera();
-      } catch (err) {
-        console.error("Error capturing photo:", err);
-        setError("Failed to capture photo. Please try again.");
-      }
-    } else {
-      console.error("Video not ready for capture");
+    console.log("Attempting to capture photo...");
+    console.log("Video ref:", videoRef.current);
+    console.log("Is streaming:", isStreaming);
+    console.log("Is switching:", isSwitchingCamera);
+    
+    if (!videoRef.current) {
+      console.error("Video ref is null");
       setError("Camera not ready. Please try again.");
+      return;
+    }
+    
+    if (!isStreaming || isSwitchingCamera) {
+      console.error("Not streaming or switching camera");
+      setError("Camera not ready. Please wait and try again.");
+      return;
+    }
+    
+    const video = videoRef.current;
+    console.log("Video dimensions:", video.videoWidth, "x", video.videoHeight);
+    console.log("Video ready state:", video.readyState);
+    console.log("Video paused:", video.paused);
+    console.log("Video ended:", video.ended);
+    
+    // Wait a bit if video is not fully ready
+    if (video.readyState < 2) { // HAVE_CURRENT_DATA
+      console.log("Video not ready, waiting...");
+      setTimeout(() => capturePhoto(), 100);
+      return;
+    }
+    
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.error("Video dimensions not ready:", video.videoWidth, video.videoHeight);
+      setError("Camera not ready. Please try again in a moment.");
+      return;
+    }
+    
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      console.log("Canvas dimensions:", canvas.width, "x", canvas.height);
+      
+      const ctx = canvas.getContext('2d');
+      
+      // If front camera, flip the image horizontally
+      if (facingMode === 'user') {
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      } else {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+      
+      const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      console.log("Image captured successfully, data URL length:", imageDataUrl.length);
+      
+      if (imageDataUrl.length < 1000) {
+        console.error("Image data too small, likely failed");
+        setError("Failed to capture image. Please try again.");
+        return;
+      }
+      
+      setSource(imageDataUrl);
+      setShowCamera(false);
+      stopCamera();
+    } catch (err) {
+      console.error("Error capturing photo:", err);
+      setError("Failed to capture photo. Please try again.");
     }
   };
 
@@ -169,15 +214,31 @@ function CameraTesting() {
         
         videoRef.current.onloadedmetadata = () => {
           console.log("New video metadata loaded");
-          videoRef.current.play().then(() => {
-            console.log("New video playing successfully");
-            setIsStreaming(true);
-            setIsSwitchingCamera(false); // Hide switching indicator
-          }).catch((playError) => {
-            console.error("Error playing new video:", playError);
-            setError("Unable to start camera preview: " + playError.message);
-            setIsSwitchingCamera(false);
-          });
+          console.log("Video dimensions after switch:", videoRef.current.videoWidth, "x", videoRef.current.videoHeight);
+          
+          // Ensure video is ready before enabling
+          const checkVideoReady = () => {
+            if (videoRef.current && videoRef.current.readyState >= 2) {
+              console.log("Video is ready for playback");
+              videoRef.current.play().then(() => {
+                console.log("New video playing successfully");
+                // Add a small delay to ensure video is fully streaming
+                setTimeout(() => {
+                  setIsStreaming(true);
+                  setIsSwitchingCamera(false);
+                }, 200);
+              }).catch((playError) => {
+                console.error("Error playing new video:", playError);
+                setError("Unable to start camera preview: " + playError.message);
+                setIsSwitchingCamera(false);
+              });
+            } else {
+              console.log("Video not ready yet, checking again...");
+              setTimeout(checkVideoReady, 100);
+            }
+          };
+          
+          checkVideoReady();
         };
 
         videoRef.current.onerror = (e) => {
@@ -364,6 +425,13 @@ function CameraTesting() {
             {/* Camera mode indicator */}
             <div className="absolute top-4 right-4 bg-black bg-opacity-50 px-3 py-1 rounded text-sm">
               {isSwitchingCamera ? "Switching..." : (facingMode === "environment" ? "Rear Camera" : "Front Camera")}
+              {/* Debug info */}
+              {videoRef.current && (
+                <div className="text-xs mt-1">
+                  Ready: {videoRef.current.readyState >= 2 ? "✓" : "✗"} | 
+                  Dims: {videoRef.current.videoWidth}x{videoRef.current.videoHeight}
+                </div>
+              )}
             </div>
           </div>
         )}
