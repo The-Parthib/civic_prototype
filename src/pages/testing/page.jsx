@@ -4,18 +4,29 @@ import { Camera, RotateCcw, Download, X, RefreshCw } from 'lucide-react';
 function CameraTesting() {
   const [source, setSource] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [showCamera, setShowCamera] = useState(false); // New state to force camera view
   const [facingMode, setFacingMode] = useState("environment"); // "environment" for rear, "user" for front
   const [error, setError] = useState("");
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
   const startCamera = async () => {
+    setShowCamera(true); // Immediately show camera interface
+    
     try {
       setError("");
+      setIsStreaming(false);
+      
+      console.log("Starting camera...");
       
       // Stop any existing stream
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+      }
+
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera not supported in this browser");
       }
 
       const constraints = {
@@ -26,16 +37,37 @@ function CameraTesting() {
         }
       };
 
+      console.log("Requesting camera with constraints:", constraints);
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log("Camera stream obtained:", stream);
+      
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        setIsStreaming(true);
+        console.log("Video source set");
+        
+        // Wait for the video to load
+        videoRef.current.onloadedmetadata = () => {
+          console.log("Video metadata loaded");
+          videoRef.current.play().then(() => {
+            console.log("Video playing successfully");
+            setIsStreaming(true);
+          }).catch((playError) => {
+            console.error("Error playing video:", playError);
+            setError("Unable to start camera preview: " + playError.message);
+          });
+        };
+
+        videoRef.current.onerror = (e) => {
+          console.error("Video error:", e);
+          setError("Video playback error");
+        };
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
-      setError("Unable to access camera. Please check permissions.");
+      setError(`Unable to access camera: ${err.message}. Please check permissions.`);
+      setShowCamera(false); // Hide camera view on error
     }
   };
 
@@ -45,6 +77,7 @@ function CameraTesting() {
       streamRef.current = null;
     }
     setIsStreaming(false);
+    setShowCamera(false); // Hide camera interface
   };
 
   const capturePhoto = () => {
@@ -65,21 +98,53 @@ function CameraTesting() {
   };
 
   const switchCamera = async () => {
+    setIsStreaming(false); // Immediately hide video while switching
     const newFacingMode = facingMode === "environment" ? "user" : "environment";
+    
+    // Stop current stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    
     setFacingMode(newFacingMode);
     
-    if (isStreaming) {
-      stopCamera();
-      // Small delay to ensure camera is properly released
-      setTimeout(() => {
-        setFacingMode(newFacingMode);
-        startCamera();
-      }, 100);
-    }
+    // Small delay to ensure camera is properly released
+    setTimeout(async () => {
+      try {
+        const constraints = {
+          video: {
+            facingMode: newFacingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        streamRef.current = stream;
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current.play().then(() => {
+              setIsStreaming(true);
+            }).catch((playError) => {
+              console.error("Error playing video:", playError);
+              setError("Unable to start camera preview.");
+            });
+          };
+        }
+      } catch (err) {
+        console.error("Error switching camera:", err);
+        setError("Unable to switch camera.");
+      }
+    }, 300);
   };
 
   const retakePhoto = () => {
     setSource("");
+    setShowCamera(true);
     startCamera();
   };
 
@@ -88,6 +153,7 @@ function CameraTesting() {
       const file = target.files[0];
       const newUrl = URL.createObjectURL(file);
       setSource(newUrl);
+      setShowCamera(false);
       stopCamera();
     }
   };
@@ -112,7 +178,7 @@ function CameraTesting() {
           </div>
         )}
 
-        {!isStreaming && !source && (
+        {!showCamera && !source && (
           <div className="h-full flex flex-col items-center justify-center space-y-6">
             <Camera size={64} className="text-blue-400" />
             <h3 className="text-xl">Capture your image</h3>
@@ -144,14 +210,40 @@ function CameraTesting() {
           </div>
         )}
 
-        {isStreaming && (
+        {showCamera && (
           <div className="h-full relative">
+            {/* Show video only when streaming, otherwise show loading */}
+            {isStreaming ? (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+                style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' }}
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                <div className="text-white text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                  <div className="text-lg">Starting camera...</div>
+                  {error && (
+                    <div className="mt-4 text-red-400 text-sm max-w-xs">
+                      {error}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Always show video element for stream (hidden when not streaming) */}
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover absolute top-0 left-0 ${!isStreaming ? 'opacity-0' : 'opacity-100'}`}
+              style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' }}
             />
             
             {/* Camera controls */}
@@ -159,7 +251,8 @@ function CameraTesting() {
               {/* Switch Camera */}
               <button
                 onClick={switchCamera}
-                className="bg-gray-800 bg-opacity-75 p-3 rounded-full hover:bg-opacity-100"
+                className="bg-gray-800 bg-opacity-75 p-3 rounded-full hover:bg-opacity-100 transition-all"
+                disabled={!isStreaming}
               >
                 <RefreshCw size={24} />
               </button>
@@ -167,7 +260,8 @@ function CameraTesting() {
               {/* Capture Button */}
               <button
                 onClick={capturePhoto}
-                className="bg-white p-4 rounded-full hover:bg-gray-200"
+                className="bg-white p-4 rounded-full hover:bg-gray-200 transition-all shadow-lg"
+                disabled={!isStreaming}
               >
                 <div className="w-8 h-8 bg-gray-800 rounded-full"></div>
               </button>
@@ -175,14 +269,14 @@ function CameraTesting() {
               {/* Close Camera */}
               <button
                 onClick={stopCamera}
-                className="bg-gray-800 bg-opacity-75 p-3 rounded-full hover:bg-opacity-100"
+                className="bg-gray-800 bg-opacity-75 p-3 rounded-full hover:bg-opacity-100 transition-all"
               >
                 <X size={24} />
               </button>
             </div>
             
             {/* Camera mode indicator */}
-            <div className="absolute top-4 right-4 bg-black bg-opacity-50 px-3 py-1 rounded">
+            <div className="absolute top-4 right-4 bg-black bg-opacity-50 px-3 py-1 rounded text-sm">
               {facingMode === "environment" ? "Rear Camera" : "Front Camera"}
             </div>
           </div>
