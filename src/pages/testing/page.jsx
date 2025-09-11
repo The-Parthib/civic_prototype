@@ -40,6 +40,12 @@ function CameraTesting() {
       // Stop any existing stream
       stopCamera();
 
+      // Add a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        setError("Camera loading timeout. Please try again.");
+        setIsLoading(false);
+      }, 10000); // 10 second timeout
+
       // Request camera access
       const constraints = {
         video: {
@@ -49,25 +55,51 @@ function CameraTesting() {
         }
       };
 
+      console.log("Requesting camera access...");
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log("Camera stream obtained");
+      
       streamRef.current = stream;
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        console.log("Video srcObject set");
         
-        // Wait for video to be ready
-        await new Promise((resolve, reject) => {
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play()
-              .then(() => {
-                setIsStreaming(true);
-                setIsLoading(false);
-                resolve();
-              })
-              .catch(reject);
-          };
-          videoRef.current.onerror = reject;
+        // Force video to start immediately
+        videoRef.current.play().catch(err => {
+          console.log("Initial play failed, trying after metadata:", err);
         });
+        
+        // Simple event handlers
+        videoRef.current.onloadedmetadata = () => {
+          console.log("Video metadata loaded, dimensions:", 
+            videoRef.current.videoWidth, "x", videoRef.current.videoHeight);
+          clearTimeout(timeoutId);
+          
+          videoRef.current.play().then(() => {
+            console.log("Video started playing successfully");
+            setIsStreaming(true);
+            setIsLoading(false);
+          }).catch((err) => {
+            console.error("Play error:", err);
+            // Try to show video anyway
+            setIsStreaming(true);
+            setIsLoading(false);
+          });
+        };
+        
+        videoRef.current.oncanplay = () => {
+          console.log("Video can play");
+          setIsStreaming(true);
+          setIsLoading(false);
+        };
+        
+        videoRef.current.onerror = (err) => {
+          console.error("Video error:", err);
+          clearTimeout(timeoutId);
+          setError("Video playback error");
+          setIsLoading(false);
+        };
       }
     } catch (err) {
       console.error("Camera error:", err);
@@ -84,47 +116,68 @@ function CameraTesting() {
     setIsStreaming(false);
     
     try {
+      console.log("Switching camera to:", newFacingMode);
+      
       // Stop current stream
-      stopCamera();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
       
       // Small delay to ensure camera is released
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Start with new facing mode
-      const constraints = {
-        video: {
-          facingMode: newFacingMode,
-          width: { min: 640, ideal: 1280, max: 1920 },
-          height: { min: 480, ideal: 720, max: 1080 }
-        }
-      };
+      setTimeout(async () => {
+        try {
+          const constraints = {
+            video: {
+              facingMode: newFacingMode,
+              width: { min: 640, ideal: 1280, max: 1920 },
+              height: { min: 480, ideal: 720, max: 1080 }
+            }
+          };
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      streamRef.current = stream;
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          streamRef.current = stream;
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        
-        await new Promise((resolve, reject) => {
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play()
-              .then(() => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            console.log("New camera srcObject set");
+            
+            // Force video to start immediately
+            videoRef.current.play().catch(err => {
+              console.log("New camera initial play failed:", err);
+            });
+            
+            videoRef.current.onloadedmetadata = () => {
+              console.log("New camera metadata loaded");
+              videoRef.current.play().then(() => {
+                console.log("New camera started playing");
                 setIsStreaming(true);
                 setIsLoading(false);
-                resolve();
-              })
-              .catch(reject);
-          };
-          videoRef.current.onerror = reject;
-        });
-      }
+              }).catch((err) => {
+                console.error("New camera play error:", err);
+                // Try to show video anyway
+                setIsStreaming(true);
+                setIsLoading(false);
+              });
+            };
+            
+            videoRef.current.oncanplay = () => {
+              console.log("New camera can play");
+              setIsStreaming(true);
+              setIsLoading(false);
+            };
+          }
+        } catch (err) {
+          console.error("Switch camera error:", err);
+          setError(`Failed to switch camera: ${err.message}`);
+          setIsLoading(false);
+        }
+      }, 500);
+      
     } catch (err) {
-      console.error("Switch camera error:", err);
-      setError(`Failed to switch camera: ${err.message}`);
+      console.error("Switch error:", err);
+      setError("Camera switch failed");
       setIsLoading(false);
-      // Try to restart with original facing mode
-      setFacingMode(facingMode === "environment" ? "user" : "environment");
-      startCamera();
     }
   };
 
@@ -271,22 +324,29 @@ function CameraTesting() {
           )}
 
           {/* Video Stream or Loading */}
-          <div className="h-full flex items-center justify-center">
-            {isStreaming ? (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-                style={{
-                  transform: facingMode === 'user' ? 'scaleX(-1)' : 'none'
-                }}
-              />
-            ) : (
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
-                <p className="text-lg">{isLoading ? "Loading camera..." : "Camera starting..."}</p>
+          <div className="h-full relative">
+            {/* Always show video element */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+              style={{
+                transform: facingMode === 'user' ? 'scaleX(-1)' : 'none'
+              }}
+            />
+            
+            {/* Loading overlay */}
+            {!isStreaming && (
+              <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+                  <p className="text-lg">{isLoading ? "Loading camera..." : "Camera starting..."}</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Facing: {facingMode} | Streaming: {isStreaming ? 'Yes' : 'No'}
+                  </p>
+                </div>
               </div>
             )}
           </div>
