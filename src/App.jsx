@@ -54,7 +54,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register/citizen" element={<CitizenRegister />} />
-        <Route path="/camera" element={CameraTesting}/>
+        <Route path="/camera" element={<CameraTesting/>}/>
 
         {/* Private Routes - Protected */}
         <Route path="/p" element={
