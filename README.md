@@ -3,7 +3,7 @@
 A digital platform designed to enhance civic engagement and streamline citizen-government interactions through modern web technologies.
 
 ## 🎯 Project Overview
-
+  
 This civic prototype aims to bridge the gap between citizens and government services by providing:
 
 - **Citizen Portal**: Easy access to government services and information
