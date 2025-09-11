@@ -28,6 +28,7 @@ import StaffPage from "./pages/Staff/StaffPage";
 // Notification setup
 import { useNotifications } from "./hooks/useNotifications";
 import { setupComplaintStatusMonitoring } from "./utils/notificationHelpers.jsx";
+import CameraTesting from "./pages/testing/page.jsx";
 
 function App() {
   const notifications = useNotifications();
@@ -53,6 +54,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register/citizen" element={<CitizenRegister />} />
+        <Route path="/camera" element={CameraTesting}/>
 
         {/* Private Routes - Protected */}
         <Route path="/p" element={

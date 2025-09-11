@@ -84,6 +84,12 @@ const Landing = () => {
                 >
                   Staff
                 </button>
+                <button 
+                  onClick={() => {navigate("/camera"); setMobileMenuOpen(false)}}
+                  className="px-4 py-2 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg font-medium transition-colors text-left"
+                >
+                  camera
+                </button>
               </div>
             </div>
           )}
