@@ -1,8 +1,16 @@
 import React, { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Webcam from "react-webcam";
-import { Camera, Image, X, ArrowLeft, Mic, MicOff, Send } from "lucide-react";
-import { Camera, Image, X, ArrowLeft, Mic, MicOff, Send, RotateCw } from "lucide-react";
+import {
+  Camera,
+  Image,
+  X,
+  ArrowLeft,
+  Mic,
+  MicOff,
+  Send,
+  RotateCw,
+} from "lucide-react";
 import BottomNavigation from "../../components/BottomNavigation";
 import { BackgroundAnalysisService } from "../../services/backgroundAnalysis";
 import {
@@ -34,6 +42,11 @@ const CreatePostScreen = () => {
   // State for submission
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // State for camera management
+  const [availableCameras, setAvailableCameras] = useState([]);
+  const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
+  const [cameraError, setCameraError] = useState(null);
+
   // Gallery images for demo (in real app, these would come from device gallery)
   const galleryImages = [
     "/placeholder.svg",
@@ -44,10 +57,85 @@ const CreatePostScreen = () => {
     "/placeholder.svg",
   ];
 
+  // Get available cameras and prioritize rear camera
+  const getAvailableCameras = async () => {
+    try {
+      // Request camera permissions first
+      await navigator.mediaDevices.getUserMedia({ video: true });
+
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(
+        (device) => device.kind === "videoinput"
+      );
+
+      setAvailableCameras(videoDevices);
+
+      // Find rear camera (environment facing)
+      const rearCameraIndex = videoDevices.findIndex(
+        (device) =>
+          device.label.toLowerCase().includes("back") ||
+          device.label.toLowerCase().includes("rear") ||
+          device.label.toLowerCase().includes("environment")
+      );
+
+      // Set rear camera as default, fallback to first available
+      setCurrentCameraIndex(rearCameraIndex !== -1 ? rearCameraIndex : 0);
+
+      return videoDevices;
+    } catch (error) {
+      console.error("Error getting cameras:", error);
+      setCameraError("Unable to access camera. Please check permissions.");
+      return [];
+    }
+  };
+
+  // Get video constraints for the current camera
+  const getVideoConstraints = () => {
+    if (availableCameras.length === 0) {
+      // Fallback constraints that prefer rear camera
+      return {
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        facingMode: { ideal: "environment" }, // This requests rear camera
+        aspectRatio: { ideal: 16 / 9 },
+      };
+    }
+
+    // Use specific device ID
+    const currentCamera = availableCameras[currentCameraIndex];
+    return {
+      deviceId: { exact: currentCamera.deviceId },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+      aspectRatio: { ideal: 16 / 9 },
+    };
+  };
+
+  // Switch between available cameras
+  const switchCamera = () => {
+    if (availableCameras.length > 1) {
+      setCurrentCameraIndex((prevIndex) =>
+        prevIndex === availableCameras.length - 1 ? 0 : prevIndex + 1
+      );
+    } else {
+      // Fallback to facingMode toggle for devices with fewer detected cameras
+      setFacingMode((prevMode) =>
+        prevMode === "user" ? "environment" : "user"
+      );
+    }
+  };
+
   // Initialize camera view
-  const openCamera = () => {
-    setShowCamera(true);
-    setShowGallery(false);
+  const openCamera = async () => {
+    setCameraError(null);
+    const cameras = await getAvailableCameras();
+
+    if (cameras.length > 0) {
+      setShowCamera(true);
+      setShowGallery(false);
+    } else {
+      setCameraError("No cameras found on this device.");
+    }
   };
 
   // Open gallery view
@@ -56,21 +144,33 @@ const CreatePostScreen = () => {
     setShowCamera(false);
   };
 
-  
   // Switch between front and back camera
-  const switchCamera = () => {
-    setFacingMode(prevMode => prevMode === "user" ? "environment" : "user");
-  };
+  // const switchCamera = () => {
+  //   setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
+  // };
 
   // Capture photo from webcam
   const capturePhoto = useCallback(() => {
     if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
+      const imageSrc = webcamRef.current.getScreenshot({
+        width: 1920,
+        height: 1080,
+        screenshotFormat: "image/jpeg",
+        screenshotQuality: 0.8,
+      });
       setCapturedImage(imageSrc);
       setShowCamera(false);
       setShowTextInput(true);
     }
   }, [webcamRef]);
+
+  // Handle webcam errors
+  const handleWebcamError = (error) => {
+    console.error("Webcam error:", error);
+    setCameraError(
+      "Camera access failed. Please check permissions and try again."
+    );
+  };
 
   // Handle file upload from input
   const handleFileUpload = (event) => {
@@ -250,6 +350,9 @@ const CreatePostScreen = () => {
     setShowCamera(false);
     setShowGallery(false);
     setShowTextInput(false);
+    setCameraError(null);
+    setAvailableCameras([]);
+    setCurrentCameraIndex(0);
   };
 
   // Initial Camera/Gallery Selection Screen
@@ -302,6 +405,9 @@ const CreatePostScreen = () => {
               <p className="text-sm opacity-75 mt-1">
                 or select from gallery above
               </p>
+              {cameraError && (
+                <p className="text-red-400 text-xs mt-2">{cameraError}</p>
+              )}
             </div>
           </div>
           <button
@@ -373,6 +479,22 @@ const CreatePostScreen = () => {
             {/* <div className="w-10"></div> */}
           </div>
 
+          {/* Camera Error Display */}
+          {cameraError && (
+            <div className="p-4 bg-red-600 text-white text-center">
+              <p>{cameraError}</p>
+              <button
+                onClick={() => {
+                  setCameraError(null);
+                  getAvailableCameras();
+                }}
+                className="mt-2 px-4 py-2 bg-red-700 rounded text-sm"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           {/* Camera */}
           <div className="flex-1 relative">
             <Webcam
@@ -380,18 +502,26 @@ const CreatePostScreen = () => {
               audio={false}
               screenshotFormat="image/jpeg"
               className="w-full h-full object-cover"
-              videoConstraints={{
-                facingMode: facingMode
-              }}
+              videoConstraints={getVideoConstraints()}
+              onUserMediaError={handleWebcamError}
             />
           </div>
+
+          {/* Camera Info */}
+          {availableCameras.length > 0 && (
+            <div className="absolute top-20 left-4 right-4 text-white text-xs text-center bg-black bg-opacity-50 rounded p-2">
+              {availableCameras[currentCameraIndex]?.label || "Camera"}(
+              {currentCameraIndex + 1}/{availableCameras.length})
+            </div>
+          )}
 
           {/* Bottom Controls */}
           <div className="p-6">
             <div className="flex items-center justify-center">
               <button
                 onClick={capturePhoto}
-                className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg"
+                disabled={cameraError}
+                className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg disabled:opacity-50"
               >
                 <div className="w-16 h-16 rounded-full bg-white border-4 border-gray-300"></div>
               </button>
@@ -444,6 +574,7 @@ const CreatePostScreen = () => {
           <input
             type="file"
             accept="image/*"
+            capture="environment"
             onChange={handleFileUpload}
             className="hidden"
             id="file-upload"
