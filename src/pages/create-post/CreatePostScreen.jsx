@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Webcam from "react-webcam";
 import { Camera, Image, X, ArrowLeft, Mic, MicOff, Send } from "lucide-react";
+import { Camera, Image, X, ArrowLeft, Mic, MicOff, Send, RotateCw } from "lucide-react";
 import BottomNavigation from "../../components/BottomNavigation";
 import { BackgroundAnalysisService } from "../../services/backgroundAnalysis";
 import {
@@ -18,6 +19,7 @@ const CreatePostScreen = () => {
   const [showGallery, setShowGallery] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [facingMode, setFacingMode] = useState("environment"); // "user" for front, "environment" for back
 
   // State for text description
   const [showTextInput, setShowTextInput] = useState(false);
@@ -52,6 +54,12 @@ const CreatePostScreen = () => {
   const openGallery = () => {
     setShowGallery(true);
     setShowCamera(false);
+  };
+
+  
+  // Switch between front and back camera
+  const switchCamera = () => {
+    setFacingMode(prevMode => prevMode === "user" ? "environment" : "user");
   };
 
   // Capture photo from webcam
@@ -356,7 +364,13 @@ const CreatePostScreen = () => {
               <X size={24} />
             </button>
             <h1 className="text-lg font-semibold">Take Photo</h1>
-            <div className="w-10"></div>
+            <button
+              onClick={switchCamera}
+              className="p-2 rounded-full hover:bg-gray-800"
+            >
+              <RotateCw size={24} />
+            </button>
+            {/* <div className="w-10"></div> */}
           </div>
 
           {/* Camera */}
@@ -366,6 +380,9 @@ const CreatePostScreen = () => {
               audio={false}
               screenshotFormat="image/jpeg"
               className="w-full h-full object-cover"
+              videoConstraints={{
+                facingMode: facingMode
+              }}
             />
           </div>
 
