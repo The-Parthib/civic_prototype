@@ -289,18 +289,48 @@ const CreatePostScreen = () => {
     setShowCamera(false);
   };
 
-  // Handle file upload from input
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setSelectedImage(e.target.result);
-        setShowGallery(false);
-        setShowTextInput(true);
-      };
-      reader.readAsDataURL(file);
-    }
+  // (Optional) downscale large images to reduce memory usage
+  const downscaleImage = (dataUrl, maxDim = 1600, quality = 0.85) => new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+      const scale = Math.min(1, maxDim / Math.max(width, height));
+      if (scale < 1) {
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+
+  // Handle file upload from device (acts as gallery selection)
+  const handleFileUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      let data = e.target.result;
+      // Downscale if very large (heuristic: > 2MB base64 length ~ 1.5MB binary)
+      if (typeof data === 'string' && data.length > 2_000_000) {
+        try { data = await downscaleImage(data); } catch(_) { /* ignore */ }
+      }
+      setCapturedImage(null); // ensure we treat this as selectedImage
+      setSelectedImage(data);
+      // Move directly to next step
+      stopCamera();
+      setShowCamera(false);
+      setShowGallery(false);
+      setShowTextInput(true);
+      // reset input value so same file can be chosen again if needed
+      event.target.value = '';
+    };
+    reader.readAsDataURL(file);
   };
 
   // Handle gallery image selection (demo)
