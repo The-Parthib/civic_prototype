@@ -1,27 +1,8 @@
 import React, { useState } from 'react';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import { IconButton } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import PhotoCameraRoundedIcon from "@material-ui/icons/PhotoCameraRounded";const useStyles = makeStyles((theme) => ({
-  root: {
-    height: "100%",
-    textAlign: 'center',
-  },
-  imgBox: {
-    maxWidth: "80%",
-    maxHeight: "80%",
-    margin: "10px"
-  },
-  img: {
-    height: "inherit",
-    maxWidth: "inherit",
-  },
-  input: {
-    display: "none"
-  }
-}));function CameraTesting() {
-  const classes = useStyles();const [source, setSource] = useState("");const handleCapture = (target) => {
+import { Camera } from 'lucide-react';function CameraTesting() {
+  const [source, setSource] = useState("");
+
+  const handleCapture = (target) => {
     if (target.files) {
       if (target.files.length !== 0) {
         const file = target.files[0];
@@ -29,34 +10,36 @@ import PhotoCameraRoundedIcon from "@material-ui/icons/PhotoCameraRounded";const
         setSource(newUrl);
       }
     }
-  };return (
-    <div className={classes.root}>
-      <Grid container>
-        <Grid item xs={12}>
+  };
+
+  return (
+    <div className="h-full text-center">
+      <div className="flex flex-col items-center">
+        <div className="w-full">
           <h5>Capture your image</h5>
-          {source &&
-            <Box display="flex" justifyContent="center" border={1} className={classes.imgBox}>
-              <img src={source} alt={"snap"} className={classes.img}></img>
-            </Box>}
+          {source && (
+            <div className="flex justify-center border border-gray-300 max-w-4/5 max-h-4/5 m-2.5 mx-auto">
+              <img src={source} alt="snap" className="h-full max-w-full" />
+            </div>
+          )}
           <input
             accept="image/*"
-            className={classes.input}
+            className="hidden"
             id="icon-button-file"
             type="file"
             capture="environment"
             onChange={(e) => handleCapture(e.target)}
           />
           <label htmlFor="icon-button-file">
-            <IconButton
-              color="primary"
+            <button
+              className="text-blue-500 hover:text-blue-700 p-2 rounded"
               aria-label="upload picture"
-              component="span"
             >
-              <PhotoCameraRoundedIcon fontSize="large" color="primary" />
-            </IconButton>
+              <Camera size={32} />
+            </button>
           </label>
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </div>
   );
 }
