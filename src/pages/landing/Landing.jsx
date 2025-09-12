@@ -1,13 +1,58 @@
+import React from "react";
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 
+
+const heroSlides = [
+  {
+    image: "https://res.cloudinary.com/dx9y09tya/image/upload/v1757661490/ChatGPT_Image_Sep_12_2025_12_35_14_PM_eqxwsm.png", // Sunlit community garden with flowers
+  },
+  {
+    image: "https://res.cloudinary.com/dx9y09tya/image/upload/v1757661496/ChatGPT_Image_Sep_12_2025_12_45_59_PM_pojory.png", // People walking in a vibrant, green, clean street
+  },
+  {
+    image: "https://res.cloudinary.com/dx9y09tya/image/upload/v1757661501/ChatGPT_Image_Sep_12_2025_12_41_59_PM_ovg9zz.png", // Family enjoying a sunny day in a city park
+  },
+  {
+    image: "https://res.cloudinary.com/dx9y09tya/image/upload/v1757661452/ChatGPT_Image_Sep_12_2025_12_27_36_PM_kjgm5b.png", // Happy children running in a green field
+  },
+  {
+    image: "https://res.cloudinary.com/dx9y09tya/image/upload/v1757661504/ChatGPT_Image_Sep_12_2025_12_38_34_PM_skeic1.png", // People planting trees in a green area
+  },
+];
+
 const Landing = () => {
-  const navigate = useNavigate()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [slide, setSlide] = useState(0);
+  const [fade, setFade] = useState(true);
+  const slideCount = heroSlides.length;
+
+  // Auto-slide effect
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setFade(false);
+      setTimeout(() => {
+        setSlide((prev) => (prev + 1) % slideCount);
+        setFade(true);
+      }, 300); // fade out duration
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [slide]);
+
+  const goTo = (idx) => {
+    setFade(false);
+    setTimeout(() => {
+      setSlide(idx);
+      setFade(true);
+    }, 400);
+  };
+  const prevSlide = () => goTo((slide - 1 + slideCount) % slideCount);
+  const nextSlide = () => goTo((slide + 1) % slideCount);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
+    <div className="">
+      <header className="bg-white/50 backdrop-blur-md shadow-lg border-b border-gray-200/50 sticky top-0 z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-4">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-4">
@@ -58,7 +103,7 @@ const Landing = () => {
           
           {/* Mobile Navigation Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200">
+            <div className="md:hidden py-4 border-t border-gray-200/50 bg-white/90 backdrop-blur-sm">
               <div className="flex flex-col space-y-3">
                 <button 
                   onClick={() => {navigate("/login"); setMobileMenuOpen(false)}}
@@ -91,27 +136,64 @@ const Landing = () => {
       </header>
 
       <main className="flex-1">
-        <section className="relative bg-gradient-to-br from-orange-50 via-white to-green-50 py-16 lg:py-32">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white opacity-70"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-4xl mx-auto">
-              <span className="inline-block mb-4 bg-green-600 text-white border border-green-600/20 text-xs px-3 py-1 md:text-sm md:px-4 md:py-2 rounded-full font-medium">
-                Official Government Platform • झारखंड सरकार की आधिकारिक वेबसाइट
-              </span>
-              <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6">Your Voice, Our Priority</h1>
-              <p className="text-lg md:text-xl lg:text-2xl text-gray-600 mb-4">आपकी आवाज़, हमारी प्राथमिकता</p>
-              <p className="text-base md:text-lg text-gray-600 mb-8 md:mb-10 max-w-3xl mx-auto">
-                Report civic issues instantly and track their resolution with complete transparency.
-                <br />
-                <span className="text-sm md:text-base">नागरिक समस्याओं का तुरंत समाधान। अपनी शिकायत दर्ज करें और प्रगति को ट्रैक करें।</span>
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
-                <button onClick={()=>navigate("/login")} className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-orange-600 hover:bg-orange-700 text-white text-base md:text-lg font-semibold rounded-lg shadow-lg transition-colors">
-                  Report Issue
-                </button>
-                <button onClick={()=>navigate("/login")}  className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white text-base md:text-lg font-medium rounded-lg transition-colors">
-                  Track Status
-                </button>
+        {/* Enhanced Hero Section with Slideshow */}
+  <section className="relative min-h-screen h-screen overflow-hidden flex items-center">
+          {/* Slideshow background */}
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center overflow-x-hidden">
+            <div className="flex transition-transform duration-700 ease-in-out h-full w-full" style={{transform: `translateX(-${slide * 100}vw)`}}>
+              {heroSlides.map((s, idx) => (
+                <div
+                  key={idx}
+                  className={`relative flex-shrink-0 w-screen h-full transition-transform duration-700 ease-in-out ${idx === slide ? 'scale-105 z-20' : 'scale-95 z-10'}`}
+                  style={{backgroundImage: `url('${s.image}')`, backgroundSize: 'cover', backgroundPosition: 'center'}}
+                  aria-hidden={false}
+                />
+              ))}
+            </div>
+            {/* Arrows */}
+            <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white/90 rounded-full p-2 shadow-md z-20">
+              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button onClick={nextSlide} aria-label="Next slide" className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white/90 rounded-full p-2 shadow-md z-20">
+              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </button>
+            {/* Dots */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              {heroSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goTo(idx)}
+                  className={`w-3 h-3 rounded-full border-2 ${slide === idx ? 'bg-orange-600 border-orange-600' : 'bg-white border-gray-400'} transition-all`}
+                  aria-label={`Go to slide ${idx+1}`}
+                />
+              ))}
+            </div>
+          </div>
+          {/* Existing hero content (always visible above slideshow) with strong overlay for readability */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-30">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-full max-w-4xl mx-auto rounded-2xl bg-black/60 backdrop-blur-sm p-4 md:p-8" />
+              </div>
+              <div className="text-center max-w-4xl mx-auto relative z-10">
+                <span className="inline-block mb-4 bg-green-600 text-white border border-green-600/20 text-xs px-3 py-1 md:text-sm md:px-4 md:py-2 rounded-full font-medium">
+                  Official Government Platform • झारखंड सरकार की आधिकारिक वेबसाइट
+                </span>
+                <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-white mb-4 md:mb-6 drop-shadow-lg">Your Voice, Our Priority</h1>
+                <p className="text-lg md:text-xl lg:text-2xl text-white mb-4 drop-shadow">आपकी आवाज़, हमारी प्राथमिकता</p>
+                <p className="text-base md:text-lg text-white mb-8 md:mb-10 max-w-3xl mx-auto drop-shadow">
+                  Report civic issues instantly and track their resolution with complete transparency.
+                  <br />
+                  <span className="text-sm md:text-base">नागरिक समस्याओं का तुरंत समाधान। अपनी शिकायत दर्ज करें और प्रगति को ट्रैक करें।</span>
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pointer-events-auto">
+                  <button onClick={()=>navigate("/login")} className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-orange-600 hover:bg-orange-700 text-white text-base md:text-lg font-semibold rounded-lg shadow-lg transition-colors">
+                    Report Issue
+                  </button>
+                  <button onClick={()=>navigate("/login")}  className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white text-base md:text-lg font-medium rounded-lg transition-colors bg-white/10">
+                    Track Status
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -270,7 +352,7 @@ const Landing = () => {
                 Official digital platform of Government of Jharkhand for transparent citizen-government communication.
               </p>
               <p className="text-xs opacity-60">
-                झारखंड सरकार की आधिकारिक डिजिटल प्लेटफॉर्म। नागरिकों और सरकार के बीच पारदर्शी संवाद।
+                झारखंड सरकार की आधिकारिक डिजिटल प्लेटफॉर्म। नागरिकों और सरकार के बीच पारदर्शी संवाद。
               </p>
             </div>
 
@@ -303,7 +385,7 @@ const Landing = () => {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 export default Landing;
