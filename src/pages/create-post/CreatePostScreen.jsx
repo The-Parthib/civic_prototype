@@ -1,7 +1,17 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Webcam from "react-webcam";
-import { Camera, Image, X, ArrowLeft, Mic, MicOff, Send } from "lucide-react";
+import {
+  Camera,
+  Image,
+  X,
+  ArrowLeft,
+  Mic,
+  MicOff,
+  Send,
+  RotateCw,
+  RefreshCw,
+  Download,
+} from "lucide-react";
 import BottomNavigation from "../../components/BottomNavigation";
 import { BackgroundAnalysisService } from "../../services/backgroundAnalysis";
 import {
@@ -14,10 +24,15 @@ const CreatePostScreen = () => {
   const webcamRef = useRef(null);
 
   // State for camera interface
-  const [showCamera, setShowCamera] = useState(false);
+  const [showCamera, setShowCamera] = useState(true); // start with camera visible
   const [showGallery, setShowGallery] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [facingMode, setFacingMode] = useState("environment"); // "user" for front, "environment" for back
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [streamRef, setStreamRef] = useState(null);
+  const videoRef = useRef(null);
 
   // State for text description
   const [showTextInput, setShowTextInput] = useState(false);
@@ -32,50 +47,290 @@ const CreatePostScreen = () => {
   // State for submission
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Gallery images for demo (in real app, these would come from device gallery)
-  const galleryImages = [
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
-  ];
+  // State for camera management
+  const [availableCameras, setAvailableCameras] = useState([]);
+  const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
+  const [cameraError, setCameraError] = useState(null);
+
+  // Empty gallery array - removed placeholders
+  const galleryImages = [];
+
+  // Start camera automatically on component mount and clean up on unmount
+  useEffect(() => {
+    openCamera();
+    return () => stopCamera();
+  }, []);
+
+  const stopCamera = () => {
+    if (streamRef) {
+      streamRef.getTracks().forEach(track => track.stop());
+      setStreamRef(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsStreaming(false);
+    setIsLoading(false);
+  };
 
   // Initialize camera view
-  const openCamera = () => {
-    setShowCamera(true);
-    setShowGallery(false);
+  const openCamera = async () => {
+    if (isLoading || isStreaming) return; // prevent duplicate in-flight
+    try {
+      setCameraError("");
+      setIsLoading(true);
+      setShowCamera(true);
+      setShowTextInput(false);
+      setShowGallery(false);
+      
+      // Stop any existing stream
+      stopCamera();
+
+      // Add a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        console.error("Camera loading timeout. Please try again.");
+        setIsLoading(false);
+      }, 8000); // 8 second timeout
+
+      // Request camera access
+      const constraints = {
+        video: {
+          facingMode: facingMode,
+          width: { min: 640, ideal: 1280, max: 1920 },
+          height: { min: 480, ideal: 720, max: 1080 }
+        }
+      };
+
+  console.log("Requesting camera access...", constraints);
+  const stream = await navigator.mediaDevices.getUserMedia(constraints).catch(err => { throw err; });
+      console.log("Camera stream obtained");
+      
+      setStreamRef(stream);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        console.log("Video srcObject set");
+        
+        // Force video to start immediately
+        videoRef.current.play().catch(err => {
+          console.log("Initial play failed, trying after metadata:", err);
+        });
+        
+        // Simple event handlers
+        videoRef.current.onloadedmetadata = () => {
+          console.log("Video metadata loaded, dimensions:", 
+            videoRef.current.videoWidth, "x", videoRef.current.videoHeight);
+          clearTimeout(timeoutId);
+          
+          videoRef.current.play().then(() => {
+            console.log("Video started playing successfully");
+            setIsStreaming(true);
+            setIsLoading(false);
+          }).catch((err) => {
+            console.error("Play error:", err);
+            // Try to show video anyway
+            setIsStreaming(true);
+            setIsLoading(false);
+          });
+        };
+        
+        videoRef.current.oncanplay = () => {
+          console.log("Video can play");
+          setIsStreaming(true);
+          setIsLoading(false);
+        };
+        
+        videoRef.current.onerror = (err) => {
+          console.error("Video error:", err);
+          clearTimeout(timeoutId);
+          setCameraError("Video playback error");
+          setIsLoading(false);
+        };
+      }
+    } catch (err) {
+      console.error("Camera error:", err);
+      console.error(`Camera access failed: ${err.message}`);
+      setIsLoading(false);
+      setShowCamera(false);
+    }
+  };
+
+  // Switch between front and back camera
+  const switchCamera = async () => {
+    const newFacingMode = facingMode === "environment" ? "user" : "environment";
+    setFacingMode(newFacingMode);
+    setIsLoading(true);
+    setIsStreaming(false);
+    
+    try {
+      console.log("Switching camera to:", newFacingMode);
+      
+      // Stop current stream
+      if (streamRef) {
+        streamRef.getTracks().forEach(track => track.stop());
+        setStreamRef(null);
+      }
+      
+      // Small delay to ensure camera is released
+      setTimeout(async () => {
+        try {
+          const constraints = {
+            video: {
+              facingMode: newFacingMode,
+              width: { min: 640, ideal: 1280, max: 1920 },
+              height: { min: 480, ideal: 720, max: 1080 }
+            }
+          };
+
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          setStreamRef(stream);
+
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            console.log("New camera srcObject set");
+            
+            // Force video to start immediately
+            videoRef.current.play().catch(err => {
+              console.log("New camera initial play failed:", err);
+            });
+            
+            videoRef.current.onloadedmetadata = () => {
+              console.log("New camera metadata loaded");
+              videoRef.current.play().then(() => {
+                console.log("New camera started playing");
+                setIsStreaming(true);
+                setIsLoading(false);
+              }).catch((err) => {
+                console.error("New camera play error:", err);
+                // Try to show video anyway
+                setIsStreaming(true);
+                setIsLoading(false);
+              });
+            };
+            
+            videoRef.current.oncanplay = () => {
+              console.log("New camera can play");
+              setIsStreaming(true);
+              setIsLoading(false);
+            };
+          }
+        } catch (err) {
+          console.error("Switch camera error:", err);
+          console.error(`Failed to switch camera: ${err.message}`);
+          setIsLoading(false);
+        }
+      }, 500);
+      
+    } catch (err) {
+      console.error("Switch error:", err);
+      console.error("Camera switch failed");
+      setIsLoading(false);
+    }
   };
 
   // Open gallery view
   const openGallery = () => {
+    stopCamera();
     setShowGallery(true);
     setShowCamera(false);
   };
 
-  // Capture photo from webcam
-  const capturePhoto = useCallback(() => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setCapturedImage(imageSrc);
-      setShowCamera(false);
-      setShowTextInput(true);
+  // Capture photo from camera
+  const capturePhoto = () => {
+    if (!videoRef.current || !isStreaming) {
+      setCameraError("Camera not ready");
+      return;
     }
-  }, [webcamRef]);
 
-  // Handle file upload from input
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setSelectedImage(e.target.result);
-        setShowGallery(false);
+    try {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      
+      // Set canvas dimensions to match video
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      if (canvas.width === 0 || canvas.height === 0) {
+        console.error("Video not ready, please wait");
+        return;
+      }
+
+      const ctx = canvas.getContext('2d');
+      
+      // Draw video frame to canvas
+      if (facingMode === 'user') {
+        // Flip horizontally for front camera
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      } else {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+
+      // Convert to data URL
+      const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      
+      if (imageDataUrl && imageDataUrl.length > 1000) {
+        setCapturedImage(imageDataUrl);
+        setShowCamera(false);
+        stopCamera();
         setShowTextInput(true);
-      };
-      reader.readAsDataURL(file);
+      } else {
+        console.error("Failed to capture image");
+      }
+    } catch (err) {
+      console.error("Capture error:", err);
+      console.error("Failed to capture photo");
     }
+  };
+
+  // Close camera
+  const closeCamera = () => {
+    stopCamera();
+    setShowCamera(false);
+  };
+
+  // (Optional) downscale large images to reduce memory usage
+  const downscaleImage = (dataUrl, maxDim = 1600, quality = 0.85) => new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+      const scale = Math.min(1, maxDim / Math.max(width, height));
+      if (scale < 1) {
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+
+  // Handle file upload from device (acts as gallery selection)
+  const handleFileUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      let data = e.target.result;
+      // Downscale if very large (heuristic: > 2MB base64 length ~ 1.5MB binary)
+      if (typeof data === 'string' && data.length > 2_000_000) {
+        try { data = await downscaleImage(data); } catch(_) { /* ignore */ }
+      }
+      setCapturedImage(null); // ensure we treat this as selectedImage
+      setSelectedImage(data);
+      // Move directly to next step
+      stopCamera();
+      setShowCamera(false);
+      setShowGallery(false);
+      setShowTextInput(true);
+      // reset input value so same file can be chosen again if needed
+      event.target.value = '';
+    };
+    reader.readAsDataURL(file);
   };
 
   // Handle gallery image selection (demo)
@@ -242,105 +497,11 @@ const CreatePostScreen = () => {
     setShowCamera(false);
     setShowGallery(false);
     setShowTextInput(false);
+    stopCamera();
+    setFacingMode("environment");
   };
 
-  // Initial Camera/Gallery Selection Screen
-  if (!showCamera && !showGallery && !showTextInput) {
-    return (
-      <div className="min-h-screen bg-black flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 text-white">
-          <button
-            onClick={() => navigate("/home")}
-            className="p-2 rounded-full hover:bg-gray-800"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className="text-lg font-semibold">Create Report</h1>
-          <div className="w-10"></div>
-        </div>
-
-        {/* Gallery Strip at Top */}
-        <div className="px-4 mb-4">
-          <div className="flex space-x-2 overflow-x-auto">
-            {galleryImages.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => selectGalleryImage(image)}
-                className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border border-gray-600"
-              >
-                <img
-                  src={image}
-                  alt={`Gallery ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-            <button
-              onClick={openGallery}
-              className="flex-shrink-0 w-12 h-12 rounded-lg border border-gray-600 flex items-center justify-center"
-            >
-              <Image size={20} className="text-white" />
-            </button>
-          </div>
-        </div>
-
-        {/* Camera Preview Area */}
-        <div className="flex-1 relative">
-          <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-            <div className="text-center text-white">
-              <Camera size={48} className="mx-auto mb-4 opacity-50" />
-              <p className="text-lg">Tap to take a photo</p>
-              <p className="text-sm opacity-75 mt-1">
-                or select from gallery above
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={openCamera}
-            className="absolute inset-0 w-full h-full"
-          />
-        </div>
-
-        {/* Bottom Controls */}
-        <div className="p-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={openGallery}
-              className="p-4 rounded-full bg-gray-800 text-white"
-            >
-              <Image size={24} />
-            </button>
-
-            <button
-              onClick={openCamera}
-              className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg"
-            >
-              <div className="w-16 h-16 rounded-full bg-white border-4 border-gray-300"></div>
-            </button>
-
-            <button
-              onClick={() => setShowTextInput(true)}
-              className="p-4 rounded-full bg-gray-800 text-white"
-            >
-              <Send size={24} />
-            </button>
-          </div>
-
-          <div className="text-center mt-4">
-            <button
-              onClick={() => setShowTextInput(true)}
-              className="text-white text-sm underline"
-            >
-              Skip and add text only
-            </button>
-          </div>
-        </div>
-
-        <BottomNavigation />
-      </div>
-    );
-  }
+  // Removed initial loading screen; camera view will render immediately
 
   // Camera View
   if (showCamera) {
@@ -348,38 +509,114 @@ const CreatePostScreen = () => {
       <div className="fixed inset-0 bg-black z-50">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 text-white">
+          <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-center text-white">
             <button
-              onClick={() => setShowCamera(false)}
-              className="p-2 rounded-full hover:bg-gray-800"
+              onClick={() => {
+                stopCamera();
+                navigate(-1);
+              }}
+              className="bg-black bg-opacity-50 p-2 rounded-full"
+              aria-label="Close"
             >
               <X size={24} />
             </button>
             <h1 className="text-lg font-semibold">Take Photo</h1>
-            <div className="w-10"></div>
+            <button
+              onClick={switchCamera}
+              disabled={isLoading}
+              className="bg-black bg-opacity-50 p-2 rounded-full disabled:opacity-50"
+            >
+              <RefreshCw size={24} className={isLoading ? 'animate-spin' : ''} />
+            </button>
+            {/* Optional quick text-only report button (small) */}
           </div>
 
-          {/* Camera */}
-          <div className="flex-1 relative">
-            <Webcam
-              ref={webcamRef}
-              audio={false}
-              screenshotFormat="image/jpeg"
+          {/* No error display in UI as requested */}
+
+          {/* Video Stream or Loading */}
+          <div className="h-full relative">
+            {/* Always show video element */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
               className="w-full h-full object-cover"
+              style={{
+                transform: facingMode === 'user' ? 'scaleX(-1)' : 'none'
+              }}
             />
+            
+            {/* Loading overlay */}
+            {!isStreaming && (
+              <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+                  <p className="text-lg">{isLoading ? "Loading camera..." : "Camera starting..."}</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Facing: {facingMode} | Streaming: {isStreaming ? 'Yes' : 'No'}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Bottom Controls */}
-          <div className="p-6">
-            <div className="flex items-center justify-center">
-              <button
-                onClick={capturePhoto}
-                className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg"
-              >
-                <div className="w-16 h-16 rounded-full bg-white border-4 border-gray-300"></div>
-              </button>
+          {/* Controls */}
+          {isStreaming && (
+            <div className="absolute bottom-6 left-0 right-0 z-20 select-none">
+              <div className="flex items-center justify-between px-8">
+                {/* Upload / Gallery Button (typical camera style) */}
+                <label
+                  className="w-14 h-14 rounded-lg overflow-hidden bg-gray-800 bg-opacity-60 flex items-center justify-center cursor-pointer border border-gray-600 active:scale-95 transition"
+                  title="Upload from device"
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  {selectedImage || capturedImage ? (
+                    <img
+                      src={selectedImage || capturedImage}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Download size={24} className="text-white opacity-80" />
+                  )}
+                </label>
+
+                {/* Capture Button */}
+                <button
+                  onClick={capturePhoto}
+                  disabled={isLoading || !isStreaming}
+                  className="relative w-24 h-24 rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95 transition"
+                  aria-label="Capture photo"
+                >
+                  <span className="absolute inset-0 rounded-full bg-white/80 backdrop-blur-sm" />
+                  <span className="w-16 h-16 bg-white rounded-full border-4 border-gray-300" />
+                </button>
+
+                {/* Switch Camera */}
+                <button
+                  onClick={switchCamera}
+                  disabled={isLoading}
+                  className="w-14 h-14 rounded-full bg-gray-800 bg-opacity-60 flex items-center justify-center hover:bg-opacity-80 disabled:opacity-50 active:scale-95 transition"
+                  aria-label="Switch camera"
+                >
+                  <RefreshCw size={26} className={isLoading ? 'animate-spin' : 'text-white'} />
+                </button>
+              </div>
+
+              {/* Camera Mode Indicator */}
+              <div className="mt-3 text-center">
+                <span className="inline-block bg-black bg-opacity-60 px-3 py-1 rounded-full text-xs tracking-wide text-white/90">
+                  {facingMode === 'environment' ? 'Rear Camera' : 'Front Camera'}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     );
@@ -427,6 +664,7 @@ const CreatePostScreen = () => {
           <input
             type="file"
             accept="image/*"
+            capture="environment"
             onChange={handleFileUpload}
             className="hidden"
             id="file-upload"
@@ -455,7 +693,11 @@ const CreatePostScreen = () => {
             <button
               onClick={() => {
                 if (capturedImage || selectedImage) {
+                  // Go back to camera view
                   setShowTextInput(false);
+                  setShowCamera(true);
+                  // Start camera again
+                  openCamera();
                 } else {
                   resetForm();
                 }
@@ -489,6 +731,8 @@ const CreatePostScreen = () => {
                   setCapturedImage(null);
                   setSelectedImage(null);
                   setShowTextInput(false);
+                  setShowCamera(true);
+                  openCamera();
                 }}
                 className="absolute top-2 right-2 p-1 bg-black bg-opacity-50 text-white rounded-full"
               >
