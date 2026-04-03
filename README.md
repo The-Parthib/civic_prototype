@@ -2,7 +2,7 @@
 
 A digital platform designed to enhance civic engagement and streamline citizen-government interactions through modern web technologies.
 
-## 🎯 Project Overview
+##  Project Overview
   
 This civic prototype aims to bridge the gap between citizens and government services by providing:
 
@@ -12,7 +12,7 @@ This civic prototype aims to bridge the gap between citizens and government serv
 - **Community Engagement**: Platform for public discussions and feedback
 - **Transparency Dashboard**: Real-time updates on government initiatives and budgets
 
-## 🚀 Key Features
+##  Key Features
 
 - **User Authentication**: Secure login system for citizens and officials
 - **Interactive Dashboard**: Personalized experience based on user role
@@ -21,7 +21,7 @@ This civic prototype aims to bridge the gap between citizens and government serv
 - **Multi-language Support**: Accessible in local languages
 - **Mobile Responsive**: Optimized for all devices
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Frontend**: React + Vite
 - **Styling**: Tailwind CSS / Material-UI
@@ -30,7 +30,7 @@ This civic prototype aims to bridge the gap between citizens and government serv
 - **Authentication**: JWT / OAuth
 - **Real-time Updates**: WebSocket / Server-Sent Events
 
-## 📦 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v16 or higher)
@@ -59,7 +59,7 @@ npm run dev
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```
 civic/
@@ -67,14 +67,14 @@ civic/
 └── README.md         # This file
 ```
 
-## 🎨 Design Philosophy
+##  Design Philosophy
 
 - **User-Centric**: Designed with citizens' needs at the forefront
 - **Accessible**: WCAG 2.1 compliant for inclusive design
 - **Scalable**: Built to handle growing user base and features
 - **Secure**: Implements best practices for data protection
 
-## 🤝 Contributing
+##  Contributing
 
 This project was developed as part of Smart India Hackathon. Contributions and suggestions are welcome!
 
